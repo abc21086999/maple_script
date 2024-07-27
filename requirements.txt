@@ -1,0 +1,6 @@
+pydirectinput
+PyAutoGUI
+opencv-python
+pillow
+PyScreeze
+numpy
