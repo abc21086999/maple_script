@@ -25,6 +25,7 @@ def main():
         "monsoon": {"bool": False, "key": "b"},
         "spider": {"bool": False, "key": "f"},
         "sun": {"bool": False, "key": "f5"},
+        "shield": {"bool": False, "key": "6"}
     }
 
     while True:
@@ -83,6 +84,13 @@ def main():
                 skill_ready["sun"]["bool"] = True
         except pyautogui.ImageNotFoundException:
             skill_ready["sun"]["bool"] = False
+
+        # 判斷西爾芙之壁
+        try:
+            if pyautogui.locateOnScreen("photos/gale_barrier.png", confidence=0.96):
+                skill_ready["shield"]["bool"] = True
+        except pyautogui.ImageNotFoundException:
+            skill_ready["shield"]["bool"] = False
 
         # 根據各個技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
         for key, sub_dict in skill_ready.items():
