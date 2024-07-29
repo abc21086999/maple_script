@@ -25,7 +25,10 @@ def main():
         "monsoon": {"bool": False, "key": "b"},
         "spider": {"bool": False, "key": "f"},
         "sun": {"bool": False, "key": "f5"},
-        "shield": {"bool": False, "key": "6"}
+        "shield": {"bool": False, "key": "6"},
+        "mu_gong": {"bool": False, "key": "f2"},
+        "vicious": {"bool": False, "key": "f3"},
+        "big_arrow": {"bool": False, "key": "f4"},
     }
 
     while True:
@@ -91,6 +94,27 @@ def main():
                 skill_ready["shield"]["bool"] = True
         except pyautogui.ImageNotFoundException:
             skill_ready["shield"]["bool"] = False
+
+        # 判斷武公
+        try:
+            if pyautogui.locateOnScreen("photos/mu_gong.png", confidence=0.96):
+                skill_ready["mu_gong"]["bool"] = True
+        except pyautogui.ImageNotFoundException:
+            skill_ready["mu_gong"]["bool"] = False
+
+        # 判斷爆擊強化
+        try:
+            if pyautogui.locateOnScreen("photos/vicious_shot.png", confidence=0.96):
+                skill_ready["vicious"]["bool"] = True
+        except pyautogui.ImageNotFoundException:
+            skill_ready["vicious"]["bool"] = False
+
+        # 判斷暴風加護
+        try:
+            if pyautogui.locateOnScreen("photos/storm_whim.png", confidence=0.96):
+                skill_ready["big_arrow"]["bool"] = True
+        except pyautogui.ImageNotFoundException:
+            skill_ready["big_arrow"]["bool"] = False
 
         # 根據各個技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
         for key, sub_dict in skill_ready.items():
