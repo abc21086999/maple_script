@@ -43,14 +43,11 @@ def main():
     }
 
     while True:
-        # 判斷各個技能準備好了沒
+        # 判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
         for skill_info in skill_ready.values():
             skill_info["bool"] = is_ready(skill_info.get("photo_path"))
-
-        # 根據各個技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
-        for key, sub_dict in skill_ready.items():
-            if sub_dict.get("bool"):
-                queue.append(sub_dict.get("key"))
+            if skill_info.get("bool"):
+                queue.append(skill_info.get("key"))
 
         # 一個一個將queue當中的東西取出並且按下去
         for i in range(len(queue)):
