@@ -1,12 +1,9 @@
-import directkeys
-import random
-
-key_list = {"shift", "d", "pagedown", "end"}
-def attack():
-    key_press = random.choice(key_list)
-    print(key_press)
+import pyautogui
 
 
-if __name__ == "__main__":
-    for i in range(10):
-        attack()
+def is_ready(skill: str, ):
+    try:
+        if pyautogui.locateOnScreen(skill, confidence=0.96):
+            return True
+    except pyautogui.ImageNotFoundException:
+        return False
