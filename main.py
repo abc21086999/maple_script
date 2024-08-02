@@ -3,6 +3,7 @@ import pydirectinput
 import pyautogui
 from functions import is_ready
 from collections import deque
+import random
 
 
 # 切換到楓之谷的程式
@@ -13,6 +14,7 @@ time.sleep(1)
 
 # 根據有沒有找到來決定要放哪個技能
 def main():
+    wait_time = [0.5, 1, 2]
     queue = deque()
     # 創建一個嵌套字典，用於儲存各個技能有沒有準備好了
     skill_ready = {
@@ -52,7 +54,7 @@ def main():
         # 一個一個將queue當中的東西取出並且按下去
         for i in range(len(queue)):
             pydirectinput.press(queue.popleft())
-            time.sleep(2)
+            time.sleep(random.choice(wait_time))
 
 
 if __name__ == "__main__":
