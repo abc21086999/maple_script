@@ -1,15 +1,11 @@
-import time
 import pydirectinput
-import pyautogui
-from functions import is_ready
+from functions import *
 from collections import deque
 import random
 
 
 # 切換到楓之谷的程式
-pyautogui.moveTo(pyautogui.locateOnScreen("photos/maple.png", confidence=0.8))
-pyautogui.click()
-time.sleep(1)
+switch_to_maple()
 
 
 # 根據有沒有找到來決定要放哪個技能
