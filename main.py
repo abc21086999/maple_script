@@ -10,7 +10,7 @@ switch_to_maple()
 
 # 根據有沒有找到來決定要放哪個技能
 def main():
-    wait_time = [0.5, 1, 2]
+    wait_time = [0.5, 1, 1.5, 1.7, 5]
     queue = deque()
     # 創建一個嵌套字典，用於儲存各個技能有沒有準備好了
     skill_ready = {
