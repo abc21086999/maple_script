@@ -25,7 +25,7 @@ def switch_to_maple():
 
 
 def jump_to_right():
-    if random.random() < 0.05:
+    if random.random() < 0.1:
         pydirectinput.press(["alt", "alt"], interval=0.6)
         pydirectinput.press("left")
         return True
@@ -33,7 +33,7 @@ def jump_to_right():
 
 
 def jump_to_left():
-    if random.random() < 0.05:
+    if random.random() < 0.1:
         pydirectinput.press(["alt", "alt"], interval=0.6)
         pydirectinput.press("right")
         return False
