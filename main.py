@@ -1,4 +1,3 @@
-import pydirectinput
 from functions import *
 from collections import deque
 import random
@@ -10,6 +9,7 @@ switch_to_maple()
 
 # 根據有沒有找到來決定要放哪個技能
 def main():
+    character_position = False
     wait_time = [0.5, 1, 1.5, 1.7, 5]
     queue = deque()
     # 創建一個嵌套字典，用於儲存各個技能有沒有準備好了
@@ -51,6 +51,13 @@ def main():
         for i in range(len(queue)):
             pydirectinput.press(queue.popleft())
             time.sleep(random.choice(wait_time))
+
+        # 一個隨機移動的功能
+        if not character_position:
+            character_position = jump_to_right()
+
+        elif character_position:
+            character_position = jump_to_left()
 
 
 if __name__ == "__main__":

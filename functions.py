@@ -1,5 +1,7 @@
 import pyautogui
 import time
+import pydirectinput
+import random
 
 
 def is_ready(skill: str):
@@ -21,3 +23,18 @@ def switch_to_maple():
             print("沒有看到楓之谷的程式")
             time.sleep(5)
 
+
+def jump_to_right():
+    if random.random() < 0.05:
+        pydirectinput.press(["alt", "alt"], interval=0.6)
+        pydirectinput.press("left")
+        return True
+    return False
+
+
+def jump_to_left():
+    if random.random() < 0.05:
+        pydirectinput.press(["alt", "alt"], interval=0.6)
+        pydirectinput.press("right")
+        return False
+    return True
