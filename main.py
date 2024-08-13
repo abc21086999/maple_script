@@ -52,13 +52,12 @@ def main():
             time.sleep(random.choice(wait_time))
 
         # 偵測是不是在桃源境的功能
-        if is_ready("photos/shangri_la.png"):
             # 一個隨機移動的功能
-            if not character_position:
-                character_position = jump_to_right()
-
-            elif character_position:
-                character_position = jump_to_left()
+        # if not character_position:
+        #     character_position = jump_to_right()
+        #
+        # elif character_position:
+        #     character_position = jump_to_left()
 
 
 if __name__ == "__main__":
