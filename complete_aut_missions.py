@@ -12,17 +12,15 @@ switch_to_maple()
 # 根據有沒有找到來決定要放哪個技能
 def main():
     while True:
-        pyautogui.moveTo(pyautogui.locateOnScreen("photos/name.png"))
-        pyautogui.moveTo(pyautogui.locateOnScreen("photos/light_bulb.png", confidence=0.9))
-        pyautogui.click()
+        move_mouse("photos/name.png")
+        move_mouse_and_click("photos/light_bulb.png")
         if is_ready("photos/complete.png"):
             for i in range(3):
                 if is_ready("photos/next.png"):
                     pydirectinput.press("y")
             for i in range(3):
                 if is_ready("photos/yes.png"):
-                    pyautogui.moveTo(pyautogui.locateOnScreen("photos/yes.png", confidence=0.9))
-                    pyautogui.click()
+                    move_mouse_and_click("photos/yes.png")
         else:
             break
 #    點黃色燈泡
