@@ -25,20 +25,14 @@ def switch_to_maple():
 
 
 def move_to_right():
-    if random.random() < 0.15:
-        pydirectinput.press(keys=["space"])
-        time.sleep(0.5)
-        pydirectinput.press(keys=["space"])
-        pydirectinput.press("left")
+    if random.random() < 0.25:
+        pydirectinput.press("up")
         return True
     return False
 
 
 def move_to_left():
     if random.random() < 0.25:
-        pydirectinput.press(keys=["space"])
-        time.sleep(0.5)
-        pydirectinput.press(keys=["space"])
-        pydirectinput.press("right")
+        pydirectinput.press("up")
         return False
     return True

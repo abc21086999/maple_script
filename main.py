@@ -56,6 +56,7 @@ def main():
             # 一個隨機移動的功能
             if not character_position:
                 character_position = move_to_right()
+                continue
 
             elif character_position:
                 character_position = move_to_left()
