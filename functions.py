@@ -36,3 +36,15 @@ def move_to_left():
         pydirectinput.press("up")
         return False
     return True
+
+
+def move_mouse_and_click(image: str, confidence: float = 0.9):
+    pyautogui.moveTo(pyautogui.locateOnScreen(image, confidence=confidence))
+    time.sleep(0.1)
+    pyautogui.click()
+    time.sleep(0.1)
+
+
+def move_mouse(image: str, confidence: float = 0.9):
+    pyautogui.moveTo(pyautogui.locateOnScreen(image, confidence=confidence))
+    time.sleep(0.1)
