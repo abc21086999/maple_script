@@ -25,10 +25,10 @@ def monster_main():
                 time.sleep(0.3)
                 pydirectinput.press("enter")
                 # 重新開始探險
-                move_mouse_and_click("photos/monster_collention_title.png")
+                move_mouse_and_click("photos/monster_collection_title.png")
                 move_mouse_and_click("photos/start_adventure.png")
                 move_mouse_and_click("photos/confirm.png")
-                move_mouse_and_click("photos/monster_collention_title.png")
+                move_mouse_and_click("photos/monster_collection_title.png")
         else:
             # 完成後關閉視窗
             pydirectinput.press("esc")
