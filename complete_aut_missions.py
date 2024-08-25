@@ -19,14 +19,14 @@ def aut_main():
             for i in range(3):
                 if is_ready("photos/next.png"):
                     pydirectinput.press("y")
-                    # 移動到角色ID作為緩衝
-                    move_mouse("photos/name.png")
             # 最多按三次『是』
             for i in range(4):
                 if is_ready("photos/yes.png"):
-                    move_mouse_and_click("photos/yes.png")
-                    # 移動到角色ID作為緩衝
-                    move_mouse("photos/name.png")
+                    pydirectinput.press("right")
+                    time.sleep(0.1)
+                    pydirectinput.press("y")
+                    time.sleep(0.1)
+                    pydirectinput.press("enter")
             pydirectinput.press("y")
             time.sleep(0.1)
         # 沒有已經完成的任務，跳出迴圈
