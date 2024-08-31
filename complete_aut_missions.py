@@ -31,6 +31,7 @@ def aut_main():
             time.sleep(0.1)
         # 沒有已經完成的任務，跳出迴圈
         else:
+            pydirectinput.press("esc")
             break
 
 

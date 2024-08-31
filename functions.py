@@ -24,18 +24,9 @@ def switch_to_maple():
             time.sleep(5)
 
 
-def move_to_right():
+def move_by_pressing_up():
     if random.random() < 0.25:
         pydirectinput.press("up")
-        return True
-    return False
-
-
-def move_to_left():
-    if random.random() < 0.25:
-        pydirectinput.press("up")
-        return False
-    return True
 
 
 def move_mouse_and_click(image: str, confidence: float = 0.9):
