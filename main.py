@@ -6,10 +6,9 @@ import random
 # 切換到楓之谷的程式
 switch_to_maple()
 
-
 # 根據有沒有找到來決定要放哪個技能
 def main():
-    wait_time = [0.5, 1, 1.5, 1.7, 5]
+    character = False
     queue = deque()
     # 創建一個嵌套字典，用於儲存各個技能有沒有準備好了
     skill_ready = {
@@ -48,13 +47,21 @@ def main():
         # 一個一個將queue當中的東西取出並且按下去
         for i in range(len(queue)):
             pydirectinput.press(queue.popleft())
+            # 讓按技能的間隔時間可以隨機
             time.sleep(random.uniform(0.1, 5.0))
 
-        # 偵測是不是在阿爾特利雅的功能
-        if is_ready("photos/arteria.png"):
-            # 一個隨機移動的功能
-            move_by_pressing_up()
+        # 一個隨機按下上，來利用傳點移動的功能
+        move_by_pressing_up()
 
+        # 一個用繩索和下跳來隨機移動的功能
+        # if not character and random.random() < 0.25:
+        #     move_up_by_grappling()
+        #     character = True
+        # elif character and random.random() < 0.25:
+        #     move_down_by_down_and_jump()
+        #     character = False
+
+        # 如果蒐藏到怪物那就停下來
         if is_ready("photos/monster_collected.png"):
             print("已收藏到怪物")
             break
