@@ -26,7 +26,7 @@ def switch_to_maple():
 
 
 def move_by_pressing_up():
-    if random.random() < 0.25:
+    if random.random() < 0.2:
         pydirectinput.press("up")
 
 
