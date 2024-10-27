@@ -51,10 +51,11 @@ def main():
             time.sleep(random.uniform(0.1, 5.0))
 
         # 一個隨機按下上，來利用傳點移動的功能
-        move_by_pressing_up()
+        if not character:
+            move_by_pressing_up()
 
         # 一個用繩索和下跳來隨機移動的功能
-        # if not character and random.random() < 0.25:
+        # if not character and random.random() < 0.1 and is_ready("photos/grappling.png"):
         #     move_up_by_grappling()
         #     character = True
         # elif character and random.random() < 0.25:
