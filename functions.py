@@ -56,3 +56,11 @@ def move_mouse(image: str, confidence: float = 0.9):
         time.sleep(0.1)
     except ImageNotFoundException:
         print(f'找不到{image}')
+
+def move_up_by_up_and_jump():
+    pydirectinput.keyDown("alt")
+    pydirectinput.keyDown("up")
+    pydirectinput.keyUp("alt")
+    pydirectinput.keyDown("alt")
+    pydirectinput.keyUp("alt")
+    pydirectinput.keyUp("up")
