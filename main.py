@@ -44,6 +44,8 @@ def main():
             if is_ready(skill_info.get("photo_path")):
                 queue.append(skill_info.get("key"))
 
+        random.shuffle(queue)
+
         # 一個一個將queue當中的東西取出並且按下去
         for i in range(len(queue)):
             pydirectinput.press(queue.popleft())
