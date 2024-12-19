@@ -44,6 +44,7 @@ def main():
             if is_ready(skill_info.get("photo_path")):
                 queue.append(skill_info.get("key"))
 
+        # 用shuffle以增加隨機性
         random.shuffle(queue)
 
         # 一個一個將queue當中的東西取出並且按下去
