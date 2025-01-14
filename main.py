@@ -1,6 +1,4 @@
 from functions import *
-from collections import deque
-
 
 
 def main():
