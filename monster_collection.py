@@ -1,8 +1,5 @@
 from functions import *
-from collections import deque
-import random
 import pydirectinput
-import pyautogui
 
 
 # 切換到楓之谷的程式
