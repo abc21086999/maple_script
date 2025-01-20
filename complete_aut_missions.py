@@ -1,5 +1,4 @@
 from functions import *
-import pydirectinput
 
 
 # 自動完成AUT的任務

@@ -111,6 +111,8 @@ def move_mouse_and_click(image: str, confidence: float = 0.9):
 
 
 def move_mouse(image: str, confidence: float = 0.9):
+    if confidence > 1 or confidence < 0:
+        return None
     try:
         pyautogui.moveTo(pyautogui.locateOnScreen(image, confidence=confidence))
         time.sleep(0.1)
