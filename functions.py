@@ -68,7 +68,7 @@ def skill_ready() -> deque:
     return queue
 
 
-def press_ready_skill(queue: deque, min_sec=0.1, max_sec=3.0):
+def press_ready_skill(queue: deque, min_sec : float | int = 0.1, max_sec : float | int = 3.0):
     # 一個一個將queue當中的東西取出並且按下去
     for i in range(len(queue)):
         pydirectinput.press(queue.popleft())
@@ -124,6 +124,28 @@ def move_up_by_up_and_jump():
     pydirectinput.keyDown("alt")
     pydirectinput.keyUp("alt")
     pydirectinput.keyUp("up")
+
+def decide_set():
+    move_mouse_and_click('photos/character_icon.png')
+    move_mouse_and_click('photos/character_setting.png')
+    # 練功沒亮著代表裝備沒有切換到練功用的設定
+    if is_ready('photos/daily_set.png'):
+        move_mouse_and_click('photos/daily_set.png')
+        move_mouse_and_click('photos/daily_apply.png')
+        move_mouse_and_click('photos/confirm.png', confidence=0.7)
+        print("預設套組已經準備好練功")
+    # 練功亮著代表可能是在練功的設定，但也有可能是裝備切換到了但是其他東西還沒切換
+    else:
+        move_mouse_and_click('photos/daily_apply.png')
+        # 有某個東西沒有切換到，才會跳出需要按下確認按鈕
+        if is_ready('photos/confirm.png'):
+            move_mouse_and_click('photos/confirm.png', confidence=0.7)
+        else:
+            print("預設套組已經準備好練功")
+    pydirectinput.press("esc")
+
+
+
 
 # 一個用繩索和下跳來隨機移動的功能
 # if not character and random.random() < 0.1 and is_ready("photos/grappling.png"):
