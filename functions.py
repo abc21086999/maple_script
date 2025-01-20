@@ -144,7 +144,15 @@ def decide_set():
             print("預設套組已經準備好練功")
     pydirectinput.press("esc")
 
-
+def battle_union_coin():
+    move_mouse_and_click('photos/hamburger_menu.png')
+    time.sleep(0.3)
+    move_mouse_and_click('photos/battle_union.png')
+    time.sleep(0.3)
+    move_mouse('photos/artifact.png')
+    move_mouse_and_click('photos/get_coin.png')
+    for i in range(2):
+        pydirectinput.press("esc")
 
 
 # 一個用繩索和下跳來隨機移動的功能
