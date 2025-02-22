@@ -8,6 +8,7 @@ def aut_main():
     move_mouse_and_click('photos/schedule.png')
     move_mouse_and_click('photos/schedule_daily_all_complete.png')
     move_mouse_and_click('photos/schedule_panel_confirm.png')
+    time.sleep(0.3)
 
 
 if __name__ == "__main__":

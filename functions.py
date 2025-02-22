@@ -14,6 +14,12 @@ def is_ready(skill: str):
         return False
 
 
+def press_and_wait(key: str, wait_time : float | int = 0):
+    pydirectinput.press(key)
+    if wait_time:
+        time.sleep(wait_time)
+
+
 def switch_to_maple():
     while True:
         try:
@@ -70,6 +76,8 @@ def skill_ready() -> deque:
 
 def press_ready_skill(queue: deque, min_sec : float | int = 0.1, max_sec : float | int = 3.0):
     # 一個一個將queue當中的東西取出並且按下去
+    if len(queue) == 0:
+        return None
     for i in range(len(queue)):
         pydirectinput.press(queue.popleft())
         # 讓按技能的間隔時間可以隨機
@@ -80,6 +88,8 @@ def move_by_pressing_up(probability: float = 0.2):
     # 一個隨機按下上，來利用傳點移動的功能
     if random.random() < probability:
         pydirectinput.press("up")
+    # if random.random() < probability and is_ready("photos/blink.png"):
+    #     pydirectinput.press("pageup")
 
 
 def monster_collected() -> bool:
@@ -100,24 +110,25 @@ def move_down_by_down_and_jump():
     pydirectinput.keyUp("down")
 
 
-def move_mouse_and_click(image: str, confidence: float = 0.9):
+def move_mouse_and_click(image: str, confidence: float = 0.9, wait_time: float | int = 0):
     try:
         pyautogui.moveTo(pyautogui.locateOnScreen(image, confidence=confidence))
         time.sleep(0.1)
         pyautogui.click()
-        time.sleep(0.1)
+        time.sleep(0.1) if not wait_time else time.sleep(wait_time)
     except ImageNotFoundException:
         print(f'找不到{image}')
 
 
-def move_mouse(image: str, confidence: float = 0.9):
+def move_mouse(image: str, confidence: float = 0.9, wait_time: float | int = 0):
     if confidence > 1 or confidence < 0:
         return None
     try:
         pyautogui.moveTo(pyautogui.locateOnScreen(image, confidence=confidence))
-        time.sleep(0.1)
+        time.sleep(0.1) if not wait_time else time.sleep(wait_time)
     except ImageNotFoundException:
         print(f'找不到{image}')
+
 
 def move_up_by_up_and_jump():
     pydirectinput.keyDown("alt")
@@ -126,6 +137,7 @@ def move_up_by_up_and_jump():
     pydirectinput.keyDown("alt")
     pydirectinput.keyUp("alt")
     pydirectinput.keyUp("up")
+
 
 def decide_set():
     move_mouse_and_click('photos/character_icon.png')
@@ -145,16 +157,55 @@ def decide_set():
         else:
             print("預設套組已經準備好練功")
     pydirectinput.press("esc")
+    pydirectinput.press("=")
+
 
 def battle_union_coin():
     move_mouse_and_click('photos/hamburger_menu.png')
     time.sleep(0.3)
     move_mouse_and_click('photos/battle_union.png')
-    time.sleep(0.3)
+    time.sleep(1)
     move_mouse('photos/artifact.png')
+    time.sleep(1)
     move_mouse_and_click('photos/get_coin.png')
     for i in range(2):
         pydirectinput.press("esc")
+
+
+def go_to_village():
+    """
+    去到技術村
+    :return: None
+    """
+    move_mouse_and_click('photos/fast_travel.png')
+    move_mouse_and_click('photos/village.png')
+    press_and_wait("right", 0.3)
+    press_and_wait("enter", 1)
+
+def disassemble_armor():
+    """
+    自動選擇分解裝備，跟具有沒有裝備放到面板上決定分解好了沒
+    :return: None
+    """
+    press_and_wait("i", 0.5)
+    move_mouse_and_click('photos/disassemble_panel.png', wait_time=0.5)
+    move_mouse_and_click('photos/put_all_armor_on_table.png', wait_time=0.3)
+    move_mouse('photos/name.png', wait_time=0.3)
+    while True:
+        if not is_ready('photos/empty_disassembly_table.png'):
+            print("有裝備可以分解")
+            move_mouse_and_click('photos/disassemble.png', wait_time=0.3)
+            press_and_wait("enter", 5)
+            press_and_wait("enter", 0.5)
+            move_mouse_and_click('photos/put_all_armor_on_table.png', wait_time=0.3)
+            move_mouse('photos/name.png', wait_time=0.2)
+        else:
+            print("沒裝備可以分解")
+            for i in range(2):
+                pydirectinput.press("esc")
+            pydirectinput.press("up")
+            break
+
 
 
 # 一個用繩索和下跳來隨機移動的功能

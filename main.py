@@ -7,7 +7,7 @@ def main():
 
     while True:
         queue = skill_ready()
-        press_ready_skill(queue, min_sec=1.0, max_sec=1.0)
+        press_ready_skill(queue, min_sec=0.1, max_sec=1)
         move_by_pressing_up()
         if monster_collected():
             break
