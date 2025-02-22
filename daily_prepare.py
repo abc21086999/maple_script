@@ -6,5 +6,6 @@ def daily_main():
     decide_set()
     battle_union_coin()
 
+
 if __name__ == "__main__":
     daily_main()
