@@ -156,8 +156,8 @@ def decide_set():
             move_mouse_and_click('photos/confirm.png', confidence=0.7)
         else:
             print("預設套組已經準備好練功")
-    pydirectinput.press("esc")
-    pydirectinput.press("=")
+    press_and_wait("esc", 0.3)
+    press_and_wait("=", 0.5)
 
 
 def battle_union_coin():
@@ -172,6 +172,11 @@ def battle_union_coin():
         pydirectinput.press("esc")
 
 
+def start_daily_missions():
+    move_mouse_and_click('photos/daily_schedule.png', wait_time=0.2)
+    move_mouse_and_click('photos/schedule_daily_all_start.png', wait_time=0.2)
+    press_and_wait("esc", 0.2)
+
 def go_to_village():
     """
     去到技術村
@@ -180,7 +185,7 @@ def go_to_village():
     move_mouse_and_click('photos/fast_travel.png')
     move_mouse_and_click('photos/village.png')
     press_and_wait("right", 0.3)
-    press_and_wait("enter", 1)
+    press_and_wait("enter", 3)
 
 def disassemble_armor():
     """
