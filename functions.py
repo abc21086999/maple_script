@@ -200,7 +200,7 @@ def disassemble_armor():
         if not is_ready('photos/empty_disassembly_table.png'):
             print("有裝備可以分解")
             move_mouse_and_click('photos/disassemble.png', wait_time=0.3)
-            press_and_wait("enter", 5)
+            press_and_wait("enter", 3)
             press_and_wait("enter", 0.5)
             move_mouse_and_click('photos/put_all_armor_on_table.png', wait_time=0.3)
             move_mouse('photos/name.png', wait_time=0.2)
