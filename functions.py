@@ -10,6 +10,7 @@ def is_ready(skill: str):
     try:
         if pyautogui.locateOnScreen(skill, confidence=0.96):
             return True
+        return False
     except ImageNotFoundException:
         return False
 
@@ -127,8 +128,10 @@ def move_mouse(image: str, confidence: float = 0.9, wait_time: float | int = 0):
     try:
         pyautogui.moveTo(pyautogui.locateOnScreen(image, confidence=confidence))
         time.sleep(0.1) if not wait_time else time.sleep(wait_time)
+        return None
     except ImageNotFoundException:
         print(f'找不到{image}')
+        return None
 
 
 def move_up_by_up_and_jump():
