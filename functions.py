@@ -82,6 +82,7 @@ def press_ready_skill(queue: deque, min_sec : float | int = 0.1, max_sec : float
         pydirectinput.press(queue.popleft())
         # 讓按技能的間隔時間可以隨機
         time.sleep(random.uniform(min_sec, max_sec))
+    return None
 
 
 def move_by_pressing_up(probability: float = 0.2):
