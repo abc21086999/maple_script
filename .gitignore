@@ -1,0 +1,19 @@
+# PyCharm and JetBrains IDEs
+.idea/
+
+# Python bytecode and cache
+__pycache__/
+*.pyc
+
+# Virtual Environment (非常重要！)
+venv/
+.venv/
+env/
+
+# Secret files (例如 API Keys)
+.env
+
+# Build artifacts and logs
+dist/
+build/
+*.log
