@@ -62,9 +62,11 @@ def skill_ready() -> deque:
         # 武公
         "mu_gong": {"key": "f2", "photo_path": "photos/mu_gong.png"},
         # 爆擊強化
-        "vicious": {"key": "f3", "photo_path": "photos/vicious_shot.png"},
+        # "vicious": {"key": "f3", "photo_path": "photos/vicious_shot.png"},
         # 暴風加護
-        "big_arrow": {"key": "f4", "photo_path": "photos/storm_whim.png"},
+        # "big_arrow": {"key": "f4", "photo_path": "photos/storm_whim.png"},
+        # 一鍵爆發（超越者西格諾斯的祝福+爆擊強化+暴風加護）
+        "aio": {"key": "f1", "photo_path": "photos/aio.png"},
         # 阿涅摩依
         "Anemoi": {"key": "v", "photo_path": "photos/anemoi.png"}
     }
