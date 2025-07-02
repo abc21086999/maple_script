@@ -65,6 +65,8 @@ def skill_ready() -> deque:
         "vicious": {"key": "f3", "photo_path": "photos/vicious_shot.png"},
         # 暴風加護
         "big_arrow": {"key": "f4", "photo_path": "photos/storm_whim.png"},
+        # 阿涅摩依
+        "Anemoi": {"key": "v", "photo_path": "photos/anemoi.png"}
     }
     # 判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
     for skill_info in skill_dict.values():
