@@ -102,6 +102,7 @@ def press_ready_skill(maple, queue: deque, min_sec : float | int = 0.1, max_sec 
         return None
     while queue:
         if not maple.isActive:
+            queue.popleft()
             continue
         pydirectinput.press(queue.popleft())
         # 讓按技能的間隔時間可以隨機
