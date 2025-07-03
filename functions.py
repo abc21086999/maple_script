@@ -47,6 +47,7 @@ def skill_ready(maple: gw.Win32Window) -> deque:
     """
     根據有沒有找到來決定要放哪個技能
     - 如果楓之谷不在前景，那麼就返回空的序列
+    - 如果楓之谷在前景，那麼就進行辨識
     :return: deque with all the key on the keyboard
     """
     queue = deque()
