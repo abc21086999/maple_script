@@ -4,14 +4,15 @@ import pydirectinput
 import random
 from collections import deque
 from pyautogui import ImageNotFoundException
+import pygetwindow as gw
 
 
-def is_ready(skill: str):
+def is_ready(skill: str, region: tuple) -> bool:
     try:
-        if pyautogui.locateOnScreen(skill, confidence=0.96):
+        if pyautogui.locateOnScreen(skill, region=region, confidence=0.96):
             return True
         return False
-    except ImageNotFoundException:
+    except pyautogui.PyAutoGUIException:
         return False
 
 
@@ -21,24 +22,39 @@ def press_and_wait(key: str, wait_time : float | int = 0):
         time.sleep(wait_time)
 
 
+def get_window_area(window):
+    """這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。"""
+    return window.width * window.height
+
+
 def switch_to_maple():
-    while True:
-        try:
-            pyautogui.moveTo(pyautogui.locateOnScreen("photos/maple.png", confidence=0.8))
-            pyautogui.click()
-            time.sleep(1)
-            break
-        except ImageNotFoundException:
-            print("沒有看到楓之谷的程式")
-            time.sleep(5)
+    """
+    切換到楓之谷的程式
+    :return: 楓之谷程式
+    """
+    maplestory = gw.getWindowsWithTitle("Maplestory")
+    # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
+    if isinstance(maplestory, list):
+        real_maple = max(maplestory, key=get_window_area)
+    else:
+        real_maple = maplestory
+    if not real_maple.isActive:
+        real_maple.activate()
+    return real_maple
 
 
-def skill_ready() -> deque:
+def skill_ready(maple: gw.Win32Window) -> deque:
     """
     根據有沒有找到來決定要放哪個技能
+    - 如果楓之谷不在前景，那麼就返回空的序列
     :return: deque with all the key on the keyboard
     """
     queue = deque()
+    # 如果楓之谷不在前景，那麼就返回空的序列
+    if not maple.isActive:
+        return queue
+    # 楓之谷的視窗位置
+    maple_window_area = (maple.left, maple.top, maple.width, maple.height)
     # 創建一個嵌套字典，用於儲存各個技能有沒有準備好了
     skill_dict = {
         # 漩渦球球
@@ -72,18 +88,20 @@ def skill_ready() -> deque:
     }
     # 判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
     for skill_info in skill_dict.values():
-        if is_ready(skill_info.get("photo_path")):
+        if is_ready(skill_info.get("photo_path"), region=maple_window_area):
             queue.append(skill_info.get("key"))
     # 用shuffle以增加隨機性
     random.shuffle(queue)
     return queue
 
 
-def press_ready_skill(queue: deque, min_sec : float | int = 0.1, max_sec : float | int = 3.0):
+def press_ready_skill(maple, queue: deque, min_sec : float | int = 0.1, max_sec : float | int = 3.0):
     # 一個一個將queue當中的東西取出並且按下去
     if len(queue) == 0:
         return None
-    for i in range(len(queue)):
+    while queue:
+        if not maple.isActive:
+            continue
         pydirectinput.press(queue.popleft())
         # 讓按技能的間隔時間可以隨機
         time.sleep(random.uniform(min_sec, max_sec))
@@ -228,3 +246,14 @@ def disassemble_armor():
 # elif character and random.random() < 0.25:
 #     move_down_by_down_and_jump()
 #     character = False
+
+
+if __name__ == "__main__":
+    pass
+    # maplestory = gw.getWindowsWithTitle("Maplestory")
+    # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室
+    # if isinstance(maplestory, list):
+    #     first_maple_size = maplestory[0].width * maplestory[0].height
+    #     second_maple_size = maplestory[1].width * maplestory[1].height
+    #     real_maple = max(first_maple_size, second_maple_size)
+    #     print(real_maple)
