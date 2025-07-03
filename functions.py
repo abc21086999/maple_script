@@ -22,7 +22,7 @@ def press_and_wait(key: str, wait_time : float | int = 0):
         time.sleep(wait_time)
 
 
-def get_window_area(window):
+def get_window_area(window: gw.Win32Window):
     """這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。"""
     return window.width * window.height
 
