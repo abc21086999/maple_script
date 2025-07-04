@@ -90,14 +90,14 @@ class MapleScript:
     def make_skill_ready(self):
         """
         根據有沒有找到來決定要放哪個技能
-        - 如果楓之谷不在前景，那麼就返回空的序列
+        - 如果楓之谷不在前景，那麼就返回None
         - 如果楓之谷在前景，那麼就進行辨識
         :return: deque with all the key on the keyboard
         """
         # 先將序列清空，避免意外
         self.skills_queue.clear()
 
-        # 如果楓之谷不在前景，那麼就返回空的序列
+        # 如果楓之谷不在前景，那麼就返回None
         if not self.is_maple_focus():
             return None
 
@@ -115,13 +115,21 @@ class MapleScript:
         time.sleep(random.uniform(*self.gap_time))
 
     def press_ready_skills(self):
+        """
+        將技能一個一個按下去
+        如果楓之谷不在前景，那麼就會清空
+        :return:
+        """
+        # 如果queue是空的，就跳過所有步驟
         if not self.skills_queue:
             return None
         while self.skills_queue:
+            # queue有東西但是楓之谷不在前景，那就直接清空之後跳過
             if not self.is_maple_focus():
                 self.skills_queue.clear()
                 break
             else:
+                # 將按鍵一個一個按下
                 key = self.skills_queue.pop()
                 self.press_with_gap_time(key)
         return None
