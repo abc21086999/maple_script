@@ -1,0 +1,147 @@
+import time
+import pydirectinput
+import pygetwindow as gw
+from collections import deque
+import pyautogui
+import random
+
+
+class MapleScript:
+
+    def __init__(self):
+        self.maple = self.get_maple()
+        self.maple_screen = self.get_maple_screen_location()
+        self.skills_queue = deque()
+        self.gap_time = (0.1, 1)
+        self.skills_dict = {
+            # 漩渦球球
+            "ball": {"key": "pagedown", "photo_path": "photos/vortex_sphere.png"},
+            # 艾爾達斯降臨
+            "erdas": {"key": "shift", "photo_path": "photos/erda_shower.png"},
+            # 風轉奇想
+            "wind": {"key": "end", "photo_path": "photos/merciless_wind.png"},
+            # 小雞
+            "chicken": {"key": "'", "photo_path": "photos/phalanx_charge.png"},
+            # 龍捲風
+            "tornado": {"key": "d", "photo_path": "photos/howling_gale.png"},
+            # 季風
+            "monsoon": {"key": "b", "photo_path": "photos/monsoon.png"},
+            # 蜘蛛之鏡
+            "spider": {"key": "f", "photo_path": "photos/true_arachnid_reflection.png"},
+            # 烈陽印記
+            "sun": {"key": "f5", "photo_path": "photos/solar_crest.png"},
+            # 西爾芙之壁
+            "shield": {"key": "6", "photo_path": "photos/gale_barrier.png"},
+            # 武公
+            "mu_gong": {"key": "f2", "photo_path": "photos/mu_gong.png"},
+            # 爆擊強化
+            # "vicious": {"key": "f3", "photo_path": "photos/vicious_shot.png"},
+            # 暴風加護
+            # "big_arrow": {"key": "f4", "photo_path": "photos/storm_whim.png"},
+            # 一鍵爆發（超越者西格諾斯的祝福+爆擊強化+暴風加護）
+            "aio": {"key": "f1", "photo_path": "photos/aio.png"},
+            # 阿涅摩依
+            "Anemoi": {"key": "v", "photo_path": "photos/anemoi.png"}
+        }
+
+    @staticmethod
+    def get_window_area(window: gw.Win32Window):
+        """
+        這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。
+        """
+        return window.width * window.height
+
+    def get_maple(self):
+        """
+        切換到楓之谷的程式
+        :return: 楓之谷程式
+        """
+        maplestory = gw.getWindowsWithTitle("Maplestory")
+        # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
+        if isinstance(maplestory, list):
+            real_maple = max(maplestory, key=self.get_window_area)
+        else:
+            real_maple = maplestory
+        if not real_maple.isActive:
+            real_maple.activate()
+        return real_maple
+
+    def is_maple_focus(self) -> bool:
+        """
+        根據楓之谷在不在前景決定回傳的bool值
+        :return:
+        """
+        return self.maple.isActive
+
+    def get_maple_screen_location(self):
+        """
+        回傳楓之谷視窗在螢幕上的位置
+        :return: tuple
+        """
+        return self.maple.left, self.maple.top, self.maple.width, self.maple.height
+
+    def is_ready(self, skill:str):
+        try:
+            if pyautogui.locateOnScreen(skill, region=self.maple_screen, confidence=0.96):
+                return True
+        except pyautogui.PyAutoGUIException:
+            return False
+
+    def make_skill_ready(self):
+        """
+        根據有沒有找到來決定要放哪個技能
+        - 如果楓之谷不在前景，那麼就返回空的序列
+        - 如果楓之谷在前景，那麼就進行辨識
+        :return: deque with all the key on the keyboard
+        """
+        # 先將序列清空，避免意外
+        self.skills_queue.clear()
+
+        # 如果楓之谷不在前景，那麼就返回空的序列
+        if not self.is_maple_focus():
+            return None
+
+        # 判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
+        for skill_info in self.skills_dict.values():
+            if self.is_ready(skill_info.get("photo_path")):
+                self.skills_queue.append(skill_info.get("key"))
+
+        # 用shuffle以增加隨機性
+        random.shuffle(self.skills_queue)
+        return None
+
+    def press_with_gap_time(self, key: str):
+        pydirectinput.press(key)
+        time.sleep(random.uniform(*self.gap_time))
+
+    def press_ready_skills(self):
+        if not self.skills_queue:
+            return None
+        while self.skills_queue:
+            if not self.is_maple_focus():
+                self.skills_queue.clear()
+                break
+            else:
+                key = self.skills_queue.pop()
+                self.press_with_gap_time(key)
+        return None
+
+    def move_by_pressing_up(self):
+        if self.is_maple_focus() and random.random() < 0.2:
+            pydirectinput.press("up")
+
+    def start(self):
+        while True:
+            if self.is_maple_focus():
+                self.make_skill_ready()
+                self.press_ready_skills()
+                self.move_by_pressing_up()
+                time.sleep(1)
+            else:
+                time.sleep(2)
+                continue
+
+
+if __name__ == "__main__":
+    Maple = MapleScript()
+    Maple.start()
