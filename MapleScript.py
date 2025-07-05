@@ -6,46 +6,48 @@ from collections import deque
 import pyautogui
 import random
 import pyscreeze
+import PIL.Image
 
 
 class MapleScript:
 
-    __slots__ = "maple", "maple_screen", "skills_queue", "gap_time", "skills_dict"
+    __slots__ = "maple", "maple_screen", "maple_skill_area", "skills_queue", "gap_time", "skills_dict"
 
     def __init__(self):
         self.maple = self.get_maple()
         self.maple_screen = self.get_maple_screen_location()
+        self.maple_skill_area = self.get_maple_skill_screen()
         self.skills_queue = deque()
         self.gap_time = (0.1, 1)
         self.skills_dict = {
             # 漩渦球球
-            "ball": {"key": "pagedown", "photo_path": "photos/vortex_sphere.png"},
+            "ball": {"key": "pagedown", "image": PIL.Image.open("photos/vortex_sphere.png")},
             # 艾爾達斯降臨
-            "erdas": {"key": "shift", "photo_path": "photos/erda_shower.png"},
+            "erdas": {"key": "shift", "image": PIL.Image.open("photos/erda_shower.png")},
             # 風轉奇想
-            "wind": {"key": "end", "photo_path": "photos/merciless_wind.png"},
+            "wind": {"key": "end", "image": PIL.Image.open("photos/merciless_wind.png")},
             # 小雞
-            "chicken": {"key": "'", "photo_path": "photos/phalanx_charge.png"},
+            "chicken": {"key": "'", "image": PIL.Image.open("photos/phalanx_charge.png")},
             # 龍捲風
-            "tornado": {"key": "d", "photo_path": "photos/howling_gale.png"},
+            "tornado": {"key": "d", "image": PIL.Image.open("photos/howling_gale.png")},
             # 季風
-            "monsoon": {"key": "b", "photo_path": "photos/monsoon.png"},
+            "monsoon": {"key": "b", "image": PIL.Image.open("photos/monsoon.png")},
             # 蜘蛛之鏡
-            "spider": {"key": "f", "photo_path": "photos/true_arachnid_reflection.png"},
+            "spider": {"key": "f", "image": PIL.Image.open("photos/true_arachnid_reflection.png")},
             # 烈陽印記
-            "sun": {"key": "f5", "photo_path": "photos/solar_crest.png"},
+            "sun": {"key": "f5", "image": PIL.Image.open("photos/solar_crest.png")},
             # 西爾芙之壁
-            "shield": {"key": "6", "photo_path": "photos/gale_barrier.png"},
+            "shield": {"key": "6", "image": PIL.Image.open("photos/gale_barrier.png")},
             # 武公
-            "mu_gong": {"key": "f2", "photo_path": "photos/mu_gong.png"},
+            "mu_gong": {"key": "f2", "image": PIL.Image.open("photos/mu_gong.png")},
             # 爆擊強化
-            # "vicious": {"key": "f3", "photo_path": "photos/vicious_shot.png"},
+            # "vicious": {"key": "f3", "image": PIL.Image.open("photos/vicious_shot.png")},
             # 暴風加護
-            # "big_arrow": {"key": "f4", "photo_path": "photos/storm_whim.png"},
+            # "big_arrow": {"key": "f4", "image": PIL.Image.open("photos/storm_whim.png")},
             # 一鍵爆發（超越者西格諾斯的祝福+爆擊強化+暴風加護）
-            "aio": {"key": "f1", "photo_path": "photos/aio.png"},
+            "aio": {"key": "f1", "image": PIL.Image.open("photos/aio.png")},
             # 阿涅摩依
-            "Anemoi": {"key": "v", "photo_path": "photos/anemoi.png"}
+            "Anemoi": {"key": "v", "image": PIL.Image.open("photos/anemoi.png")}
         }
 
     @staticmethod
@@ -89,11 +91,16 @@ class MapleScript:
         """
         return self.maple.left, self.maple.top, self.maple.width, self.maple.height
 
-    def get_screenshot(self):
-        return pyautogui.screenshot(region=self.maple_screen)
+    def get_maple_skill_screen(self):
+        # 只要看右下角就好
+        left, top, width, height = self.maple_screen
+        return left+ width // 2, top + height // 2, width // 2, height // 2
+
+    def get_skill_area_screenshot(self):
+        return pyautogui.screenshot(region=self.maple_skill_area)
 
     @staticmethod
-    def is_ready(skill:str, img):
+    def is_ready(skill: PIL.Image.Image, img):
         try:
             skill_location = next(pyautogui.locateAll(skill, img, confidence=0.9), None)
             return bool(skill_location)
@@ -115,10 +122,12 @@ class MapleScript:
             return None
 
         # 先截一次圖，判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
-        screenshot = self.get_screenshot()
+        screenshot = self.get_skill_area_screenshot()
         for skill_info in self.skills_dict.values():
-            if self.is_ready(skill_info.get("photo_path"), screenshot):
-                self.skills_queue.append(skill_info.get("key"))
+            skill_image = skill_info.get("image")
+            skill_key = skill_info.get("key")
+            if self.is_ready(skill_image, screenshot):
+                self.skills_queue.append(skill_key)
 
         # 用shuffle以增加隨機性
         random.shuffle(self.skills_queue)
