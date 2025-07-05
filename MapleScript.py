@@ -1,3 +1,4 @@
+import sys
 import time
 import pydirectinput
 import pygetwindow as gw
@@ -57,9 +58,14 @@ class MapleScript:
         :return: 楓之谷程式
         """
         maplestory = gw.getWindowsWithTitle("Maplestory")
+        # 在找不到的情況下，代表楓之谷沒開啟，直接結束腳本
+        if not maplestory:
+            print("找不到楓之谷的程式")
+            sys.exit()
         # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
         if isinstance(maplestory, list):
             real_maple = max(maplestory, key=self.get_window_area)
+        # 如果只有一個那就直接是楓之谷本身
         else:
             real_maple = maplestory
         if not real_maple.isActive:
