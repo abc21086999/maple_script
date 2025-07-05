@@ -102,7 +102,7 @@ class MapleScript:
     @staticmethod
     def is_ready(skill: PIL.Image.Image, img):
         try:
-            skill_location = next(pyautogui.locateAll(skill, img, confidence=0.9), None)
+            skill_location = next(pyautogui.locateAll(skill, img, confidence=0.96), None)
             return bool(skill_location)
         except pyscreeze.ImageNotFoundException:
             return False
