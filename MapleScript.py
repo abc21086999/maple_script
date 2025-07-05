@@ -5,9 +5,12 @@ import pygetwindow as gw
 from collections import deque
 import pyautogui
 import random
+import pyscreeze
 
 
 class MapleScript:
+
+    __slots__ = "maple", "maple_screen", "skills_queue", "gap_time", "skills_dict"
 
     def __init__(self):
         self.maple = self.get_maple()
@@ -86,14 +89,18 @@ class MapleScript:
         """
         return self.maple.left, self.maple.top, self.maple.width, self.maple.height
 
-    def is_ready(self, skill:str):
+    def get_screenshot(self):
+        return pyautogui.screenshot(region=self.maple_screen)
+
+    @staticmethod
+    def is_ready(skill:str, img):
         try:
-            if pyautogui.locateOnScreen(skill, region=self.maple_screen, confidence=0.96):
-                return True
-        except pyautogui.PyAutoGUIException:
+            skill_location = next(pyautogui.locateAll(skill, img, confidence=0.9), None)
+            return bool(skill_location)
+        except pyscreeze.ImageNotFoundException:
             return False
 
-    def make_skill_ready(self):
+    def find_ready_skill(self):
         """
         根據有沒有找到來決定要放哪個技能
         - 如果楓之谷不在前景，那麼就返回None
@@ -107,9 +114,10 @@ class MapleScript:
         if not self.is_maple_focus():
             return None
 
-        # 判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
+        # 先截一次圖，判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
+        screenshot = self.get_screenshot()
         for skill_info in self.skills_dict.values():
-            if self.is_ready(skill_info.get("photo_path")):
+            if self.is_ready(skill_info.get("photo_path"), screenshot):
                 self.skills_queue.append(skill_info.get("key"))
 
         # 用shuffle以增加隨機性
@@ -147,7 +155,7 @@ class MapleScript:
     def start(self):
         while True:
             if self.is_maple_focus():
-                self.make_skill_ready()
+                self.find_ready_skill()
                 self.press_ready_skills()
                 self.move_by_pressing_up()
                 time.sleep(1)
