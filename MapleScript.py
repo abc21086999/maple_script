@@ -68,11 +68,7 @@ class MapleScript:
             print("找不到楓之谷的程式")
             sys.exit()
         # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
-        if isinstance(maplestory, list):
-            real_maple = max(maplestory, key=self.get_window_area)
-        # 如果只有一個那就直接是楓之谷本身
-        else:
-            real_maple = maplestory
+        real_maple = max(maplestory, key=self.get_window_area)
         if not real_maple.isActive:
             real_maple.activate()
         return real_maple
@@ -155,6 +151,7 @@ class MapleScript:
                 # 將按鍵一個一個按下
                 key = self.skills_queue.pop()
                 self.press_with_gap_time(key)
+                self.move_by_pressing_up()
         return None
 
     def move_by_pressing_up(self):
@@ -166,7 +163,6 @@ class MapleScript:
             if self.is_maple_focus():
                 self.find_ready_skill()
                 self.press_ready_skills()
-                self.move_by_pressing_up()
                 time.sleep(1)
             else:
                 time.sleep(2)
