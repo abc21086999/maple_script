@@ -5,3 +5,4 @@ pillow
 PyScreeze
 numpy
 pygetwindow
+pyserial
