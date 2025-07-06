@@ -7,47 +7,95 @@ import pyautogui
 import random
 import pyscreeze
 import PIL.Image
+from XiaoController import XiaoController
 
 
 class MapleScript:
 
-    __slots__ = "maple", "maple_screen", "maple_skill_area", "skills_queue", "gap_time", "skills_dict"
-
-    def __init__(self):
+    def __init__(self, keyboard=None):
         self.maple = self.get_maple()
         self.maple_screen = self.get_maple_screen_location()
         self.maple_skill_area = self.get_maple_skill_screen()
         self.skills_queue = deque()
         self.gap_time = (0.1, 1)
+        self.keyboard = keyboard
         self.skills_dict = {
             # 漩渦球球
-            "ball": {"key": "pagedown", "image": PIL.Image.open("photos/vortex_sphere.png")},
+            "ball": {
+                "key": "pagedown",
+                "image": PIL.Image.open("photos/vortex_sphere.png"),
+                "command": "1"
+            },
             # 艾爾達斯降臨
-            "erdas": {"key": "shift", "image": PIL.Image.open("photos/erda_shower.png")},
+            "erdas": {
+                "key": "shift",
+                "image": PIL.Image.open("photos/erda_shower.png"),
+                "command": "2"
+            },
             # 風轉奇想
-            "wind": {"key": "end", "image": PIL.Image.open("photos/merciless_wind.png")},
+            "wind": {
+                "key": "end",
+                "image": PIL.Image.open("photos/merciless_wind.png"),
+                "command": "3"
+            },
             # 小雞
-            "chicken": {"key": "'", "image": PIL.Image.open("photos/phalanx_charge.png")},
+            "chicken": {
+                "key": "'",
+                "image": PIL.Image.open("photos/phalanx_charge.png"),
+                "command": "4"
+            },
             # 龍捲風
-            "tornado": {"key": "d", "image": PIL.Image.open("photos/howling_gale.png")},
+            "tornado": {
+                "key": "d",
+                "image": PIL.Image.open("photos/howling_gale.png"),
+                "command": "5"
+            },
             # 季風
-            "monsoon": {"key": "b", "image": PIL.Image.open("photos/monsoon.png")},
+            "monsoon": {
+                "key": "b",
+                "image": PIL.Image.open("photos/monsoon.png"),
+                "command": "6"
+            },
             # 蜘蛛之鏡
-            "spider": {"key": "f", "image": PIL.Image.open("photos/true_arachnid_reflection.png")},
+            "spider": {
+                "key": "f",
+                "image": PIL.Image.open("photos/true_arachnid_reflection.png"),
+                "command": "7"
+            },
             # 烈陽印記
-            "sun": {"key": "f5", "image": PIL.Image.open("photos/solar_crest.png")},
+            "sun": {
+                "key": "f5",
+                "image": PIL.Image.open("photos/solar_crest.png"),
+                "command": "8"
+            },
             # 西爾芙之壁
-            "shield": {"key": "6", "image": PIL.Image.open("photos/gale_barrier.png")},
+            "shield": {
+                "key": "6",
+                "image": PIL.Image.open("photos/gale_barrier.png"),
+                "command": "9"
+            },
             # 武公
-            "mu_gong": {"key": "f2", "image": PIL.Image.open("photos/mu_gong.png")},
+            "mu_gong": {
+                "key": "f2",
+                "image": PIL.Image.open("photos/mu_gong.png"),
+                "command": "a"
+            },
             # 爆擊強化
             # "vicious": {"key": "f3", "image": PIL.Image.open("photos/vicious_shot.png")},
             # 暴風加護
             # "big_arrow": {"key": "f4", "image": PIL.Image.open("photos/storm_whim.png")},
             # 一鍵爆發（超越者西格諾斯的祝福+爆擊強化+暴風加護）
-            "aio": {"key": "f1", "image": PIL.Image.open("photos/aio.png")},
+            "aio": {
+                "key": "f1",
+                "image": PIL.Image.open("photos/aio.png"),
+                "command": "b"
+            },
             # 阿涅摩依
-            "Anemoi": {"key": "v", "image": PIL.Image.open("photos/anemoi.png")}
+            "Anemoi": {
+                "key": "v",
+                "image": PIL.Image.open("photos/anemoi.png"),
+                "command": "c"
+            }
         }
 
     @staticmethod
@@ -121,7 +169,7 @@ class MapleScript:
         screenshot = self.get_skill_area_screenshot()
         for skill_info in self.skills_dict.values():
             skill_image = skill_info.get("image")
-            skill_key = skill_info.get("key")
+            skill_key = skill_info.get("command")
             if self.is_ready(skill_image, screenshot):
                 self.skills_queue.append(skill_key)
 
@@ -129,9 +177,8 @@ class MapleScript:
         random.shuffle(self.skills_queue)
         return None
 
-    def press_with_gap_time(self, key: str):
-        pydirectinput.press(key)
-        time.sleep(random.uniform(*self.gap_time))
+    def press(self, key: str):
+        self.keyboard.press_key(key)
 
     def press_ready_skills(self):
         """
@@ -150,13 +197,14 @@ class MapleScript:
             else:
                 # 將按鍵一個一個按下
                 key = self.skills_queue.pop()
-                self.press_with_gap_time(key)
+                self.press(key)
+                time.sleep(random.uniform(*self.gap_time))
                 self.move_by_pressing_up()
         return None
 
     def move_by_pressing_up(self):
         if self.is_maple_focus() and random.random() < 0.2:
-            pydirectinput.press("up")
+            self.keyboard.press_key("u")
 
     def start(self):
         while True:
@@ -170,5 +218,6 @@ class MapleScript:
 
 
 if __name__ == "__main__":
-    Maple = MapleScript()
-    Maple.start()
+    with XiaoController() as controller:
+        Maple = MapleScript(controller)
+        Maple.start()
