@@ -1,4 +1,5 @@
 import serial.tools.list_ports
+import threading
 
 
 class DeviceNotFoundException(Exception):
@@ -11,7 +12,7 @@ class DeviceNotFoundException(Exception):
 class XiaoController:
     XIAO_SERIAL_NUMBER = "CCAB7951D342"
 
-    def __init__(self, baudrate=9600, timeout=1):
+    def __init__(self, baudrate=115200, timeout=0.01):
         self.port = None
         self.connection= None
         self.baudrate = baudrate
@@ -28,6 +29,8 @@ class XiaoController:
         self.port = self._get_xiao_ports()
         try:
             self.connection = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+            # 同時建立一個thread去聽Xiao回過來的訊息
+            threading.Thread(target=self.read_from_port, daemon=True).start()
             print("連線成功！控制器已準備就緒。")
             return self
         except serial.SerialException as e:
@@ -57,12 +60,18 @@ class XiaoController:
 
         try:
             # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.connection.write(key.encode('utf-8'))
+            self.connection.write(f'{key}\n'.encode('utf-8'))
             print(f"已發送指令: press '{key}'")
         except serial.SerialException as e:
             print(f'發生錯誤：{e}')
             self.close()
             raise
+
+    def read_from_port(self):
+        while True:
+            data = self.connection.readline()
+            if data:
+                print("Xiao:已按下", data.decode().strip())
 
 
 if __name__ == "__main__":

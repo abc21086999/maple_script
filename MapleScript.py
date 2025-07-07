@@ -17,7 +17,7 @@ class MapleScript:
         self.maple_screen = self.get_maple_screen_location()
         self.maple_skill_area = self.get_maple_skill_screen()
         self.skills_queue = deque()
-        self.gap_time = (0.1, 1)
+        self.gap_time = (0.5, 1)
         self.keyboard = keyboard
         self.skills_dict = {
             # 漩渦球球
