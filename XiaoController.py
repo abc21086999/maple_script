@@ -71,7 +71,7 @@ class XiaoController:
         while True:
             data = self.connection.readline()
             if data:
-                print("Xiao:已按下", data.decode().strip())
+                print("Xiao:", data.decode().strip())
 
 
 if __name__ == "__main__":
