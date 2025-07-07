@@ -1,6 +1,5 @@
 import sys
 import time
-import pydirectinput
 import pygetwindow as gw
 from collections import deque
 import pyautogui
@@ -14,8 +13,8 @@ class MapleScript:
 
     def __init__(self, keyboard=None):
         self.maple = self.get_maple()
-        self.maple_screen = self.get_maple_screen_location()
-        self.maple_skill_area = self.get_maple_skill_screen()
+        self.maple_full_screen_area = self.get_maple_full_screen_area()
+        self.maple_skill_area = self.get_maple_skill_area()
         self.skills_queue = deque()
         self.gap_time = (0.5, 1.5)
         self.keyboard = keyboard
@@ -128,16 +127,19 @@ class MapleScript:
         """
         return self.maple.isActive
 
-    def get_maple_screen_location(self):
+    def get_maple_full_screen_area(self):
         """
         回傳楓之谷視窗在螢幕上的位置
         :return: tuple
         """
         return self.maple.left, self.maple.top, self.maple.width, self.maple.height
 
-    def get_maple_skill_screen(self):
+    def get_full_screen_screenshot(self):
+        return pyautogui.screenshot(region=self.maple_full_screen_area)
+
+    def get_maple_skill_area(self):
         # 只要看右下角就好
-        left, top, width, height = self.maple_screen
+        left, top, width, height = self.maple_full_screen_area
         return left+ width // 2, top + height // 2, width // 2, height // 2
 
     def get_skill_area_screenshot(self):
@@ -206,7 +208,14 @@ class MapleScript:
         if self.is_maple_focus() and random.random() < 0.2:
             self.keyboard.press_key("u")
 
+    def prepare_character(self):
+        hamburger_menu = PIL.Image.open(r"photos\hamburger_menu.png")
+        screenshot = self.get_skill_area_screenshot()
+        if self.is_ready(hamburger_menu, screenshot):
+            self.keyboard.press_key("]")
+
     def start(self):
+        self.prepare_character()
         while True:
             if self.is_maple_focus():
                 self.find_ready_skill()
