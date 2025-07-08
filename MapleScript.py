@@ -23,61 +23,51 @@ class MapleScript:
             "ball": {
                 "key": "pagedown",
                 "image": PIL.Image.open("photos/vortex_sphere.png"),
-                "command": "1"
             },
             # 艾爾達斯降臨
             "erdas": {
                 "key": "shift",
                 "image": PIL.Image.open("photos/erda_shower.png"),
-                "command": "2"
             },
             # 風轉奇想
             "wind": {
                 "key": "end",
                 "image": PIL.Image.open("photos/merciless_wind.png"),
-                "command": "3"
             },
             # 小雞
             "chicken": {
                 "key": "'",
                 "image": PIL.Image.open("photos/phalanx_charge.png"),
-                "command": "4"
             },
             # 龍捲風
             "tornado": {
                 "key": "d",
                 "image": PIL.Image.open("photos/howling_gale.png"),
-                "command": "5"
             },
             # 季風
             "monsoon": {
                 "key": "b",
                 "image": PIL.Image.open("photos/monsoon.png"),
-                "command": "6"
             },
             # 蜘蛛之鏡
             "spider": {
                 "key": "f",
                 "image": PIL.Image.open("photos/true_arachnid_reflection.png"),
-                "command": "7"
             },
             # 烈陽印記
             "sun": {
                 "key": "f5",
                 "image": PIL.Image.open("photos/solar_crest.png"),
-                "command": "8"
             },
             # 西爾芙之壁
             "shield": {
                 "key": "6",
                 "image": PIL.Image.open("photos/gale_barrier.png"),
-                "command": "9"
             },
             # 武公
             "mu_gong": {
                 "key": "f2",
                 "image": PIL.Image.open("photos/mu_gong.png"),
-                "command": "a"
             },
             # 爆擊強化
             # "vicious": {"key": "f3", "image": PIL.Image.open("photos/vicious_shot.png")},
@@ -87,13 +77,11 @@ class MapleScript:
             "aio": {
                 "key": "f1",
                 "image": PIL.Image.open("photos/aio.png"),
-                "command": "b"
             },
             # 阿涅摩依
             "Anemoi": {
                 "key": "v",
                 "image": PIL.Image.open("photos/anemoi.png"),
-                "command": "c"
             }
         }
 
@@ -171,7 +159,7 @@ class MapleScript:
         screenshot = self.get_skill_area_screenshot()
         for skill_info in self.skills_dict.values():
             skill_image = skill_info.get("image")
-            skill_key = skill_info.get("command")
+            skill_key = skill_info.get("key")
             if self.is_ready(skill_image, screenshot):
                 self.skills_queue.append(skill_key)
 
@@ -206,7 +194,7 @@ class MapleScript:
 
     def move_by_pressing_up(self):
         if self.is_maple_focus() and random.random() < 0.2:
-            self.keyboard.press_key("u")
+            self.keyboard.press_key("up")
 
     def prepare_character(self):
         hamburger_menu = PIL.Image.open(r"photos\hamburger_menu.png")

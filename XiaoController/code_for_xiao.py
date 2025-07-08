@@ -12,20 +12,20 @@ serial = usb_cdc.console
 # Keycode 對應表，根據你實際會發的字來擴充
 mapping = {
     # 用單個 ASCII 字元作為 key
-    '1': Keycode.PAGE_DOWN,   # "漩渦球球"
-    '2': Keycode.SHIFT,       # "艾爾達斯降臨"
-    '3': Keycode.END,         # "風轉奇想"
-    '4': Keycode.QUOTE,       # "小雞"
-    '5': Keycode.D,           # "龍捲風"
-    '6': Keycode.B,           # "季風"
-    '7': Keycode.F,           # "蜘蛛之鏡"
-    '8': Keycode.F5,          # "烈陽印記"
-    '9': Keycode.SIX,         # "西爾芙之壁"
-    'a': Keycode.F2,          # "武公"
-    'b': Keycode.F1,          # "一鍵爆發"
-    'c': Keycode.V,           # "阿涅摩依"
-    'u': Keycode.UP_ARROW,    # "向上移動"
-    ']': Keycode.RIGHT_BRACKET, # 展開技能快捷
+    'pagedown': Keycode.PAGE_DOWN,  # "漩渦球球"
+    'shift': Keycode.SHIFT,  # "艾爾達斯降臨"
+    'end': Keycode.END,  # "風轉奇想"
+    "'": Keycode.QUOTE,  # "小雞"
+    'd': Keycode.D,  # "龍捲風"
+    'b': Keycode.B,  # "季風"
+    'f': Keycode.F,  # "蜘蛛之鏡"
+    'f5': Keycode.F5,  # "烈陽印記"
+    '6': Keycode.SIX,  # "西爾芙之壁"
+    'f2': Keycode.F2,  # "武公"
+    'f1': Keycode.F1,  # "一鍵爆發"
+    'v': Keycode.V,  # "阿涅摩依"
+    'up': Keycode.UP_ARROW,  # "向上移動"
+    ']': Keycode.RIGHT_BRACKET,  # "展開技能快捷"
 }
 
 print("XIAO 已啟動，等待指令...")
@@ -45,7 +45,7 @@ while True:
                 keyboard.press(keycode)
                 time.sleep(0.05)
                 keyboard.release(keycode)
-                print(f'已按下：{keycode}')
+                print(f'已按下：{key_str}')
             else:
                 print(f"未知指令：{key_str}")
 
