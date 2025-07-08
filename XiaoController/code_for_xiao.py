@@ -10,7 +10,7 @@ keyboard = Keyboard(usb_hid.devices)
 serial = usb_cdc.console
 
 # Keycode 對應表，根據你實際會發的字來擴充
-KEY_MAP = {
+mapping = {
     # 用單個 ASCII 字元作為 key
     '1': Keycode.PAGE_DOWN,   # "漩渦球球"
     '2': Keycode.SHIFT,       # "艾爾達斯降臨"
@@ -36,15 +36,16 @@ while True:
     # 如果有資料就讀一行
     if serial.in_waiting:
         try:
-            line = serial.readline()             # 讀到 '\n' 為止
+            line = serial.readline()  # 讀到 '\n' 為止
             key_str = line.decode().strip().lower()
             print(f"收到：{key_str}")
+            keycode = mapping.get(key_str)
 
-            if key_str in KEY_MAP:
-                keycode = KEY_MAP[key_str]
+            if keycode:
                 keyboard.press(keycode)
                 time.sleep(0.05)
                 keyboard.release(keycode)
+                print(f'已按下：{keycode}')
             else:
                 print(f"未知指令：{key_str}")
 
