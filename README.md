@@ -1,5 +1,5 @@
 # MapleScript
-一個基於視覺辨識與Seeed Studio Xiao ESP32S3的腳本程式。
+一個基於視覺辨識、Seeed Studio Xiao ESP32S3、CircuitPython的腳本程式。
 
 ## 整體流程
 ```mermaid
@@ -7,22 +7,25 @@
 graph LR;
 
 %% 第一步 []
-step1[外接裝置在通電時初始化為鍵盤]
+step1[Xiao初始化為鍵盤]
 
 %% 第二步 []
-step2[螢幕上辨識技能是否有準備好]
+step2[電腦辨識畫面]
 
 %% 第三步 []
-step3[將按鍵傳送給裝有CircuitPython的外接裝置]
+step3[存入deque]
 
-%% 第四步 [//]
-step4[/外接裝置收到要按的按鍵將同個按鍵按下/]
+%% 第四步 []
+step4[取出傳送給Xiao]
 
 %% 第五步 []
-step5[電腦收到外接裝置傳送過來的按鍵訊號]
+step5[Xiao按下按鍵]
+
+%% 第六步 []
+step6[電腦收到]
 
 %% 流程線 -->
-step1 --> step2 --> step3 --> step4 --> step5 --> step2
+step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step2
 ```
 
 ### 視覺辨識
@@ -30,4 +33,8 @@ step1 --> step2 --> step3 --> step4 --> step5 --> step2
 
 ### 與CircuitPython的溝通
 硬體採用**Seeed Studio Xiao ESP32S3**，刷入CircuitPython，並且初始化為鍵盤之後持續聆聽USB送過來的訊號
+
+### TODO:
+- 看一下為什麼不能用`usb_cdc.data`溝通
+- 其他動作可能要繼承MapleScript class 之後來操作
 
