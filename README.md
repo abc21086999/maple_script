@@ -38,5 +38,7 @@ step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step2
 
 ### TODO:
 - 看一下為什麼不能用`usb_cdc.data`溝通
+  - 找到問題點了，似乎這塊Seeed Studio Xiao ESP32S3無法同時在boot.py裡面啟用`console=True`和`data=True`，只能擇一。 
+  - 所以要馬用console，要馬就用data，我們為了聽到Xiao回傳的訊息，所以還是選用console。
 - 其他動作可能要繼承MapleScript class 之後來操作
 

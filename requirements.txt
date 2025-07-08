@@ -6,3 +6,4 @@ PyScreeze
 numpy
 pygetwindow
 pyserial
+adafruit_board_toolkit
