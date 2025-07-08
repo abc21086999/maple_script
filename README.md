@@ -1,6 +1,8 @@
 # MapleScript
 一個基於視覺辨識、Seeed Studio Xiao ESP32S3、CircuitPython的腳本程式。
 
+主要目的是打造**有耳朵的鍵盤**，能夠一邊聽，一邊按下按鍵
+
 ## 整體流程
 ```mermaid
 %%{init: {'theme': 'forest'} }%%
