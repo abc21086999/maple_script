@@ -25,6 +25,7 @@ KEY_MAP = {
     'b': Keycode.F1,          # "一鍵爆發"
     'c': Keycode.V,           # "阿涅摩依"
     'u': Keycode.UP_ARROW,    # "向上移動"
+    ']': Keycode.RIGHT_BRACKET, # 展開技能快捷
 }
 
 print("XIAO 已啟動，等待指令...")
