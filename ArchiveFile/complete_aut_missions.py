@@ -1,4 +1,4 @@
-from functions import *
+from ArchiveFile.functions import *
 
 
 # 自動完成AUT的任務
