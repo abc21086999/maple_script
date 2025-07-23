@@ -199,7 +199,9 @@ class MapleScript:
     def prepare_character(self):
         hamburger_menu = PIL.Image.open(r"photos\hamburger_menu.png")
         screenshot = self.get_skill_area_screenshot()
+        # 如果畫面上出現漢堡選單，那就是技能列表沒有展開
         if self.is_ready(hamburger_menu, screenshot):
+            # 展開技能列表
             self.keyboard.press_key("]")
 
     def start(self):
