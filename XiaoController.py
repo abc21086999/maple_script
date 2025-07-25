@@ -1,3 +1,5 @@
+import time
+
 import serial.tools.list_ports
 import threading
 
@@ -30,7 +32,8 @@ class XiaoController:
         try:
             self.connection = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
             # 同時建立一個thread去聽Xiao回過來的訊息
-            threading.Thread(target=self.read_from_port, daemon=True).start()
+            t = threading.Thread(target=self.read_from_port, daemon=True)
+            t.start()
             print("連線成功！控制器已準備就緒。")
             return self
         except serial.SerialException as e:
@@ -69,9 +72,12 @@ class XiaoController:
 
     def read_from_port(self):
         while True:
-            data = self.connection.readline()
-            if data:
-                print("Xiao:", data.decode().strip())
+            if self.connection.is_open:
+                data = self.connection.readline()
+                if data:
+                    print("Xiao:", data.decode().strip())
+            else:
+                break
 
 
 if __name__ == "__main__":
