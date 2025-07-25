@@ -194,7 +194,7 @@ class MapleScript:
 
     def move_by_pressing_up(self):
         if self.is_maple_focus() and random.random() < 0.2:
-            self.keyboard.press_key("up")
+            self.press("up")
 
     def prepare_character(self):
         hamburger_menu = PIL.Image.open(r"photos\hamburger_menu.png")
@@ -202,7 +202,7 @@ class MapleScript:
         # 如果畫面上出現漢堡選單，那就是技能列表沒有展開
         if self.is_ready(hamburger_menu, screenshot):
             # 展開技能列表
-            self.keyboard.press_key("]")
+            self.press("]")
 
     def start(self):
         self.prepare_character()
