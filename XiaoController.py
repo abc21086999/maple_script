@@ -73,7 +73,7 @@ class XiaoController:
     def send_mouse_location(self, location: tuple):
         """
         向硬體發送一個按鍵指令
-        :param location: 滑鼠要移動過去的位置
+        :param location: 滑鼠和目標之間的距離差
         """
         if not self.connection:
             print("沒有建立連線")

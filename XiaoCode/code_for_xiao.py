@@ -8,6 +8,7 @@ from adafruit_hid.keycode import Keycode
 
 # 建立 HID 鍵盤物件
 keyboard = Keyboard(usb_hid.devices)
+mouse = Mouse(usb_hid.devices)
 serial = usb_cdc.console
 
 # Keycode 對應表，根據你實際會發的字來擴充
@@ -37,26 +38,37 @@ def handle_keyboard(decoded_string: str):
         keyboard.press(keycode)
         time.sleep(0.05)
         keyboard.release(keycode)
-        print(f'已按下：{key_str}')
+        print(f'已按下：{decoded_string}')
     else:
-        print(f"未知指令：{key_str}")
+        print(f"未知指令：{decoded_string}")
 
 
 def handle_mouse(mouse_location: str):
     pass
+    # mouse.move()
+
 
 print("XIAO 已啟動，等待指令...")
 print(f"usb_cdc.data is None? {usb_cdc.console is None}")
 print(serial.in_waiting)
+
 # 開始監聽 usb_cdc 的 data channel（用來收電腦發來的字串）
 while True:
     # 如果有資料就讀一行
     if serial.in_waiting:
         try:
-            line = serial.readline()             # 讀到 '\n' 為止
-            key_str = line.decode().strip().lower()
-            print(f"收到：{key_str}")
-            handle_keyboard(key_str)
+            line = serial.readline()  # 讀到 '\n' 為止
+            decoded_str = line.decode().strip().lower()
+
+            # 如果收到的字串當中，有三個逗點，
+            # 而且以左右括號作為開始和結束，那麼一定是螢幕座標
+            if decoded_str.count(",") == 2 and decoded_str.startswith("(") and decoded_str.endswith(")"):
+                handle_mouse(decoded_str)
+
+            # 此外的都是要按下的按鍵
+            else:
+                print(f"收到：{decoded_str}")
+                handle_keyboard(decoded_str)
 
         except Exception as e:
             print(f"處理指令錯誤：{e}")
