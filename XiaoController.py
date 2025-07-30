@@ -70,6 +70,24 @@ class XiaoController:
             self.close()
             raise
 
+    def send_mouse_location(self, location: tuple):
+        """
+        向硬體發送一個按鍵指令
+        :param location: 滑鼠要移動過去的位置
+        """
+        if not self.connection:
+            print("沒有建立連線")
+            return None
+
+        try:
+            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
+            self.connection.write(f'{location}\n'.encode('utf-8'))
+            print(f"已發送指令: press '{location}'")
+        except serial.SerialException as e:
+            print(f'發生錯誤：{e}')
+            self.close()
+            raise
+
     def read_from_port(self):
         while True:
             if self.connection.is_open:

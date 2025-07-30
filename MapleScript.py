@@ -11,13 +11,14 @@ from XiaoController import XiaoController
 
 class MapleScript:
 
-    def __init__(self, keyboard=None):
+    def __init__(self, controller=None):
         self.maple = self.get_maple()
         self.maple_full_screen_area = self.get_maple_full_screen_area()
         self.maple_skill_area = self.get_maple_skill_area()
         self.skills_queue = deque()
         self.gap_time = (0.5, 1.5)
-        self.keyboard = keyboard
+        self.keyboard = controller
+        self.mouse = controller
         self.skills_dict = {
             # 漩渦球球
             "ball": {
@@ -86,7 +87,7 @@ class MapleScript:
         }
 
     @staticmethod
-    def get_window_area(window: gw.Win32Window):
+    def _get_window_area(window: gw.Win32Window):
         """
         這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。
         """
@@ -103,7 +104,7 @@ class MapleScript:
             print("找不到楓之谷的程式")
             sys.exit()
         # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
-        real_maple = max(maplestory, key=self.get_window_area)
+        real_maple = max(maplestory, key=self._get_window_area)
         if not real_maple.isActive:
             real_maple.activate()
         return real_maple
@@ -141,6 +142,36 @@ class MapleScript:
         except pyscreeze.ImageNotFoundException:
             return False
 
+    @staticmethod
+    def get_location_on_screen(pic_for_search: PIL.Image.Image, screen_shot):
+        """
+        用於辨識按鈕專用，回傳一個tuple()，包含滑鼠要移動的距離
+        :param pic_for_search: 要辨識的圖片
+        :param screen_shot: 辨識用的遊戲截圖
+        :return: tuple
+        """
+        try:
+            # 取得目前滑鼠位置
+            current_mouse_location = pyautogui.position()
+            # 辨識遊戲截圖內有沒有我們要的東西
+            picture_location = pyautogui.locate(pic_for_search, screen_shot)
+            # 如果有辨識到東西
+            if picture_location is not None:
+                # 取得辨識到的部份
+                left, top, width, height = picture_location
+                # 計算辨識到的東西的中心位置
+                center = left + (width // 2), top + (height // 2)
+                # 計算目前滑鼠的相對位置
+                dx = center[0] - current_mouse_location[0]
+                dy = center[1] - current_mouse_location[1]
+                return int(dx), int(dy)
+            # 如果沒辨識到東西就回傳 0, 0
+            else:
+                return 0, 0
+        except pyscreeze.ImageNotFoundException:
+            # 沒找到就回傳 0, 0
+            return 0, 0
+
     def find_ready_skill(self):
         """
         根據有沒有找到來決定要放哪個技能
@@ -169,6 +200,9 @@ class MapleScript:
 
     def press(self, key: str):
         self.keyboard.press_key(key)
+
+    def move(self, location: tuple):
+        self.mouse.send_mouse_location(location)
 
     def press_ready_skills(self):
         """
