@@ -137,7 +137,9 @@ class MapleScript:
         return pyautogui.screenshot(region=self.maple_skill_area)
 
     @staticmethod
-    def is_on_screen(skill: PIL.Image.Image, img) -> bool:
+    def is_on_screen(skill: PIL.Image.Image | str, img) -> bool:
+        if isinstance(skill, str):
+            skill = PIL.Image.open(skill)
         try:
             skill_location = next(pyautogui.locateAll(skill, img, confidence=0.96), None)
             return bool(skill_location)
