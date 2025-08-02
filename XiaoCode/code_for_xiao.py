@@ -29,6 +29,9 @@ mapping = {
     'up': Keycode.UP_ARROW,          # "向上移動"
     ']': Keycode.RIGHT_BRACKET,      # "展開技能快捷"
     'f11': Keycode.F11,              # "角色預設鍵"
+    'enter': Keycode.ENTER,          # "Enter鍵"
+    'f10': Keycode.F10,              # "戰地聯盟界面"
+    'esc': Keycode.ESC,              # "ESC按鍵"
 }
 
 

@@ -14,8 +14,8 @@ class MapleScript:
 
     def __init__(self, controller=None):
         self.maple = self.get_maple()
-        self.maple_full_screen_area = self.get_maple_full_screen_area()
-        self.maple_skill_area = self.get_maple_skill_area()
+        self.maple_full_screen_area = self._get_maple_full_screen_area()
+        self.maple_skill_area = self._get_maple_skill_area()
         self.skills_queue = deque()
         self.gap_time = (0.5, 1.5)
         self.cur_dir = os.getcwd()
@@ -118,7 +118,7 @@ class MapleScript:
         """
         return self.maple.isActive
 
-    def get_maple_full_screen_area(self):
+    def _get_maple_full_screen_area(self):
         """
         回傳楓之谷視窗在螢幕上的位置
         :return: tuple
@@ -128,7 +128,7 @@ class MapleScript:
     def get_full_screen_screenshot(self):
         return pyautogui.screenshot(region=self.maple_full_screen_area)
 
-    def get_maple_skill_area(self):
+    def _get_maple_skill_area(self):
         # 只要看右下角就好
         left, top, width, height = self.maple_full_screen_area
         return left+ width // 2, top + height // 2, width // 2, height // 2
@@ -144,8 +144,7 @@ class MapleScript:
         except pyscreeze.ImageNotFoundException:
             return False
 
-    @staticmethod
-    def calculate_distance(pic_for_search: str | PIL.Image.Image):
+    def find_and_click_image(self, pic_for_search: str | PIL.Image.Image):
         """
         用於辨識按鈕專用，回傳一個tuple()，包含滑鼠要移動的距離
         :param pic_for_search: 要辨識的圖片
@@ -159,15 +158,19 @@ class MapleScript:
             # 如果有辨識到東西
             if picture_location is not None:
                 # 計算目前滑鼠的相對位置
-                dx = picture_location.x - current_mouse_location[0]
-                dy = picture_location.y - current_mouse_location[1]
-                return int(dx), int(dy)
-            # 如果沒辨識到東西就回傳 0, 0
+                dx = int(picture_location.x - current_mouse_location[0])
+                dy = int(picture_location.y - current_mouse_location[1])
+                self.move((dx, dy))
+                time.sleep(0.1)
+                self.click()
+            # 如果沒辨識到東西就不做任何事情
             else:
-                return 0, 0
+                print(f'畫面中找不到{pic_for_search}')
+                pass
         except pyscreeze.ImageNotFoundException:
-            # 沒找到就回傳 0, 0
-            return 0, 0
+            print(f'畫面中找不到{pic_for_search}')
+            # 如果沒辨識到東西就不做任何事情
+            pass
 
     def find_ready_skill(self):
         """
@@ -200,6 +203,9 @@ class MapleScript:
 
     def move(self, location: tuple):
         self.mouse.send_mouse_location(location)
+
+    def click(self):
+        self.mouse.click()
 
     def press_ready_skills(self):
         """
