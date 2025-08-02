@@ -1,5 +1,3 @@
-import time
-
 import serial.tools.list_ports
 import threading
 
@@ -82,7 +80,24 @@ class XiaoController:
         try:
             # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
             self.connection.write(f'{location}\n'.encode('utf-8'))
-            print(f"已發送指令: press '{location}'")
+            print(f"已發送指令: 要移動'{location}'")
+        except serial.SerialException as e:
+            print(f'發生錯誤：{e}')
+            self.close()
+            raise
+
+    def click(self):
+        """
+        向硬體發送一個按下滑鼠的指令
+        """
+        if not self.connection:
+            print("沒有建立連線")
+            return None
+
+        try:
+            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
+            self.connection.write(f'click\n'.encode('utf-8'))
+            print(f"已按下滑鼠")
         except serial.SerialException as e:
             print(f'發生錯誤：{e}')
             self.close()

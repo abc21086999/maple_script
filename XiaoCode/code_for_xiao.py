@@ -44,8 +44,14 @@ def handle_keyboard(decoded_string: str):
 
 
 def handle_mouse(mouse_location: str):
-    pass
-    # mouse.move()
+    parts = mouse_location.strip("()").split(",")
+    dx, dy = tuple(int(p.strip()) for p in parts)
+    mouse.move(x=dx, y=dy)
+
+
+def click_mouse():
+    mouse.click(Mouse.LEFT_BUTTON)
+    mouse.release_all()
 
 
 print("XIAO 已啟動，等待指令...")
@@ -60,10 +66,14 @@ while True:
             line = serial.readline()  # 讀到 '\n' 為止
             decoded_str = line.decode().strip().lower()
 
-            # 如果收到的字串當中，有三個逗點，
-            # 而且以左右括號作為開始和結束，那麼一定是螢幕座標
-            if decoded_str.count(",") == 2 and decoded_str.startswith("(") and decoded_str.endswith(")"):
+            # 如果收到的字串當中，而且以左右括號作為開始和結束
+            # 那麼一定是螢幕座標
+            if decoded_str.startswith("(") and decoded_str.endswith(")"):
                 handle_mouse(decoded_str)
+
+            # 如果送來的是click，那麼就要按下滑鼠左鍵
+            elif decoded_str == "click":
+                click_mouse()
 
             # 此外的都是要按下的按鍵
             else:
