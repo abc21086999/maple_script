@@ -7,7 +7,7 @@ import random
 import pyscreeze
 import PIL.Image
 from XiaoController import XiaoController
-import os
+from pathlib import Path
 
 
 class MapleScript:
@@ -18,73 +18,79 @@ class MapleScript:
         self.maple_skill_area = self._get_maple_skill_area()
         self.skills_queue = deque()
         self.gap_time = (0.5, 1.5)
-        self.cur_dir = os.getcwd()
+        self.cur_path = Path(__file__).resolve().parent
         self.keyboard = controller
         self.mouse = controller
         self.skills_dict = {
             # 漩渦球球
             "ball": {
                 "key": "pagedown",
-                "image": PIL.Image.open("photos/vortex_sphere.png"),
+                "image": PIL.Image.open(self.get_photo_path("vortex_sphere.png")),
             },
             # 艾爾達斯降臨
             "erdas": {
                 "key": "shift",
-                "image": PIL.Image.open("photos/erda_shower.png"),
+                "image": PIL.Image.open(self.get_photo_path("erda_shower.png")),
             },
             # 風轉奇想
             "wind": {
                 "key": "end",
-                "image": PIL.Image.open("photos/merciless_wind.png"),
+                "image": PIL.Image.open(self.get_photo_path("merciless_wind.png")),
             },
             # 小雞
             "chicken": {
                 "key": "'",
-                "image": PIL.Image.open("photos/phalanx_charge.png"),
+                "image": PIL.Image.open(self.get_photo_path("phalanx_charge.png")),
             },
             # 龍捲風
             "tornado": {
                 "key": "d",
-                "image": PIL.Image.open("photos/howling_gale.png"),
+                "image": PIL.Image.open(self.get_photo_path("howling_gale.png")),
             },
             # 季風
             "monsoon": {
                 "key": "b",
-                "image": PIL.Image.open("photos/monsoon.png"),
+                "image": PIL.Image.open(self.get_photo_path("monsoon.png")),
             },
             # 蜘蛛之鏡
             "spider": {
                 "key": "f",
-                "image": PIL.Image.open("photos/true_arachnid_reflection.png"),
+                "image": PIL.Image.open(self.get_photo_path("true_arachnid_reflection.png")),
             },
             # 烈陽印記
             "sun": {
                 "key": "f5",
-                "image": PIL.Image.open("photos/solar_crest.png"),
+                "image": PIL.Image.open(self.get_photo_path("solar_crest.png")),
             },
             # 西爾芙之壁
             "shield": {
                 "key": "6",
-                "image": PIL.Image.open("photos/gale_barrier.png"),
+                "image": PIL.Image.open(self.get_photo_path("gale_barrier.png")),
             },
             # 武公
             "mu_gong": {
                 "key": "f2",
-                "image": PIL.Image.open("photos/mu_gong.png"),
+                "image": PIL.Image.open(self.get_photo_path("mu_gong.png")),
             },
             # 爆擊強化
-            # "vicious": {"key": "f3", "image": PIL.Image.open("photos/vicious_shot.png")},
+            # "vicious": {
+            #     "key": "f3",
+            #     "image": PIL.Image.open(self.get_photo_path("vicious_shot.png")),
+            # },
             # 暴風加護
-            # "big_arrow": {"key": "f4", "image": PIL.Image.open("photos/storm_whim.png")},
+            # "big_arrow": {
+            #     "key": "f4",
+            #     "image": PIL.Image.open(self.get_photo_path("storm_whim.png")),
+            # },
             # 一鍵爆發（超越者西格諾斯的祝福+爆擊強化+暴風加護）
             "aio": {
                 "key": "f1",
-                "image": PIL.Image.open("photos/aio.png"),
+                "image": PIL.Image.open(self.get_photo_path("aio.png")),
             },
             # 阿涅摩依
             "Anemoi": {
                 "key": "v",
-                "image": PIL.Image.open("photos/anemoi.png"),
+                "image": PIL.Image.open(self.get_photo_path("anemoi.png")),
             }
         }
 
@@ -94,6 +100,9 @@ class MapleScript:
         這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。
         """
         return window.width * window.height
+
+    def get_photo_path(self, pic_name: str):
+        return self.cur_path / "photos" / pic_name
 
     def get_maple(self):
         """
@@ -137,21 +146,29 @@ class MapleScript:
         return pyautogui.screenshot(region=self.maple_skill_area)
 
     @staticmethod
-    def is_on_screen(skill: PIL.Image.Image | str, img) -> bool:
+    def is_on_screen(skill: PIL.Image.Image | str | Path, img) -> bool:
+        # 處理各種路徑格式
         if isinstance(skill, str):
             skill = PIL.Image.open(skill)
+        elif isinstance(skill, Path):
+            skill = PIL.Image.open(str(skill))
         try:
             skill_location = next(pyautogui.locateAll(skill, img, confidence=0.96), None)
             return bool(skill_location)
         except pyscreeze.ImageNotFoundException:
             return False
 
-    def find_and_click_image(self, pic_for_search: str | PIL.Image.Image) -> None:
+    def find_and_click_image(self, pic_for_search: str | PIL.Image.Image | Path) -> None:
         """
         用於辨識按鈕之後移動
         :param pic_for_search: 要辨識的圖片
         :return: None
         """
+        # 處理各種不同的路徑格式
+        if isinstance(pic_for_search, str):
+            pic_for_search = PIL.Image.open(pic_for_search)
+        elif isinstance(pic_for_search, Path):
+            pic_for_search = PIL.Image.open(str(pic_for_search))
         try:
             # 取得目前滑鼠位置
             current_mouse_location = pyautogui.position()
@@ -238,7 +255,7 @@ class MapleScript:
             self.press("up")
 
     def prepare_character(self):
-        hamburger_menu = PIL.Image.open(r"photos\hamburger_menu.png")
+        hamburger_menu = PIL.Image.open(self.get_photo_path("hamburger_menu.png"))
         screenshot = self.get_skill_area_screenshot()
         # 如果畫面上出現漢堡選單，那就是技能列表沒有展開
         if self.is_on_screen(hamburger_menu, screenshot):
