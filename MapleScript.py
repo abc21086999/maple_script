@@ -7,6 +7,7 @@ import random
 import pyscreeze
 import PIL.Image
 from XiaoController import XiaoController
+import os
 
 
 class MapleScript:
@@ -17,6 +18,7 @@ class MapleScript:
         self.maple_skill_area = self.get_maple_skill_area()
         self.skills_queue = deque()
         self.gap_time = (0.5, 1.5)
+        self.cur_dir = os.getcwd()
         self.keyboard = controller
         self.mouse = controller
         self.skills_dict = {
@@ -135,7 +137,7 @@ class MapleScript:
         return pyautogui.screenshot(region=self.maple_skill_area)
 
     @staticmethod
-    def is_ready(skill: PIL.Image.Image, img):
+    def is_on_screen(skill: PIL.Image.Image, img) -> bool:
         try:
             skill_location = next(pyautogui.locateAll(skill, img, confidence=0.96), None)
             return bool(skill_location)
@@ -143,27 +145,22 @@ class MapleScript:
             return False
 
     @staticmethod
-    def get_location_on_screen(pic_for_search: PIL.Image.Image, screen_shot):
+    def calculate_distance(pic_for_search: str | PIL.Image.Image):
         """
         用於辨識按鈕專用，回傳一個tuple()，包含滑鼠要移動的距離
         :param pic_for_search: 要辨識的圖片
-        :param screen_shot: 辨識用的遊戲截圖
         :return: tuple
         """
         try:
             # 取得目前滑鼠位置
             current_mouse_location = pyautogui.position()
             # 辨識遊戲截圖內有沒有我們要的東西
-            picture_location = pyautogui.locate(pic_for_search, screen_shot)
+            picture_location = pyautogui.locateCenterOnScreen(pic_for_search, confidence=0.9)
             # 如果有辨識到東西
             if picture_location is not None:
-                # 取得辨識到的部份
-                left, top, width, height = picture_location
-                # 計算辨識到的東西的中心位置
-                center = left + (width // 2), top + (height // 2)
                 # 計算目前滑鼠的相對位置
-                dx = center[0] - current_mouse_location[0]
-                dy = center[1] - current_mouse_location[1]
+                dx = picture_location.x - current_mouse_location[0]
+                dy = picture_location.y - current_mouse_location[1]
                 return int(dx), int(dy)
             # 如果沒辨識到東西就回傳 0, 0
             else:
@@ -191,7 +188,7 @@ class MapleScript:
         for skill_info in self.skills_dict.values():
             skill_image = skill_info.get("image")
             skill_key = skill_info.get("key")
-            if self.is_ready(skill_image, screenshot):
+            if self.is_on_screen(skill_image, screenshot):
                 self.skills_queue.append(skill_key)
 
         # 用shuffle以增加隨機性
@@ -234,7 +231,7 @@ class MapleScript:
         hamburger_menu = PIL.Image.open(r"photos\hamburger_menu.png")
         screenshot = self.get_skill_area_screenshot()
         # 如果畫面上出現漢堡選單，那就是技能列表沒有展開
-        if self.is_ready(hamburger_menu, screenshot):
+        if self.is_on_screen(hamburger_menu, screenshot):
             # 展開技能列表
             self.press("]")
 
