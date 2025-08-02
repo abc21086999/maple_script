@@ -144,11 +144,11 @@ class MapleScript:
         except pyscreeze.ImageNotFoundException:
             return False
 
-    def find_and_click_image(self, pic_for_search: str | PIL.Image.Image):
+    def find_and_click_image(self, pic_for_search: str | PIL.Image.Image) -> None:
         """
-        用於辨識按鈕專用，回傳一個tuple()，包含滑鼠要移動的距離
+        用於辨識按鈕之後移動
         :param pic_for_search: 要辨識的圖片
-        :return: tuple
+        :return: None
         """
         try:
             # 取得目前滑鼠位置
@@ -160,8 +160,10 @@ class MapleScript:
                 # 計算目前滑鼠的相對位置
                 dx = int(picture_location.x - current_mouse_location[0])
                 dy = int(picture_location.y - current_mouse_location[1])
+                # 移動過去
                 self.move((dx, dy))
                 time.sleep(0.1)
+                # 點下
                 self.click()
             # 如果沒辨識到東西就不做任何事情
             else:
