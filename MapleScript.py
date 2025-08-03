@@ -188,7 +188,7 @@ class MapleScript:
             else:
                 print(f'畫面中找不到{pic_for_search}')
                 pass
-        except pyscreeze.ImageNotFoundException:
+        except pyautogui.ImageNotFoundException:
             print(f'畫面中找不到{pic_for_search}')
             # 如果沒辨識到東西就不做任何事情
             pass
