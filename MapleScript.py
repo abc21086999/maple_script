@@ -145,13 +145,17 @@ class MapleScript:
     def get_skill_area_screenshot(self):
         return pyautogui.screenshot(region=self.maple_skill_area)
 
-    @staticmethod
-    def is_on_screen(skill: PIL.Image.Image | str | Path, img) -> bool:
+    def is_on_screen(self, skill: PIL.Image.Image | str | Path, img=None) -> bool:
         # 處理各種路徑格式
         if isinstance(skill, str):
             skill = PIL.Image.open(skill)
         elif isinstance(skill, Path):
             skill = PIL.Image.open(str(skill))
+
+        # 如果沒有傳入截圖，那就截一張圖
+        if img is None:
+            img = self.get_full_screen_screenshot()
+
         try:
             skill_location = next(pyautogui.locateAll(skill, img, confidence=0.96), None)
             return bool(skill_location)
