@@ -67,9 +67,71 @@ class DailyPrepare(MapleScript):
         # 不管怎麼樣最後要把界面關閉
         self.press("esc")
 
+    def dismantle_armours(self):
+        # 點下快速移動的界面
+        self.find_and_click_image(self.get_photo_path("fast_travel.png"))
+        time.sleep(0.3)
+
+        # 點下技術村的圖案
+        self.find_and_click_image(self.get_photo_path("village.png"))
+        time.sleep(0.3)
+
+        # 點下『是』，去到技術村
+        self.press("right")
+        time.sleep(0.3)
+
+        # 移動中
+        self.press("enter")
+        time.sleep(1.5)
+
+        # 打開裝備欄
+        self.press("i")
+        time.sleep(0.3)
+
+        # 點下分解裝備的按鈕
+        self.find_and_click_image(self.get_photo_path("disassemble_panel.png"))
+        time.sleep(0.3)
+
+        # 點下把裝備放上分解面板的按鈕
+        self.find_and_click_image(self.get_photo_path("put_all_armor_on_table.png"))
+        time.sleep(0.3)
+
+        # 在點了之後如果沒有裝備被放上面板，那就離開，反之就進行分解
+        while not self.is_on_screen(self.get_photo_path("empty_disassembly_table.png")):
+            # 滑鼠移動到面板header以減少干擾
+            self.find_and_click_image(self.get_photo_path("disassembly_table_header.png"))
+            time.sleep(0.3)
+
+            # 點下分解按鈕
+            self.find_and_click_image(self.get_photo_path("disassemble.png"))
+            time.sleep(0.3)
+
+            # 確定分解並等待
+            self.press("enter")
+            time.sleep(4)
+
+            # 確認分解完成的訊息
+            self.press("enter")
+            time.sleep(0.3)
+
+            # 再點一次將裝備放上的按鈕
+            self.find_and_click_image(self.get_photo_path("put_all_armor_on_table.png"))
+            time.sleep(0.3)
+
+        # 最後都沒有裝備要分解了，按兩下Esc以關閉分解界面和裝備界面
+        print("裝備分解完成")
+        for i in range(2):
+            self.press("esc")
+            time.sleep(0.1)
+
+        # 按下上來離開技術村
+        self.press("up")
+
+
 if __name__ == "__main__":
     with XiaoController() as controller:
         Maple = DailyPrepare(controller)
         Maple.switch_to_grinding_set()
         Maple.collect_union_coin()
         Maple.start_daily_or_weekly_mission()
+        Maple.dismantle_armours()
