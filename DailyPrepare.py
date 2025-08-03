@@ -23,9 +23,7 @@ class DailyPrepare(MapleScript):
         time.sleep(0.3)
 
         # 如果有東西不一樣（出現確認按鈕）需要切換，再按下Enter
-        confirm_pop_up = PIL.Image.open(self.get_photo_path("confirm_daily_pop_up.png"))
-        cur_ss = self.get_full_screen_screenshot()
-        if self.is_on_screen(confirm_pop_up, cur_ss):
+        if self.is_on_screen(self.get_photo_path("confirm_daily_pop_up.png")):
             self.press("enter")
         time.sleep(0.3)
 
@@ -42,10 +40,36 @@ class DailyPrepare(MapleScript):
         time.sleep(0.5)
         self.press("enter")
         self.press("esc")
+        time.sleep(0.3)
 
+    def start_daily_or_weekly_mission(self):
+        # 打開每日任務的界面
+        self.find_and_click_image(self.get_photo_path("daily_schedule.png"))
+        time.sleep(0.3)
+
+        # 如果有開始任務的按鈕，那就按下去
+        daily_start_button = PIL.Image.open(self.get_photo_path("schedule_daily_all_start.png"))
+        if self.is_on_screen(daily_start_button):
+            self.find_and_click_image(daily_start_button)
+            time.sleep(0.3)
+
+        # 如果有已經可以完成的任務，那就完成
+        daily_finish_button = PIL.Image.open(self.get_photo_path("schedule_daily_all_complete.png"))
+        if self.is_on_screen(daily_finish_button):
+            self.find_and_click_image(daily_finish_button)
+            time.sleep(0.3)
+            self.find_and_click_image(self.get_photo_path("schedule_panel_confirm.png"))
+            time.sleep(0.3)
+
+        # TODO: 開始每個禮拜的任務
+        # if self.is_on_screen(self.get_photo_path())
+
+        # 不管怎麼樣最後要把界面關閉
+        self.press("esc")
 
 if __name__ == "__main__":
     with XiaoController() as controller:
         Maple = DailyPrepare(controller)
         Maple.switch_to_grinding_set()
         Maple.collect_union_coin()
+        Maple.start_daily_or_weekly_mission()
