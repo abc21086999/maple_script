@@ -10,6 +10,10 @@ class DailyPrepare(MapleScript):
         super().__init__(controller=controller)
 
     def switch_to_grinding_set(self):
+        """
+        切換到練功用的角色設定
+        :return: None
+        """
         # 打開角色套組設定的界面
         self.press("f11")
         time.sleep(0.3)
@@ -31,9 +35,13 @@ class DailyPrepare(MapleScript):
         self.press("esc")
 
     def collect_union_coin(self):
+        """
+        蒐集戰地聯盟的硬幣
+        :return: None
+        """
         # 打開戰地聯盟的界面
         self.press("f10")
-        time.sleep(0.7)
+        time.sleep(1)
 
         # 按下拿硬幣的按鈕，接著用Enter關掉確認界面
         self.find_and_click_image(self.get_photo_path("get_coin.png"))
@@ -43,6 +51,10 @@ class DailyPrepare(MapleScript):
         time.sleep(0.3)
 
     def start_daily_or_weekly_mission(self):
+        """
+        開始或結束每日或是每週任務
+        :return: None
+        """
         # 打開每日任務的界面
         self.find_and_click_image(self.get_photo_path("daily_schedule.png"))
         time.sleep(0.3)
@@ -61,8 +73,34 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(self.get_photo_path("schedule_panel_confirm.png"))
             time.sleep(0.3)
 
-        # TODO: 開始每個禮拜的任務
-        # if self.is_on_screen(self.get_photo_path())
+        # 開始每週任務
+        weekly_mission_start_button = PIL.Image.open(self.get_photo_path("weekly_mission_start_button.png"))
+        if self.is_on_screen(weekly_mission_start_button):
+            # 點下開始每週任務的按鈕
+            self.find_and_click_image(weekly_mission_start_button)
+            time.sleep(0.3)
+
+            # 選擇『是』
+            self.press("right")
+            time.sleep(0.3)
+
+            for i in range(2):
+                self.press("enter")
+                time.sleep(0.3)
+
+        # 如果有可以完成的每週任務，那就完成它
+        complete_weekly_mission = PIL.Image.open(self.get_photo_path("complete_weekly_mission_button.png"))
+        if self.is_on_screen(complete_weekly_mission):
+            self.find_and_click_image(complete_weekly_mission)
+            time.sleep(0.3)
+
+            # 選擇『是』
+            self.press("right")
+            time.sleep(0.3)
+
+            for i in range(2):
+                self.press("enter")
+                time.sleep(0.3)
 
         # 不管怎麼樣最後要把界面關閉
         self.press("esc")
