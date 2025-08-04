@@ -145,19 +145,25 @@ class MapleScript:
     def get_skill_area_screenshot(self):
         return pyautogui.screenshot(region=self.maple_skill_area)
 
-    def is_on_screen(self, skill: PIL.Image.Image | str | Path, img=None) -> bool:
+    def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
+        """
+        辨識想要找的東西在不在畫面上
+        :param pic: 想要辨識的圖片
+        :param img: 一張截圖，沒有傳入就會自動擷取一張
+        :return: bool
+        """
         # 處理各種路徑格式
-        if isinstance(skill, str):
-            skill = PIL.Image.open(skill)
-        elif isinstance(skill, Path):
-            skill = PIL.Image.open(str(skill))
+        if isinstance(pic, str):
+            pic = PIL.Image.open(pic)
+        elif isinstance(pic, Path):
+            pic = PIL.Image.open(str(pic))
 
         # 如果沒有傳入截圖，那就截一張圖
         if img is None:
             img = self.get_full_screen_screenshot()
 
         try:
-            skill_location = next(pyautogui.locateAll(skill, img, confidence=0.96), None)
+            skill_location = next(pyautogui.locateAll(pic, img, confidence=0.96), None)
             return bool(skill_location)
         except pyscreeze.ImageNotFoundException:
             return False

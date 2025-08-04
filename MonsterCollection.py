@@ -9,6 +9,10 @@ class MonsterCollection(MapleScript):
         super().__init__(controller=controller)
 
     def collect_and_start_monster_collection(self):
+        """
+        完成和重新開始怪物蒐藏
+        :return: None
+        """
         # 打開怪物蒐藏界面
         self.press("f10")
         time.sleep(0.5)
