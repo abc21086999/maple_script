@@ -8,26 +8,37 @@
 %%{init: {'theme': 'forest'} }%%
 graph LR;
 
-%% 第一步 []
-step1[Xiao初始化為鍵盤]
+%% 第一步 
+step1([Xiao初始化為鍵盤、滑鼠])
 
 %% 第二步 []
-step2[電腦辨識畫面]
+step2([電腦辨識畫面])
 
 %% 第三步 []
-step3[存入deque]
+step3([存入deque])
 
 %% 第四步 []
-step4[取出傳送給Xiao]
+step4([取出傳送給Xiao])
 
 %% 第五步 []
-step5[Xiao按下按鍵]
+step5([Xiao按下按鍵])
 
 %% 第六步 []
-step6[電腦收到]
+step6([電腦收到])
+
+step7([Xiao移動滑鼠])
+
+step8([電腦計算滑鼠要移動的距離])
 
 %% 流程線 -->
-step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step2
+step1 ==> step2
+step1 ==> step8
+subgraph 鍵盤
+step2 ==> step3 ==> step4 ==> step5 ==> step6 
+end
+subgraph 滑鼠
+step8 ==> step7 ==> step6
+end
 ```
 
 ### 視覺辨識
