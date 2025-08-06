@@ -30,14 +30,18 @@ step7([Xiao移動滑鼠])
 
 step8([電腦計算滑鼠要移動的距離])
 
+step9([點擊])
+
 %% 流程線 -->
 step1 ==> step2
 step1 ==> step8
+step5 ==> step6
+step9 ==> step6
 subgraph 鍵盤
-step2 ==> step3 ==> step4 ==> step5 ==> step6 
+step2 ==> step3 ==> step4 ==> step5
 end
 subgraph 滑鼠
-step8 ==> step7 ==> step6
+step8 ==> step7 ==> step9
 end
 ```
 
