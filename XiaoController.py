@@ -1,5 +1,6 @@
 import serial.tools.list_ports
 import threading
+from serial import Serial
 
 
 class DeviceNotFoundException(Exception):
@@ -17,6 +18,7 @@ class XiaoController:
         self.connection= None
         self.baudrate = baudrate
         self.timeout = timeout
+        self.stop_event = threading.Event()
 
     def _get_xiao_ports(self):
         ports = serial.tools.list_ports.comports()
@@ -28,7 +30,7 @@ class XiaoController:
     def __enter__(self):
         self.port = self._get_xiao_ports()
         try:
-            self.connection = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+            self.connection = Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
             # 同時建立一個thread去聽Xiao回過來的訊息
             t = threading.Thread(target=self.read_from_port, daemon=True)
             t.start()
@@ -45,6 +47,7 @@ class XiaoController:
         return False
 
     def close(self):
+        self.stop_event.set()
         if self.connection and self.connection.is_open:
             self.connection.close()
             print(f"連接埠 {self.port} 已關閉。")
@@ -104,8 +107,8 @@ class XiaoController:
             raise
 
     def read_from_port(self):
-        while True:
-            if self.connection.is_open:
+        while not self.stop_event.is_set():
+            if self.connection is not None and self.connection.is_open:
                 data = self.connection.readline()
                 if data:
                     print("Xiao:", data.decode().strip())

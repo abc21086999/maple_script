@@ -16,7 +16,7 @@ class MapleScript:
         self.maple = self.get_maple()
         self.maple_full_screen_area = self._get_maple_full_screen_area()
         self.maple_skill_area = self._get_maple_skill_area()
-        self.skills_queue = deque()
+        self.skills_list = list()
         self.gap_time = (0.5, 1.5)
         self.cur_path = Path(__file__).resolve().parent
         self.keyboard = controller
@@ -183,7 +183,7 @@ class MapleScript:
             # 取得目前滑鼠位置
             current_mouse_location = pyautogui.position()
             # 辨識遊戲截圖內有沒有我們要的東西
-            picture_location = pyautogui.locateCenterOnScreen(pic_for_search, confidence=0.9)
+            picture_location = pyautogui.locateCenterOnScreen(pic_for_search, region=self.maple_full_screen_area, confidence=0.9)
             # 如果有辨識到東西
             if picture_location is not None:
                 # 計算目前滑鼠的相對位置
@@ -208,10 +208,10 @@ class MapleScript:
         根據有沒有找到來決定要放哪個技能
         - 如果楓之谷不在前景，那麼就返回None
         - 如果楓之谷在前景，那麼就進行辨識
-        :return: deque with all the key on the keyboard
+        :return: None
         """
         # 先將序列清空，避免意外
-        self.skills_queue.clear()
+        self.skills_list.clear()
 
         # 如果楓之谷不在前景，那麼就返回None
         if not self.is_maple_focus():
@@ -223,10 +223,10 @@ class MapleScript:
             skill_image = skill_info.get("image")
             skill_key = skill_info.get("key")
             if self.is_on_screen(skill_image, screenshot):
-                self.skills_queue.append(skill_key)
+                self.skills_list.append(skill_key)
 
         # 用shuffle以增加隨機性
-        random.shuffle(self.skills_queue)
+        random.shuffle(self.skills_list)
         return None
 
     def press(self, key: str):
@@ -245,16 +245,16 @@ class MapleScript:
         :return:
         """
         # 如果queue是空的，就跳過所有步驟
-        if not self.skills_queue:
+        if not self.skills_list:
             return None
-        while self.skills_queue:
+        while self.skills_list:
             # queue有東西但是楓之谷不在前景，那就直接清空之後跳過
             if not self.is_maple_focus():
-                self.skills_queue.clear()
+                self.skills_list.clear()
                 break
             else:
                 # 將按鍵一個一個按下
-                key = self.skills_queue.pop()
+                key = self.skills_list.pop()
                 self.press(key)
                 time.sleep(random.uniform(*self.gap_time))
                 self.move_by_pressing_up()
@@ -274,14 +274,18 @@ class MapleScript:
 
     def start(self):
         self.prepare_character()
-        while True:
-            if self.is_maple_focus():
-                self.find_ready_skill()
-                self.press_ready_skills()
-                time.sleep(1)
-            else:
-                time.sleep(2)
-                continue
+        try:
+            while True:
+                if self.is_maple_focus():
+                    self.find_ready_skill()
+                    self.press_ready_skills()
+                    time.sleep(1)
+                else:
+                    time.sleep(2)
+                    continue
+        except KeyboardInterrupt:
+            print(f'腳本中止')
+            pass
 
 
 if __name__ == "__main__":
