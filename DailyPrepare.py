@@ -170,6 +170,6 @@ if __name__ == "__main__":
     with XiaoController() as controller:
         Maple = DailyPrepare(controller)
         Maple.switch_to_grinding_set()
-        # Maple.collect_union_coin()
-        # Maple.start_daily_or_weekly_mission()
-        # Maple.dismantle_armours()
+        Maple.collect_union_coin()
+        Maple.start_daily_or_weekly_mission()
+        Maple.dismantle_armours()

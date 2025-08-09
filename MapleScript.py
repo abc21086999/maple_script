@@ -230,13 +230,16 @@ class MapleScript:
         return None
 
     def press(self, key: str):
-        self.keyboard.press_key(key)
+        if self.keyboard is not None:
+            self.keyboard.press_key(key)
 
     def move(self, location: tuple):
-        self.mouse.send_mouse_location(location)
+        if self.mouse is not None:
+            self.mouse.send_mouse_location(location)
 
     def click(self):
-        self.mouse.click()
+        if self.mouse is not None:
+            self.mouse.click()
 
     def press_ready_skills(self):
         """
