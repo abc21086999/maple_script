@@ -1,2 +1,2 @@
 import usb_cdc
-usb_cdc.enable(data=True, console=False)
+usb_cdc.enable(data=False, console=True)
