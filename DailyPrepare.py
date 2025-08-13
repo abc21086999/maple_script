@@ -165,6 +165,22 @@ class DailyPrepare(MapleScript):
         # 按下上來離開技術村
         self.press("up")
 
+    def receive_hd_gift(self):
+        # TODO: 打開HD -> 如果有禮物可以領，那就領（還要記得依據什麼禮物要領什麼不要這樣來決定） -> 如果沒有就關掉
+        """
+        領取HD禮物
+        :return: None
+        """
+        pass
+
+    def receive_milestones(self):
+        # TODO: 點開里程的圖案 -> 選第二個選項 -> 如果有要領的里程就點下去 ->再去處理里程已經領完的狀況
+        """
+        領取里程
+        :return: None
+        """
+        pass
+
 
 if __name__ == "__main__":
     with XiaoController() as controller:
