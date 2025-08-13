@@ -88,7 +88,7 @@ class MapleScript:
                 "image": PIL.Image.open(self.get_photo_path("aio.png")),
             },
             # 阿涅摩依
-            "Anemoi": {
+            "anemoi": {
                 "key": "v",
                 "image": PIL.Image.open(self.get_photo_path("anemoi.png")),
             }

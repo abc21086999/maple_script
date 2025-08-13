@@ -124,7 +124,7 @@ class DailyPrepare(MapleScript):
 
         # 打開裝備欄
         self.press("i")
-        time.sleep(0.5)
+        time.sleep(0.8)
 
         # 點下分解裝備的按鈕
         self.find_and_click_image(self.get_photo_path("disassemble_panel.png"))
