@@ -167,7 +167,6 @@ class DailyPrepare(MapleScript):
         time.sleep(1.0)
 
     def receive_hd_gift(self):
-        # TODO: 打開HD -> 如果有禮物可以領，那就領（還要記得依據什麼禮物要領什麼不要這樣來決定） -> 如果沒有就關掉
         """
         領取HD禮物
         :return: None
@@ -205,6 +204,7 @@ class DailyPrepare(MapleScript):
         # 最後把HD界面關閉
         for i in range(2):
             self.press("esc")
+        time.sleep(0.5)
 
 
     def receive_milestones(self):
@@ -213,7 +213,41 @@ class DailyPrepare(MapleScript):
         領取里程
         :return: None
         """
-        pass
+        self.find_and_click_image(self.get_photo_path("milestone.png"))
+        time.sleep(0.3)
+
+        self.find_and_click_image(self.get_photo_path("milestone_coin.png"))
+        time.sleep(0.3)
+
+        self.press("down")
+        time.sleep(0.3)
+
+        self.press("enter")
+        time.sleep(0.5)
+
+        # 如果有里程可以領
+        if self.is_on_screen(self.get_photo_path("has_collectable_milestones.png")):
+            # 按下『領取里程』
+            self.press("enter")
+            time.sleep(0.3)
+
+            # 按下右選擇是
+            self.press("right")
+            time.sleep(0.3)
+
+            # 按下Enter領取之後再把里程視窗關閉
+            for i in range(2):
+                self.press("enter")
+                time.sleep(0.3)
+
+        # 不然就將里程視窗關閉
+        else:
+            self.press("esc")
+            time.sleep(0.3)
+
+        # 將左邊展開的里程界面關閉
+        self.find_and_click_image(self.get_photo_path("milestone.png"))
+        time.sleep(0.3)
 
 
 if __name__ == "__main__":
@@ -224,3 +258,4 @@ if __name__ == "__main__":
         Maple.start_daily_or_weekly_mission()
         Maple.dismantle_armours()
         Maple.receive_hd_gift()
+        Maple.receive_milestones()
