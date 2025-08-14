@@ -164,7 +164,7 @@ class DailyPrepare(MapleScript):
 
         # 按下上來離開技術村
         self.press("up")
-        time.sleep(1.0)
+        time.sleep(1.3)
 
     def receive_hd_gift(self):
         """
@@ -208,13 +208,15 @@ class DailyPrepare(MapleScript):
 
 
     def receive_milestones(self):
-        # TODO: 點開里程的圖案 -> 選第二個選項 -> 如果有要領的里程就點下去 ->再去處理里程已經領完的狀況
         """
         領取里程
         :return: None
         """
         self.find_and_click_image(self.get_photo_path("milestone.png"))
         time.sleep(0.3)
+
+        while not self.is_on_screen(self.get_photo_path("milestone_coin.png")):
+            time.sleep(0.1)
 
         self.find_and_click_image(self.get_photo_path("milestone_coin.png"))
         time.sleep(0.3)
