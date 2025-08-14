@@ -101,7 +101,12 @@ class MapleScript:
         """
         return window.width * window.height
 
-    def get_photo_path(self, pic_name: str):
+    def get_photo_path(self, pic_name: str) -> Path:
+        """
+        回傳圖片的路徑
+        :param pic_name: 圖片的檔案名稱
+        :return: Path
+        """
         return self.cur_path / "photos" / pic_name
 
     def get_maple(self):
@@ -123,7 +128,7 @@ class MapleScript:
     def is_maple_focus(self) -> bool:
         """
         根據楓之谷在不在前景決定回傳的bool值
-        :return:
+        :return: bool
         """
         return self.maple.isActive
 
