@@ -212,18 +212,23 @@ class DailyPrepare(MapleScript):
         領取里程
         :return: None
         """
+        # 點下左邊的里程圖案
         self.find_and_click_image(self.get_photo_path("milestone.png"))
         time.sleep(0.3)
 
+        # 等待里程的硬幣出現
         while not self.is_on_screen(self.get_photo_path("milestone_coin.png")):
             time.sleep(0.1)
 
+        # 點下里程硬幣的圖案
         self.find_and_click_image(self.get_photo_path("milestone_coin.png"))
         time.sleep(0.3)
 
+        # 選擇領取里程
         self.press("down")
         time.sleep(0.3)
 
+        # 按確認
         self.press("enter")
         time.sleep(0.5)
 
