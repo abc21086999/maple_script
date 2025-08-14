@@ -164,6 +164,7 @@ class DailyPrepare(MapleScript):
 
         # 按下上來離開技術村
         self.press("up")
+        time.sleep(1.0)
 
     def receive_hd_gift(self):
         # TODO: 打開HD -> 如果有禮物可以領，那就領（還要記得依據什麼禮物要領什麼不要這樣來決定） -> 如果沒有就關掉
@@ -171,7 +172,40 @@ class DailyPrepare(MapleScript):
         領取HD禮物
         :return: None
         """
-        pass
+        # 如果活動按鈕沒出現，那就把技能收起來
+        if not self.is_on_screen(self.get_photo_path("event_button.png")):
+            self.press("]")
+            time.sleep(0.3)
+
+        # 點下活動按鈕
+        self.find_and_click_image(self.get_photo_path("event_button.png"))
+        time.sleep(0.3)
+
+        # 點下HD按鈕
+        self.find_and_click_image(self.get_photo_path("hd.png"))
+        time.sleep(0.3)
+
+        # 點下領取獎勵的按鈕
+        self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
+        time.sleep(0.3)
+
+        # 如果有可以領取的禮物（考量到禮拜天可以領兩次所以就用while）
+        while self.is_on_screen(self.get_photo_path("hd_has_gift.png")):
+            self.find_and_click_image(self.get_photo_path("take_hd_coin.png"))
+            time.sleep(0.3)
+
+            # 關閉領完之後的確認頁面
+            self.press("esc")
+            time.sleep(0.1)
+
+            # 再按一次
+            self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
+            time.sleep(0.3)
+
+        # 最後把HD界面關閉
+        for i in range(2):
+            self.press("esc")
+
 
     def receive_milestones(self):
         # TODO: 點開里程的圖案 -> 選第二個選項 -> 如果有要領的里程就點下去 ->再去處理里程已經領完的狀況
@@ -189,3 +223,4 @@ if __name__ == "__main__":
         Maple.collect_union_coin()
         Maple.start_daily_or_weekly_mission()
         Maple.dismantle_armours()
+        Maple.receive_hd_gift()
