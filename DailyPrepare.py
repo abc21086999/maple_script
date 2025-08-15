@@ -182,27 +182,32 @@ class DailyPrepare(MapleScript):
 
         # 點下HD按鈕
         self.find_and_click_image(self.get_photo_path("hd.png"))
-        time.sleep(0.3)
+        time.sleep(0.5)
 
-        # 點下領取獎勵的按鈕
-        self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
-        time.sleep(0.3)
-
-        # 如果有可以領取的禮物（考量到禮拜天可以領兩次所以就用while）
-        while self.is_on_screen(self.get_photo_path("hd_has_gift.png")):
-            self.find_and_click_image(self.get_photo_path("take_hd_coin.png"))
-            time.sleep(0.3)
-
-            # 關閉領完之後的確認頁面
-            self.press("esc")
-            time.sleep(0.1)
-
-            # 再按一次
+        # 如果有HD可以領，就點下領取獎勵的按鈕
+        if self.is_on_screen(self.get_photo_path("receive_hd_gift.png")):
             self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
             time.sleep(0.3)
 
-        # 最後把HD界面關閉
-        for i in range(2):
+            # 如果有可以領取的禮物（考量到禮拜天可以領兩次所以就用while）
+            while self.is_on_screen(self.get_photo_path("hd_has_gift.png")):
+                self.find_and_click_image(self.get_photo_path("take_hd_coin.png"))
+                time.sleep(0.3)
+
+                # 關閉領完之後的確認頁面
+                self.press("esc")
+                time.sleep(0.1)
+
+                # 再按一次
+                self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
+                time.sleep(0.3)
+
+            # 最後把HD界面關閉
+            for i in range(2):
+                self.press("esc")
+
+        # 不然就直接離開HD界面
+        else:
             self.press("esc")
         time.sleep(0.5)
 
