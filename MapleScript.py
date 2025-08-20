@@ -1,7 +1,6 @@
 import sys
 import time
 import pygetwindow as gw
-from collections import deque
 import pyautogui
 import random
 import pyscreeze
@@ -13,7 +12,7 @@ from pathlib import Path
 class MapleScript:
 
     def __init__(self, controller=None):
-        self.maple = self.get_maple()
+        self.maple = self._get_maple()
         self.maple_full_screen_area = self._get_maple_full_screen_area()
         self.maple_skill_area = self._get_maple_skill_area()
         self.skills_list = list()
@@ -109,7 +108,7 @@ class MapleScript:
         """
         return self.cur_path / "photos" / pic_name
 
-    def get_maple(self):
+    def _get_maple(self):
         """
         切換到楓之谷的程式
         :return: 楓之谷程式
@@ -187,28 +186,32 @@ class MapleScript:
         try:
             # 取得目前滑鼠位置
             current_mouse_location = pyautogui.position()
+
             # 辨識遊戲截圖內有沒有我們要的東西
             picture_location = pyautogui.locateCenterOnScreen(pic_for_search, region=self.maple_full_screen_area, confidence=0.9)
+
             # 如果有辨識到東西
             if picture_location is not None:
                 # 計算目前滑鼠的相對位置
                 dx = int(picture_location.x - current_mouse_location[0])
                 dy = int(picture_location.y - current_mouse_location[1])
+
                 # 移動過去
                 self.move((dx, dy))
                 time.sleep(0.1)
+
                 # 點下
                 self.click()
+
             # 如果沒辨識到東西就不做任何事情
             else:
                 print(f'畫面中找不到{pic_for_search}')
-                pass
-        except pyautogui.ImageNotFoundException:
-            print(f'畫面中找不到{pic_for_search}')
-            # 如果沒辨識到東西就不做任何事情
-            pass
 
-    def find_ready_skill(self):
+        except pyautogui.ImageNotFoundException:
+            # 如果沒辨識到東西就不做任何事情
+            print(f'畫面中找不到{pic_for_search}')
+
+    def find_ready_skill(self) -> None:
         """
         根據有沒有找到來決定要放哪個技能
         - 如果楓之谷不在前景，那麼就返回None
@@ -234,25 +237,25 @@ class MapleScript:
         random.shuffle(self.skills_list)
         return None
 
-    def press(self, key: str):
+    def press(self, key: str) -> None:
         if self.keyboard is not None:
             self.keyboard.press_key(key)
         else:
             print(f'沒鍵盤')
 
-    def move(self, location: tuple):
+    def move(self, location: tuple) -> None:
         if self.mouse is not None:
             self.mouse.send_mouse_location(location)
         else:
             print(f'沒滑鼠')
 
-    def click(self):
+    def click(self) -> None:
         if self.mouse is not None:
             self.mouse.click()
         else:
             print(f'沒滑鼠')
 
-    def press_ready_skills(self):
+    def press_ready_skills(self) -> None:
         """
         將技能一個一個按下去
         如果楓之谷不在前景，那麼就會清空
@@ -274,19 +277,22 @@ class MapleScript:
                 self.move_by_pressing_up()
         return None
 
-    def move_by_pressing_up(self):
+    def move_by_pressing_up(self) -> None:
+        """
+        隨機（20％的機率）按下上，來透過傳點移動
+        :return: None
+        """
         if self.is_maple_focus() and random.random() < 0.2:
             self.press("up")
 
-    def prepare_character(self):
-        hamburger_menu = PIL.Image.open(self.get_photo_path("hamburger_menu.png"))
-        screenshot = self.get_skill_area_screenshot()
+    def prepare_character(self) -> None:
+        hamburger_menu = self.get_photo_path("hamburger_menu.png")
         # 如果畫面上出現漢堡選單，那就是技能列表沒有展開
-        if self.is_on_screen(hamburger_menu, screenshot):
+        if self.is_on_screen(hamburger_menu):
             # 展開技能列表
             self.press("]")
 
-    def start(self):
+    def start(self) -> None:
         self.prepare_character()
         try:
             while True:
@@ -299,7 +305,6 @@ class MapleScript:
                     continue
         except KeyboardInterrupt:
             print(f'腳本中止')
-            pass
 
 
 if __name__ == "__main__":
