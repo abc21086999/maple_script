@@ -200,7 +200,7 @@ class DailyPrepare(MapleScript):
 
                 # 再按一次
                 self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
-                time.sleep(0.3)
+                time.sleep(0.5)
 
             # 最後把HD界面關閉
             for i in range(2):
