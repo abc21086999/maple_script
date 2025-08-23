@@ -16,7 +16,7 @@ class MapleScript:
         self.maple_full_screen_area = self._get_maple_full_screen_area()
         self.maple_skill_area = self._get_maple_skill_area()
         self.skills_list = list()
-        self.gap_time = (0.5, 1.5)
+        self.gap_time = (0.5, 1.0)
         self.cur_path = Path(__file__).resolve().parent
         self.keyboard = controller
         self.mouse = controller
@@ -233,6 +233,10 @@ class MapleScript:
             if self.is_on_screen(skill_image, screenshot):
                 self.skills_list.append(skill_key)
 
+        # 隨機的加入不需要圖片辨識的妖精護盾
+        for i in range(random.randint(0, 1)):
+            self.skills_list.append("ctrl")
+
         # 用shuffle以增加隨機性
         random.shuffle(self.skills_list)
         return None
@@ -282,7 +286,7 @@ class MapleScript:
         隨機（20％的機率）按下上，來透過傳點移動
         :return: None
         """
-        if self.is_maple_focus() and random.random() < 0.2:
+        if self.is_maple_focus() and random.random() < 0.3:
             self.press("up")
 
     def prepare_character(self) -> None:

@@ -32,6 +32,7 @@ mapping = {
     'enter': Keycode.ENTER,          # "Enter鍵"
     'f10': Keycode.F10,              # "戰地聯盟界面"
     'esc': Keycode.ESC,              # "ESC按鍵"
+    'ctrl': Keycode.CONTROL,         # "妖精護盾"
 }
 
 
