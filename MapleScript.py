@@ -315,6 +315,6 @@ class MapleScript:
 
 
 if __name__ == "__main__":
-    with XiaoController() as controller:
-        Maple = MapleScript(controller)
+    with XiaoController() as Xiao:
+        Maple = MapleScript(Xiao)
         Maple.start()
