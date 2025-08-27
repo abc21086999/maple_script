@@ -249,6 +249,10 @@ class MapleScript:
         else:
             print(f'沒鍵盤')
 
+    def press_and_wait(self, key: str, wait_time: float | int = 0.3):
+        self.press(key)
+        time.sleep(wait_time)
+
     def move(self, location: tuple) -> None:
         if self.mouse is not None:
             self.mouse.send_mouse_location(location)
