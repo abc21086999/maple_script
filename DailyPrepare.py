@@ -63,18 +63,23 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(self.get_photo_path("daily_schedule.png"))
 
             # 如果有開始任務的按鈕，那就按下去
-            daily_start_button = PIL.Image.open(self.get_photo_path("schedule_daily_all_start.png"))
+            daily_start_button = self.get_photo_path("schedule_daily_all_start.png")
             if self.is_on_screen(daily_start_button):
                 self.find_and_click_image(daily_start_button)
 
             # 如果有已經可以完成的任務，那就完成
-            daily_finish_button = PIL.Image.open(self.get_photo_path("schedule_daily_all_complete.png"))
+            daily_finish_button = self.get_photo_path("schedule_daily_all_complete.png")
             if self.is_on_screen(daily_finish_button):
                 self.find_and_click_image(daily_finish_button)
                 self.find_and_click_image(self.get_photo_path("schedule_panel_confirm.png"))
 
+                # 有額外的活動獎勵
+                bonus = self.get_photo_path("daily_bonus.png")
+                if self.is_on_screen(bonus):
+                    self.find_and_click_image(bonus)
+
             # 開始每週任務
-            weekly_mission_start_button = PIL.Image.open(self.get_photo_path("weekly_mission_start_button.png"))
+            weekly_mission_start_button = self.get_photo_path("weekly_mission_start_button.png")
             if self.is_on_screen(weekly_mission_start_button):
                 # 點下開始每週任務的按鈕
                 self.find_and_click_image(weekly_mission_start_button)
@@ -88,7 +93,7 @@ class DailyPrepare(MapleScript):
                     time.sleep(0.3)
 
             # 如果有可以完成的每週任務，那就完成它
-            complete_weekly_mission = PIL.Image.open(self.get_photo_path("complete_weekly_mission_button.png"))
+            complete_weekly_mission = self.get_photo_path("complete_weekly_mission_button.png")
             if self.is_on_screen(complete_weekly_mission):
                 self.find_and_click_image(complete_weekly_mission)
 
@@ -107,7 +112,7 @@ class DailyPrepare(MapleScript):
     def dismantle_armours(self):
         """
         分解裝備
-        :return:
+        :return: None
         """
         while self.is_maple_focus():
             # 點下快速移動的界面
@@ -185,6 +190,7 @@ class DailyPrepare(MapleScript):
             if self.is_on_screen(self.get_photo_path("all_hd_gifts_received.png")):
                 for i in range(2):
                     self.press("esc")
+
             # 如果有HD可以領，就點下領取獎勵的按鈕
             elif self.is_on_screen(self.get_photo_path("receive_hd_gift.png")):
                 self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
@@ -264,9 +270,9 @@ class DailyPrepare(MapleScript):
 if __name__ == "__main__":
     with XiaoController() as controller:
         Maple = DailyPrepare(controller)
-        # Maple.switch_to_grinding_set()
-        # Maple.collect_union_coin()
-        # Maple.start_daily_or_weekly_mission()
-        # Maple.dismantle_armours()
+        Maple.switch_to_grinding_set()
+        Maple.collect_union_coin()
+        Maple.start_daily_or_weekly_mission()
+        Maple.dismantle_armours()
         Maple.receive_hd_gift()
-        # Maple.receive_milestones()
+        Maple.receive_milestones()
