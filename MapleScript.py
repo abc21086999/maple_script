@@ -183,6 +183,7 @@ class MapleScript:
             pic_for_search = PIL.Image.open(pic_for_search)
         elif isinstance(pic_for_search, Path):
             pic_for_search = PIL.Image.open(str(pic_for_search))
+
         try:
             # 取得目前滑鼠位置
             current_mouse_location = pyautogui.position()
@@ -202,6 +203,7 @@ class MapleScript:
 
                 # 點下
                 self.click()
+                time.sleep(0.3)
 
             # 如果沒辨識到東西就不做任何事情
             else:
