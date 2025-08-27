@@ -1,7 +1,6 @@
 import time
 from XiaoController import XiaoController
 from MapleScript import MapleScript
-import PIL.Image
 
 
 class DailyPrepare(MapleScript):
@@ -268,8 +267,8 @@ class DailyPrepare(MapleScript):
 
 
 if __name__ == "__main__":
-    with XiaoController() as controller:
-        Maple = DailyPrepare(controller)
+    with XiaoController() as Xiao:
+        Maple = DailyPrepare(Xiao)
         Maple.switch_to_grinding_set()
         Maple.collect_union_coin()
         Maple.start_daily_or_weekly_mission()
