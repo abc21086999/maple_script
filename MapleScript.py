@@ -290,6 +290,7 @@ class MapleScript:
         """
         if self.is_maple_focus() and random.random() < 0.3:
             self.press("up")
+            time.sleep(random.uniform(*self.gap_time))
 
     def prepare_character(self) -> None:
         hamburger_menu = self.get_photo_path("hamburger_menu.png")
