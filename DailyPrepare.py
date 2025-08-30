@@ -275,7 +275,7 @@ class DailyPrepare(MapleScript):
         if self.is_on_screen(self.get_photo_path("re_stock_all.png")):
             # 重新上架
             self.find_and_click_image(self.get_photo_path("re_stock_all.png"))
-            self.press_and_wait("enter", 2.5)
+            self.press_and_wait("enter")
             # 處理重新上架遇到位子不夠或是需要等待的狀況
             while not self.is_on_screen(self.get_photo_path("re_stock_finish.png")):
 
@@ -290,8 +290,10 @@ class DailyPrepare(MapleScript):
             # 重新上架完按個Esc把訊息關掉
             self.press_and_wait("esc")
 
+        self.find_and_click_image(self.get_photo_path("market_title.png"))
+
         # 如果沒有需要重新上架，只有需要回收楓幣的
-        elif self.is_on_screen(self.get_photo_path("all_collectable.png")):
+        if self.is_on_screen(self.get_photo_path("all_collectable.png")):
             # 那就回收楓幣，回收完按個Esc把訊息關掉
             self.find_and_click_image(self.get_photo_path("all_collectable.png"))
             self.press_and_wait("enter", 0.5)

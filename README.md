@@ -15,7 +15,7 @@ step1([Xiao初始化為鍵盤、滑鼠])
 step2([電腦辨識畫面])
 
 %% 第三步 []
-step3([存入deque])
+step3([存入list])
 
 %% 第四步 []
 step4([取出傳送給Xiao])
