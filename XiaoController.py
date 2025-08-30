@@ -71,6 +71,76 @@ class XiaoController:
             self.close()
             raise
 
+    def key_down(self, key: str):
+        """
+        向硬體發送一個長壓按鍵指令
+        :param key: 要長壓的按鈕
+        """
+        if not self.connection:
+            print("沒有建立連線")
+            return None
+
+        try:
+            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
+            self.connection.write(f'keyDown:{key}\n'.encode('utf-8'))
+            print(f"已發送指令: 長壓 {key}")
+        except serial.SerialException as e:
+            print(f'發生錯誤：{e}')
+            self.close()
+            raise
+
+    def key_up(self, key: str):
+        """
+        向硬體發送一個放開按鍵指令
+        :param key: 要放開的按鈕
+        """
+        if not self.connection:
+            print("沒有建立連線")
+            return None
+
+        try:
+            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
+            self.connection.write(f'keyUp:{key}\n'.encode('utf-8'))
+            print(f"已發送指令: 放開 {key}")
+        except serial.SerialException as e:
+            print(f'發生錯誤：{e}')
+            self.close()
+            raise
+
+    def scroll_up(self):
+        """
+        向硬體發送一個滑鼠滾輪上滑指令
+        """
+        if not self.connection:
+            print("沒有建立連線")
+            return None
+
+        try:
+            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
+            self.connection.write(f'scroll_up\n'.encode('utf-8'))
+            print(f"已發送指令: 要移動")
+        except serial.SerialException as e:
+            print(f'發生錯誤：{e}')
+            self.close()
+            raise
+
+    def scroll_down(self):
+        """
+        向硬體發送一個滑鼠滾輪下滑指令
+        """
+        if not self.connection:
+            print("沒有建立連線")
+            return None
+
+        try:
+            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
+            self.connection.write(f'scroll_down\n'.encode('utf-8'))
+            print(f"已發送指令: 要移動")
+        except serial.SerialException as e:
+            print(f'發生錯誤：{e}')
+            self.close()
+            raise
+
     def send_mouse_location(self, location: tuple):
         """
         向硬體發送一個按鍵指令
