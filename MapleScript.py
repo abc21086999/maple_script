@@ -265,6 +265,30 @@ class MapleScript:
         else:
             print(f'沒滑鼠')
 
+    def key_down(self, key: str) -> None:
+        if self.keyboard is not None:
+            self.keyboard.key_down(key)
+        else:
+            print(f'沒鍵盤')
+
+    def key_up(self, key: str) -> None:
+        if self.keyboard is not None:
+            self.keyboard.key_up(key)
+        else:
+            print(f'沒鍵盤')
+
+    def scroll_up(self) -> None:
+        if self.mouse is not None:
+            self.mouse.scroll_up()
+        else:
+            print(f'沒滑鼠')
+
+    def scroll_down(self) -> None:
+        if self.mouse is not None:
+            self.mouse.scroll_down()
+        else:
+            print(f'沒滑鼠')
+
     def press_ready_skills(self) -> None:
         """
         將技能一個一個按下去
@@ -295,6 +319,16 @@ class MapleScript:
         if self.is_maple_focus() and random.random() < 0.3:
             self.press("up")
             time.sleep(random.uniform(*self.gap_time))
+
+    def move_by_grappling(self) -> None:
+        if (self.is_maple_focus() and
+            self.is_on_screen(self.get_photo_path("grappling.png")) and
+            random.random() < 0.1):
+            self.press_and_wait("8", 2)
+            time.sleep(random.uniform(*self.gap_time))
+            self.key_down("down")
+            self.press("alt")
+            self.key_up("down")
 
     def prepare_character(self) -> None:
         hamburger_menu = self.get_photo_path("hamburger_menu.png")

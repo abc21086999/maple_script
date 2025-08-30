@@ -33,6 +33,12 @@ mapping = {
     'f10': Keycode.F10,              # "戰地聯盟界面"
     'esc': Keycode.ESC,              # "ESC按鍵"
     'ctrl': Keycode.CONTROL,         # "妖精護盾"
+    't': Keycode.T,                  # "Boss界面"
+    'space': Keycode.SPACEBAR,       # "空白鍵"
+    'y': Keycode.Y,                  # "對話鍵"
+    'alt': Keycode.ALT,              # "Alt鍵"
+    '=': Keycode.EQUALS,             # "等號、加號"
+    '8': Keycode.EIGHT,              # "連接繩索"
 }
 
 
@@ -51,11 +57,41 @@ def handle_mouse(mouse_location: str):
     parts = mouse_location.strip("()").split(",")
     dx, dy = tuple(int(p.strip()) for p in parts)
     mouse.move(x=dx, y=dy)
+    print(f'已經移動({dx}, {dy})')
 
 
 def click_mouse():
     mouse.click(Mouse.LEFT_BUTTON)
     mouse.release_all()
+    print(f'已經按下滑鼠右鍵後放開')
+
+
+def keyDown(decoded_string: str):
+    keyDown, key = decoded_string.split(":")
+    keycode = mapping.get(key)
+    if keycode is not None:
+        keyboard.press(keycode)
+        print(f'已長壓：{decoded_string}')
+    else:
+        print(f"未知指令：{decoded_string}")
+
+
+def keyUp(decoded_string: str):
+    keyDown, key = decoded_string.split(":")
+    keycode = mapping.get(key)
+    if keycode is not None:
+        keyboard.release(keycode)
+        print(f'已放開：{decoded_string}')
+    else:
+        print(f"未知指令：{decoded_string}")
+
+
+def scroll_up():
+    mouse.move(wheel=1)
+
+
+def scroll_down():
+    mouse.move(wheel=-1)
 
 
 print("XIAO 已啟動，等待指令...")
@@ -78,6 +114,22 @@ while True:
             # 如果送來的是click，那麼就要按下滑鼠左鍵
             elif decoded_str == "click":
                 click_mouse()
+
+            # 如果是keyDown開頭，那就是要下壓某個按鍵
+            elif decoded_str.startswith("keydown"):
+                keyDown(decoded_str)
+
+            # 如果是keyUp開頭，那就是要下壓某個按鍵
+            elif decoded_str.startswith("keyup"):
+                keyUp(decoded_str)
+
+            # 如果是scroll_up，那就是要上滑
+            elif decoded_str == "scroll_up":
+                scroll_up()
+
+            # 如果是scroll_down，那就是要下滑
+            elif decoded_str == "scroll_down":
+                scroll_down()
 
             # 此外的都是要按下的按鍵
             else:
