@@ -119,9 +119,11 @@ class DailyPrepare(MapleScript):
 
             # 點下『是』，去到技術村
             self.press_and_wait("right")
+            self.press_and_wait("enter")
 
             # 移動中
-            self.press_and_wait("enter", 1.5)
+            while not self.is_on_screen(self.get_photo_path("ardentmill.png")):
+                time.sleep(0.5)
 
             # 打開裝備欄
             self.press_and_wait("i", 0.8)
@@ -245,7 +247,60 @@ class DailyPrepare(MapleScript):
 
             # 將左邊展開的里程界面關閉
             self.find_and_click_image(self.get_photo_path("milestone.png"))
+            time.sleep(0.5)
             break
+
+    def collect_market(self):
+        """
+        處理拍賣
+        :return: None
+        """
+        while not self.is_on_screen(self.get_photo_path("hamburger_menu.png")):
+            self.press_and_wait("]", 1)
+
+        # 按下漢堡選單
+        self.find_and_click_image(self.get_photo_path("hamburger_menu.png"))
+
+        # 按下拍賣
+        self.find_and_click_image(self.get_photo_path("market.png"))
+
+        # 等待進入拍賣
+        while not self.is_on_screen(self.get_photo_path("market_title.png")):
+            time.sleep(0.5)
+
+        # 切換到完成的那個Tab
+        self.find_and_click_image(self.get_photo_path("market_collectable_tab.png"))
+
+        # 如果有要重新上架的商品
+        if self.is_on_screen(self.get_photo_path("re_stock_all.png")):
+            # 重新上架
+            self.find_and_click_image(self.get_photo_path("re_stock_all.png"))
+            self.press_and_wait("enter", 2.5)
+            # 處理重新上架遇到位子不夠或是需要等待的狀況
+            while not self.is_on_screen(self.get_photo_path("re_stock_finish.png")):
+
+                # 如果遇到上架的時候沒位子了，那麼先把有賣掉的回收楓幣
+                if self.is_on_screen(self.get_photo_path("no_vacancy_in_market.png")):
+                    collect_money = self.get_photo_path("collect_money.png")
+                    while self.is_on_screen(collect_money):
+                        self.find_and_click_image(collect_money)
+                        self.press_and_wait("enter")
+                else:
+                    time.sleep(1)
+            # 重新上架完按個Esc把訊息關掉
+            self.press_and_wait("esc")
+
+        # 如果沒有需要重新上架，只有需要回收楓幣的
+        elif self.is_on_screen(self.get_photo_path("all_collectable.png")):
+            # 那就回收楓幣，回收完按個Esc把訊息關掉
+            self.find_and_click_image(self.get_photo_path("all_collectable.png"))
+            self.press_and_wait("enter", 0.5)
+            while not self.is_on_screen(self.get_photo_path("all_collected.png")):
+                time.sleep(1)
+            self.press_and_wait("esc")
+
+        # 離開拍賣
+        self.find_and_click_image(self.get_photo_path("leave_market.png"))
 
 
 if __name__ == "__main__":
@@ -257,3 +312,4 @@ if __name__ == "__main__":
         Maple.dismantle_armours()
         Maple.receive_hd_gift()
         Maple.receive_milestones()
+        Maple.collect_market()
