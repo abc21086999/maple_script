@@ -26,11 +26,16 @@ class DailyPrepare(MapleScript):
 
             # 如果有東西不一樣（出現確認按鈕）需要切換，再按下Enter
             if self.is_on_screen(self.get_photo_path("confirm_daily_pop_up.png")):
-                self.press("enter")
-            time.sleep(0.3)
+                self.press_and_wait("enter")
 
             # 最後不管怎麼樣，都要用Esc將界面關閉
-            self.press("esc")
+            self.press_and_wait("esc")
+
+            # 檢查開關技能有沒有開啟
+            if not (self.is_on_screen(self.get_photo_path("storm_elemental.png")) or
+                    self.is_on_screen(self.get_photo_path("trifling_wind.png")) or
+                    self.is_on_screen(self.get_photo_path("guided_arrow.png"))):
+                self.press_and_wait("=", 1)
             break
 
     def collect_union_coin(self):
@@ -40,16 +45,12 @@ class DailyPrepare(MapleScript):
         """
         while self.is_maple_focus():
             # 打開戰地聯盟的界面
-            self.press("f10")
-            time.sleep(1)
+            self.press_and_wait("f10", 1)
 
-            # 按下拿硬幣的按鈕，接著用Enter關掉確認界面
+            # 按下拿硬幣的按鈕，接著用Enter關掉確認界面，再按Esc離開
             self.find_and_click_image(self.get_photo_path("get_coin.png"))
-            time.sleep(0.2)
-
-            self.press("enter")
-            self.press("esc")
-            time.sleep(0.3)
+            self.press_and_wait("enter")
+            self.press_and_wait("esc")
             break
 
     def start_daily_or_weekly_mission(self):
@@ -84,12 +85,10 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(weekly_mission_start_button)
 
                 # 選擇『是』
-                self.press("right")
-                time.sleep(0.3)
+                self.press_and_wait("right")
 
                 for i in range(2):
-                    self.press("enter")
-                    time.sleep(0.3)
+                    self.press_and_wait("enter")
 
             # 如果有可以完成的每週任務，那就完成它
             complete_weekly_mission = self.get_photo_path("complete_weekly_mission_button.png")
@@ -97,12 +96,10 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(complete_weekly_mission)
 
                 # 選擇『是』
-                self.press("right")
-                time.sleep(0.3)
+                self.press_and_wait("right")
 
                 for i in range(2):
-                    self.press("enter")
-                    time.sleep(0.3)
+                    self.press_and_wait("enter")
 
             # 不管怎麼樣最後要把界面關閉
             self.press("esc")
@@ -121,16 +118,13 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(self.get_photo_path("village.png"))
 
             # 點下『是』，去到技術村
-            self.press("right")
-            time.sleep(0.3)
+            self.press_and_wait("right")
 
             # 移動中
-            self.press("enter")
-            time.sleep(1.5)
+            self.press_and_wait("enter", 1.5)
 
             # 打開裝備欄
-            self.press("i")
-            time.sleep(0.8)
+            self.press_and_wait("i", 0.8)
 
             # 點下分解裝備的按鈕
             self.find_and_click_image(self.get_photo_path("disassemble_panel.png"))
@@ -147,12 +141,10 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(self.get_photo_path("disassemble.png"))
 
                 # 確定分解並等待
-                self.press("enter")
-                time.sleep(3)
+                self.press_and_wait("enter", 3)
 
                 # 確認分解完成的訊息
-                self.press("enter")
-                time.sleep(0.3)
+                self.press_and_wait("enter")
 
                 # 再點一次將裝備放上的按鈕
                 self.find_and_click_image(self.get_photo_path("put_all_armor_on_table.png"))
@@ -160,12 +152,10 @@ class DailyPrepare(MapleScript):
             # 最後都沒有裝備要分解了，按兩下Esc以關閉分解界面和裝備界面
             print("裝備分解完成")
             for i in range(2):
-                self.press("esc")
-                time.sleep(0.1)
+                self.press_and_wait("esc", 0.1)
 
             # 按下上來離開技術村
-            self.press("up")
-            time.sleep(1.5)
+            self.press_and_wait("up", 1.5)
             break
 
     def receive_hd_gift(self):
@@ -175,9 +165,9 @@ class DailyPrepare(MapleScript):
         """
         while self.is_maple_focus():
             # 如果活動按鈕沒出現，那就把技能收起來
-            if not self.is_on_screen(self.get_photo_path("event_button.png")):
-                self.press("]")
+            while not self.is_on_screen(self.get_photo_path("event_button.png")):
                 time.sleep(0.3)
+                self.press_and_wait("]")
 
             # 點下活動按鈕
             self.find_and_click_image(self.get_photo_path("event_button.png"))
@@ -199,12 +189,10 @@ class DailyPrepare(MapleScript):
                     self.find_and_click_image(self.get_photo_path("take_hd_coin.png"))
 
                     # 關閉領完之後的確認頁面
-                    self.press("esc")
-                    time.sleep(0.1)
+                    self.press_and_wait("esc")
 
                     # 再按一次
                     self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
-                    time.sleep(0.2)
 
                 # 最後把HD界面關閉
                 for i in range(2):
@@ -234,32 +222,26 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(self.get_photo_path("milestone_coin.png"))
 
             # 選擇領取里程
-            self.press("down")
-            time.sleep(0.3)
+            self.press_and_wait("down")
 
             # 按確認
-            self.press("enter")
-            time.sleep(0.5)
+            self.press_and_wait("enter", 0.5)
 
             # 如果有里程可以領
             if self.is_on_screen(self.get_photo_path("has_collectable_milestones.png")):
                 # 按下『領取里程』
-                self.press("enter")
-                time.sleep(0.3)
+                self.press_and_wait("enter")
 
                 # 按下右選擇是
-                self.press("right")
-                time.sleep(0.3)
+                self.press_and_wait("right")
 
                 # 按下Enter領取之後再把里程視窗關閉
                 for i in range(2):
-                    self.press("enter")
-                    time.sleep(0.3)
+                    self.press_and_wait("enter")
 
             # 不然就將里程視窗關閉
             else:
-                self.press("esc")
-                time.sleep(0.3)
+                self.press_and_wait("esc")
 
             # 將左邊展開的里程界面關閉
             self.find_and_click_image(self.get_photo_path("milestone.png"))

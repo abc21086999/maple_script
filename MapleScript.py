@@ -299,9 +299,9 @@ class MapleScript:
     def prepare_character(self) -> None:
         hamburger_menu = self.get_photo_path("hamburger_menu.png")
         # 如果畫面上出現漢堡選單，那就是技能列表沒有展開
-        if self.is_on_screen(hamburger_menu):
+        while self.is_on_screen(hamburger_menu):
             # 展開技能列表
-            self.press("]")
+            self.press_and_wait("]")
 
     def start(self) -> None:
         self.prepare_character()
