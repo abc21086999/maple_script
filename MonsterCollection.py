@@ -46,9 +46,10 @@ class MonsterCollection(MapleScript):
 
         # 鬆開Enter
         self.key_up("enter")
+        time.sleep(0.5)
 
         # 最後用Esc將怪物蒐藏界面關閉
-        self.press("esc")
+        self.press_and_wait("esc")
 
 
 if __name__ == "__main__":
