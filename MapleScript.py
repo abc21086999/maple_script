@@ -268,12 +268,14 @@ class MapleScript:
     def key_down(self, key: str) -> None:
         if self.keyboard is not None:
             self.keyboard.key_down(key)
+            time.sleep(0.1)
         else:
             print(f'沒鍵盤')
 
     def key_up(self, key: str) -> None:
         if self.keyboard is not None:
             self.keyboard.key_up(key)
+            time.sleep(0.1)
         else:
             print(f'沒鍵盤')
 
