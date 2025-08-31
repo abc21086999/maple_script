@@ -118,7 +118,7 @@ class XiaoController:
         try:
             # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
             self.connection.write(f'scroll_up\n'.encode('utf-8'))
-            print(f"已發送指令: 要移動")
+            print(f"已發送指令: 要上滑")
         except serial.SerialException as e:
             print(f'發生錯誤：{e}')
             self.close()
@@ -135,7 +135,7 @@ class XiaoController:
         try:
             # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
             self.connection.write(f'scroll_down\n'.encode('utf-8'))
-            print(f"已發送指令: 要移動")
+            print(f"已發送指令: 要下滑")
         except serial.SerialException as e:
             print(f'發生錯誤：{e}')
             self.close()
