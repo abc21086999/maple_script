@@ -45,11 +45,28 @@ class DailyPrepare(MapleScript):
         """
         while self.is_maple_focus():
             # 打開戰地聯盟的界面
-            self.press_and_wait("f10", 1)
+            self.press_and_wait("f10")
+            while not self.is_on_screen(self.get_photo_path("get_coin.png")):
+                time.sleep(0.1)
 
-            # 按下拿硬幣的按鈕，接著用Enter關掉確認界面，再按Esc離開
+            # 按下拿硬幣的按鈕，接著按Enter關掉確認畫面
             self.find_and_click_image(self.get_photo_path("get_coin.png"))
             self.press_and_wait("enter")
+
+            # 切換到神器頁面
+            self.find_and_click_image(self.get_photo_path("union_artifact_tab.png"))
+            while not self.is_on_screen(self.get_photo_path("extend_union_artifact_button.png")):
+                time.sleep(0.1)
+
+            # 點擊延長按鈕
+            self.find_and_click_image(self.get_photo_path("extend_union_artifact_button.png"))
+            if self.is_on_screen(self.get_photo_path("extend_union_artifact_error_message.png")):
+                self.press_and_wait("enter")
+            else:
+                self.find_and_click_image(self.get_photo_path("extend_union_artifact_confirm_button.png"))
+
+
+            # 最後按Esc離開
             self.press_and_wait("esc")
             break
 
@@ -126,7 +143,9 @@ class DailyPrepare(MapleScript):
                 time.sleep(0.5)
 
             # 打開裝備欄
-            self.press_and_wait("i", 0.8)
+            self.press_and_wait("i")
+            while not self.is_on_screen(self.get_photo_path("disassemble_panel.png")):
+                time.sleep(0.1)
 
             # 點下分解裝備的按鈕
             self.find_and_click_image(self.get_photo_path("disassemble_panel.png"))
@@ -143,7 +162,9 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(self.get_photo_path("disassemble.png"))
 
                 # 確定分解並等待
-                self.press_and_wait("enter", 3)
+                self.press_and_wait("enter")
+                while not self.is_on_screen(self.get_photo_path("dismantle_complete.png")):
+                    time.sleep(0.1)
 
                 # 確認分解完成的訊息
                 self.press_and_wait("enter")
@@ -247,7 +268,6 @@ class DailyPrepare(MapleScript):
 
             # 將左邊展開的里程界面關閉
             self.find_and_click_image(self.get_photo_path("milestone.png"))
-            time.sleep(0.5)
             break
 
     def collect_market(self):
