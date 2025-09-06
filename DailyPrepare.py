@@ -325,6 +325,34 @@ class DailyPrepare(MapleScript):
         self.find_and_click_image(self.get_photo_path("leave_market.png"))
 
 
+    def complete_master_and_apprentice(self):
+        """
+        完成師徒系統
+        :return: None
+        """
+        community_button = self.get_photo_path("community_button.png")
+        # 如果社群按鈕沒在畫面上就把技能收起來
+        while not self.is_on_screen(community_button):
+            self.press_and_wait("]")
+
+        # 按下社群按鈕，然後按下師徒
+        self.find_and_click_image(community_button)
+        self.find_and_click_image(self.get_photo_path("master_and_apprentice_button.png"))
+
+        # 等待界面打開
+        while not self.is_on_screen(self.get_photo_path("master_and_apprentice_title.png")):
+            time.sleep(0.1)
+
+        # 當界面上還有完成出現的時候，就一個一個按下去
+        complete_button = self.get_photo_path("master_and_apprentice_complete_button.png")
+        while self.is_on_screen(complete_button):
+            self.find_and_click_image(complete_button)
+
+        # 最後按下Esc來離開師徒界面
+        time.sleep(0.3)
+        self.press_and_wait("esc")
+
+
 if __name__ == "__main__":
     with XiaoController() as Xiao:
         Maple = DailyPrepare(Xiao)
@@ -335,3 +363,4 @@ if __name__ == "__main__":
         Maple.receive_hd_gift()
         Maple.receive_milestones()
         Maple.collect_market()
+        Maple.complete_master_and_apprentice()
