@@ -180,16 +180,18 @@ class MapleScript:
         """
         # 處理各種不同的路徑格式
         if isinstance(pic_for_search, str):
-            pic_for_search = PIL.Image.open(pic_for_search)
+            pic = PIL.Image.open(pic_for_search)
         elif isinstance(pic_for_search, Path):
-            pic_for_search = PIL.Image.open(str(pic_for_search))
+            pic = PIL.Image.open(str(pic_for_search))
+        else:
+            pic = pic_for_search
 
         try:
             # 取得目前滑鼠位置
             current_mouse_location = pyautogui.position()
 
             # 辨識遊戲截圖內有沒有我們要的東西
-            picture_location = pyautogui.locateCenterOnScreen(pic_for_search, region=self.maple_full_screen_area, confidence=0.9)
+            picture_location = pyautogui.locateCenterOnScreen(pic, region=self.maple_full_screen_area, confidence=0.9)
 
             # 如果有辨識到東西
             if picture_location is not None:
@@ -207,11 +209,11 @@ class MapleScript:
 
             # 如果沒辨識到東西就不做任何事情
             else:
-                print(f'畫面中找不到{pic_for_search}')
+                print(f'畫面中找不到{pic}')
 
         except pyautogui.ImageNotFoundException:
             # 如果沒辨識到東西就不做任何事情
-            print(f'畫面中找不到{pic_for_search}')
+            print(f'畫面中找不到{pic}')
 
     def find_ready_skill(self) -> None:
         """
@@ -236,8 +238,8 @@ class MapleScript:
                 self.skills_list.append(skill_key)
 
         # 隨機的加入不需要圖片辨識的妖精護盾
-        for i in range(random.randint(0, 1)):
-            self.skills_list.append("ctrl")
+        # for i in range(random.randint(0, 1)):
+        #     self.skills_list.append("ctrl")
 
         # 用shuffle以增加隨機性
         random.shuffle(self.skills_list)
@@ -332,15 +334,7 @@ class MapleScript:
             self.press("alt")
             self.key_up("down")
 
-    def prepare_character(self) -> None:
-        hamburger_menu = self.get_photo_path("hamburger_menu.png")
-        # 如果畫面上出現漢堡選單，那就是技能列表沒有展開
-        while self.is_on_screen(hamburger_menu):
-            # 展開技能列表
-            self.press_and_wait("]")
-
     def start(self) -> None:
-        self.prepare_character()
         try:
             while True:
                 if self.is_maple_focus():

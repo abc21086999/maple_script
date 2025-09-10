@@ -8,6 +8,18 @@ class DailyPrepare(MapleScript):
     def __init__(self, controller=None):
         super().__init__(controller=controller)
 
+    def invoke_menu(self) -> None:
+        # 確保人在地圖裡面（快速旅行按鈕有出現）
+        while not self.is_on_screen(self.get_photo_path("fast_travel.png")):
+            time.sleep(0.3)
+        # 按下漢堡選單
+        self.find_and_click_image(self.get_photo_path("hamburger_menu.png"))
+        # 確保有打開
+        while not self.is_on_screen(self.get_photo_path("market.png")):
+            time.sleep(0.3)
+            self.find_and_click_image(self.get_photo_path("hamburger_menu.png"))
+        return None
+
     def switch_to_grinding_set(self):
         """
         切換到練功用的角色設定
@@ -77,6 +89,7 @@ class DailyPrepare(MapleScript):
         """
         while self.is_maple_focus():
             # 打開每日任務的界面
+            self.invoke_menu()
             self.find_and_click_image(self.get_photo_path("daily_schedule.png"))
 
             # 如果有開始任務的按鈕，那就按下去
@@ -132,7 +145,7 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(self.get_photo_path("fast_travel.png"))
 
             # 點下技術村的圖案
-            self.find_and_click_image(self.get_photo_path("village.png"))
+            self.find_and_click_image(self.get_photo_path("ardentmill_village_icon.png"))
 
             # 點下『是』，去到技術村
             self.press_and_wait("right")
@@ -144,19 +157,20 @@ class DailyPrepare(MapleScript):
 
             # 打開裝備欄
             self.press_and_wait("i")
-            while not self.is_on_screen(self.get_photo_path("disassemble_panel.png")):
+            disassemble_button = self.get_photo_path("disassemble_panel.png")
+            while not self.is_on_screen(disassemble_button):
                 time.sleep(0.1)
 
             # 點下分解裝備的按鈕
-            self.find_and_click_image(self.get_photo_path("disassemble_panel.png"))
+            self.find_and_click_image(disassemble_button)
 
             # 點下把裝備放上分解面板的按鈕
             self.find_and_click_image(self.get_photo_path("put_all_armor_on_table.png"))
 
             # 在點了之後如果沒有裝備被放上面板，那就離開，反之就進行分解
             while not self.is_on_screen(self.get_photo_path("empty_disassembly_table.png")):
-                # 滑鼠移動到面板header以減少干擾
-                self.find_and_click_image(self.get_photo_path("disassembly_table_header.png"))
+                # 滑鼠移動到地圖icon以減少干擾
+                self.find_and_click_image(self.get_photo_path("ardentmill.png"))
 
                 # 點下分解按鈕
                 self.find_and_click_image(self.get_photo_path("disassemble.png"))
@@ -187,25 +201,22 @@ class DailyPrepare(MapleScript):
         :return: None
         """
         while self.is_maple_focus():
-            # 如果活動按鈕沒出現，那就把技能收起來
-            while not self.is_on_screen(self.get_photo_path("event_button.png")):
-                time.sleep(0.3)
-                self.press_and_wait("]")
+            # 打開總攬菜單
+            self.invoke_menu()
 
-            # 點下活動按鈕
-            self.find_and_click_image(self.get_photo_path("event_button.png"))
-
-            # 點下HD按鈕
+            # 點下HD按鈕，然後移動滑鼠避免干擾
             self.find_and_click_image(self.get_photo_path("hd.png"))
+            self.find_and_click_image(self.get_photo_path("carcion.png"))
 
-            # 如果都已經領完了，那就離開
+            # 如果這個月都已經領完了，那就離開
+            receive_hd_gift = self.get_photo_path("receive_hd_gift.png")
             if self.is_on_screen(self.get_photo_path("all_hd_gifts_received.png")):
                 for i in range(2):
                     self.press("esc")
 
             # 如果有HD可以領，就點下領取獎勵的按鈕
-            elif self.is_on_screen(self.get_photo_path("receive_hd_gift.png")):
-                self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
+            elif self.is_on_screen(receive_hd_gift):
+                self.find_and_click_image(receive_hd_gift)
 
                 # 如果有可以領取的禮物（考量到禮拜天可以領兩次所以就用while）
                 while self.is_on_screen(self.get_photo_path("hd_has_gift.png")):
@@ -215,7 +226,7 @@ class DailyPrepare(MapleScript):
                     self.press_and_wait("esc")
 
                     # 再按一次
-                    self.find_and_click_image(self.get_photo_path("receive_hd_gift.png"))
+                    self.find_and_click_image(receive_hd_gift)
 
                 # 最後把HD界面關閉
                 for i in range(2):
@@ -234,40 +245,20 @@ class DailyPrepare(MapleScript):
         :return: None
         """
         while self.is_maple_focus():
-            # 點下左邊的里程圖案
+            # 打開總攬菜單
+            self.invoke_menu()
+
+            # 點下里程的圖案
             self.find_and_click_image(self.get_photo_path("milestone.png"))
-
-            # 等待里程的硬幣出現
-            while not self.is_on_screen(self.get_photo_path("milestone_coin.png")):
-                time.sleep(0.1)
-
-            # 點下里程硬幣的圖案
-            self.find_and_click_image(self.get_photo_path("milestone_coin.png"))
-
-            # 選擇領取里程
-            self.press_and_wait("down")
-
-            # 按確認
-            self.press_and_wait("enter", 0.5)
 
             # 如果有里程可以領
             if self.is_on_screen(self.get_photo_path("has_collectable_milestones.png")):
                 # 按下『領取里程』
-                self.press_and_wait("enter")
-
-                # 按下右選擇是
-                self.press_and_wait("right")
-
-                # 按下Enter領取之後再把里程視窗關閉
-                for i in range(2):
-                    self.press_and_wait("enter")
+                self.find_and_click_image(self.get_photo_path("milestone_confirm_button.png"))
 
             # 不然就將里程視窗關閉
-            else:
+            elif self.is_on_screen(self.get_photo_path("no_milestone.png")):
                 self.press_and_wait("esc")
-
-            # 將左邊展開的里程界面關閉
-            self.find_and_click_image(self.get_photo_path("milestone.png"))
             break
 
     def collect_market(self):
@@ -275,11 +266,8 @@ class DailyPrepare(MapleScript):
         處理拍賣
         :return: None
         """
-        while not self.is_on_screen(self.get_photo_path("hamburger_menu.png")):
-            self.press_and_wait("]", 1)
-
-        # 按下漢堡選單
-        self.find_and_click_image(self.get_photo_path("hamburger_menu.png"))
+        # 打開總攬菜單
+        self.invoke_menu()
 
         # 按下拍賣
         self.find_and_click_image(self.get_photo_path("market.png"))
@@ -330,13 +318,8 @@ class DailyPrepare(MapleScript):
         完成師徒系統
         :return: None
         """
-        community_button = self.get_photo_path("community_button.png")
-        # 如果社群按鈕沒在畫面上就把技能收起來
-        while not self.is_on_screen(community_button):
-            self.press_and_wait("]")
-
-        # 按下社群按鈕，然後按下師徒
-        self.find_and_click_image(community_button)
+        # 打開總攬菜單，然後按下師徒
+        self.invoke_menu()
         self.find_and_click_image(self.get_photo_path("master_and_apprentice_button.png"))
 
         # 等待界面打開
