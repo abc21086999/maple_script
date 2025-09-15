@@ -229,7 +229,7 @@ class MapleScript:
         if not self.is_maple_focus():
             return None
 
-        # 先截一次圖，判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個queue當中
+        # 先截一次圖，判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個list當中
         screenshot = self.get_skill_area_screenshot()
         for skill_info in self.skills_dict.values():
             skill_image = skill_info.get("image")
@@ -299,20 +299,18 @@ class MapleScript:
         如果楓之谷不在前景，那麼就會清空
         :return:
         """
-        # 如果queue是空的，就跳過所有步驟
+        # 如果list是空的，就跳過所有步驟
         if not self.skills_list:
             return None
-        while self.skills_list:
-            # queue有東西但是楓之谷不在前景，那就直接清空之後跳過
-            if not self.is_maple_focus():
-                self.skills_list.clear()
-                break
-            else:
-                # 將按鍵一個一個按下
-                key = self.skills_list.pop()
-                self.press(key)
-                time.sleep(random.uniform(*self.gap_time))
-                self.move_by_pressing_up()
+        # 當list有東西，而且楓之谷在前景
+        while self.skills_list and self.is_maple_focus():
+            # 將按鍵一個一個按下
+            key = self.skills_list.pop()
+            self.press(key)
+            time.sleep(random.uniform(*self.gap_time))
+            self.move_by_pressing_up()
+        # 不論是list沒東西，或是楓之谷不在前景，就直接清空之後跳過
+        self.skills_list.clear()
         return None
 
     def move_by_pressing_up(self) -> None:
