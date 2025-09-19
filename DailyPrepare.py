@@ -9,15 +9,16 @@ class DailyPrepare(MapleScript):
         super().__init__(controller=controller)
 
     def invoke_menu(self) -> None:
-        # 確保人在地圖裡面（快速旅行按鈕有出現）
-        while not self.is_on_screen(self.get_photo_path("fast_travel.png")):
-            time.sleep(0.3)
-        # 按下漢堡選單
-        self.find_and_click_image(self.get_photo_path("hamburger_menu.png"))
+        """
+        打開總攬界面
+        :return:
+        """
+        # 打開總攬界面
+        self.press_and_wait("esc")
         # 確保有打開
         while not self.is_on_screen(self.get_photo_path("market.png")):
             time.sleep(0.3)
-            self.find_and_click_image(self.get_photo_path("hamburger_menu.png"))
+            self.press_and_wait("esc")
         return None
 
     def switch_to_grinding_set(self):
@@ -25,7 +26,7 @@ class DailyPrepare(MapleScript):
         切換到練功用的角色設定
         :return: None
         """
-        while self.is_maple_focus():
+        if self.is_maple_focus():
             # 打開角色套組設定的界面
             self.press("f11")
             time.sleep(0.3)
@@ -48,14 +49,14 @@ class DailyPrepare(MapleScript):
                     self.is_on_screen(self.get_photo_path("trifling_wind.png")) or
                     self.is_on_screen(self.get_photo_path("guided_arrow.png"))):
                 self.press_and_wait("=", 1)
-            break
+
 
     def collect_union_coin(self):
         """
         蒐集戰地聯盟的硬幣
         :return: None
         """
-        while self.is_maple_focus():
+        if self.is_maple_focus():
             # 打開戰地聯盟的界面
             self.press_and_wait("f10")
             while not self.is_on_screen(self.get_photo_path("get_coin.png")):
@@ -80,14 +81,14 @@ class DailyPrepare(MapleScript):
 
             # 最後按Esc離開
             self.press_and_wait("esc")
-            break
+
 
     def start_daily_or_weekly_mission(self):
         """
         開始或結束每日或是每週任務
         :return: None
         """
-        while self.is_maple_focus():
+        if self.is_maple_focus():
             # 打開每日任務的界面
             self.invoke_menu()
             self.find_and_click_image(self.get_photo_path("daily_schedule.png"))
@@ -133,14 +134,14 @@ class DailyPrepare(MapleScript):
 
             # 不管怎麼樣最後要把界面關閉
             self.press("esc")
-            break
+
 
     def dismantle_armours(self):
         """
         分解裝備
         :return: None
         """
-        while self.is_maple_focus():
+        if self.is_maple_focus():
             # 點下快速移動的界面
             self.find_and_click_image(self.get_photo_path("fast_travel.png"))
 
@@ -193,14 +194,14 @@ class DailyPrepare(MapleScript):
 
             # 按下上來離開技術村
             self.press_and_wait("up", 1.5)
-            break
+
 
     def receive_hd_gift(self):
         """
         領取HD禮物
         :return: None
         """
-        while self.is_maple_focus():
+        if self.is_maple_focus():
             # 打開總攬菜單
             self.invoke_menu()
 
@@ -236,7 +237,6 @@ class DailyPrepare(MapleScript):
             else:
                 self.press("esc")
             time.sleep(0.5)
-            break
 
 
     def receive_milestones(self):
@@ -244,7 +244,7 @@ class DailyPrepare(MapleScript):
         領取里程
         :return: None
         """
-        while self.is_maple_focus():
+        if self.is_maple_focus():
             # 打開總攬菜單
             self.invoke_menu()
 
@@ -259,58 +259,58 @@ class DailyPrepare(MapleScript):
             # 不然就將里程視窗關閉
             elif self.is_on_screen(self.get_photo_path("no_milestone.png")):
                 self.press_and_wait("esc")
-            break
 
     def collect_market(self):
         """
         處理拍賣
         :return: None
         """
-        # 打開總攬菜單
-        self.invoke_menu()
+        if self.is_maple_focus():
+            # 打開總攬菜單
+            self.invoke_menu()
 
-        # 按下拍賣
-        self.find_and_click_image(self.get_photo_path("market.png"))
+            # 按下拍賣
+            self.find_and_click_image(self.get_photo_path("market.png"))
 
-        # 等待進入拍賣
-        while not self.is_on_screen(self.get_photo_path("market_title.png")):
-            time.sleep(0.5)
+            # 等待進入拍賣
+            while not self.is_on_screen(self.get_photo_path("market_title.png")):
+                time.sleep(0.5)
 
-        # 切換到完成的那個Tab
-        self.find_and_click_image(self.get_photo_path("market_collectable_tab.png"))
+            # 切換到完成的那個Tab
+            self.find_and_click_image(self.get_photo_path("market_collectable_tab.png"))
 
-        # 如果有要重新上架的商品
-        if self.is_on_screen(self.get_photo_path("re_stock_all.png")):
-            # 重新上架
-            self.find_and_click_image(self.get_photo_path("re_stock_all.png"))
-            self.press_and_wait("enter")
-            # 處理重新上架遇到位子不夠或是需要等待的狀況
-            while not self.is_on_screen(self.get_photo_path("re_stock_finish.png")):
+            # 如果有要重新上架的商品
+            if self.is_on_screen(self.get_photo_path("re_stock_all.png")):
+                # 重新上架
+                self.find_and_click_image(self.get_photo_path("re_stock_all.png"))
+                self.press_and_wait("enter")
+                # 處理重新上架遇到位子不夠或是需要等待的狀況
+                while not self.is_on_screen(self.get_photo_path("re_stock_finish.png")):
 
-                # 如果遇到上架的時候沒位子了，那麼先把有賣掉的回收楓幣
-                if self.is_on_screen(self.get_photo_path("no_vacancy_in_market.png")):
-                    collect_money = self.get_photo_path("collect_money.png")
-                    while self.is_on_screen(collect_money):
-                        self.find_and_click_image(collect_money)
-                        self.press_and_wait("enter")
-                else:
+                    # 如果遇到上架的時候沒位子了，那麼先把有賣掉的回收楓幣
+                    if self.is_on_screen(self.get_photo_path("no_vacancy_in_market.png")):
+                        collect_money = self.get_photo_path("collect_money.png")
+                        while self.is_on_screen(collect_money):
+                            self.find_and_click_image(collect_money)
+                            self.press_and_wait("enter")
+                    else:
+                        time.sleep(1)
+                # 重新上架完按個Esc把訊息關掉
+                self.press_and_wait("esc")
+
+            self.find_and_click_image(self.get_photo_path("market_title.png"))
+
+            # 如果沒有需要重新上架，只有需要回收楓幣的
+            if self.is_on_screen(self.get_photo_path("all_collectable.png")):
+                # 那就回收楓幣，回收完按個Esc把訊息關掉
+                self.find_and_click_image(self.get_photo_path("all_collectable.png"))
+                self.press_and_wait("enter", 0.5)
+                while not self.is_on_screen(self.get_photo_path("all_collected.png")):
                     time.sleep(1)
-            # 重新上架完按個Esc把訊息關掉
-            self.press_and_wait("esc")
+                self.press_and_wait("esc")
 
-        self.find_and_click_image(self.get_photo_path("market_title.png"))
-
-        # 如果沒有需要重新上架，只有需要回收楓幣的
-        if self.is_on_screen(self.get_photo_path("all_collectable.png")):
-            # 那就回收楓幣，回收完按個Esc把訊息關掉
-            self.find_and_click_image(self.get_photo_path("all_collectable.png"))
-            self.press_and_wait("enter", 0.5)
-            while not self.is_on_screen(self.get_photo_path("all_collected.png")):
-                time.sleep(1)
-            self.press_and_wait("esc")
-
-        # 離開拍賣
-        self.find_and_click_image(self.get_photo_path("leave_market.png"))
+            # 離開拍賣
+            self.find_and_click_image(self.get_photo_path("leave_market.png"))
 
 
     def complete_master_and_apprentice(self):
@@ -318,22 +318,73 @@ class DailyPrepare(MapleScript):
         完成師徒系統
         :return: None
         """
-        # 打開總攬菜單，然後按下師徒
+        if self.is_maple_focus():
+            # 打開總攬菜單，然後按下師徒
+            self.invoke_menu()
+            self.find_and_click_image(self.get_photo_path("master_and_apprentice_button.png"))
+
+            # 等待界面打開
+            while not self.is_on_screen(self.get_photo_path("master_and_apprentice_title.png")):
+                time.sleep(0.1)
+
+            # 當界面上還有完成出現的時候，就一個一個按下去
+            complete_button = self.get_photo_path("master_and_apprentice_complete_button.png")
+            while self.is_on_screen(complete_button):
+                self.find_and_click_image(complete_button)
+                self.press_and_wait("enter")
+
+            # 最後按下Esc來離開師徒界面
+            time.sleep(0.3)
+            self.press_and_wait("esc")
+
+
+    def handle_housing(self):
+        """
+        處理小屋每日對話
+        :return: None
+        """
+        # 打開總攬界面
         self.invoke_menu()
-        self.find_and_click_image(self.get_photo_path("master_and_apprentice_button.png"))
 
-        # 等待界面打開
-        while not self.is_on_screen(self.get_photo_path("master_and_apprentice_title.png")):
-            time.sleep(0.1)
+        # 切換到我的小屋的選項
+        self.press_and_wait("tab")
+        for i in range(3):
+            self.press_and_wait("right")
+        self.press_and_wait("up")
 
-        # 當界面上還有完成出現的時候，就一個一個按下去
-        complete_button = self.get_photo_path("master_and_apprentice_complete_button.png")
-        while self.is_on_screen(complete_button):
-            self.find_and_click_image(complete_button)
+        # 然後按下Enter
+        for i in range(2):
+            self.press_and_wait("enter", 0.7)
 
-        # 最後按下Esc來離開師徒界面
-        time.sleep(0.3)
-        self.press_and_wait("esc")
+        # 等待到達小屋
+        while not self.is_on_screen(self.get_photo_path("querencia.png")):
+            time.sleep(0.5)
+
+        # 向前移動兩次
+        for i in range(2):
+            self.press_and_wait("space", 0.7)
+
+        # 跟管家對話
+        self.press_and_wait("y")
+
+        # 如果有可以對話（這段還有改善空間但是先這樣寫ㄅ）
+        if self.is_on_screen(self.get_photo_path("talk_with_caretaker.png")):
+            for i in range(6):
+                self.press_and_wait("y")
+
+        # 如果有多按導致跳出對話視窗就關掉
+        while self.is_on_screen(self.get_photo_path("stop_conversation.png")):
+            time.sleep(0.3)
+            self.press_and_wait("esc")
+
+        # 打開總攬界面離開小屋
+        self.invoke_menu()
+
+        # 切換到我的小屋的選項然後離開
+        self.press_and_wait("tab")
+        for i in range(3):
+            self.press_and_wait("right")
+        self.press_and_wait(["up", "enter", "down", "enter"])
 
 
 if __name__ == "__main__":
@@ -347,3 +398,4 @@ if __name__ == "__main__":
         Maple.receive_milestones()
         Maple.collect_market()
         Maple.complete_master_and_apprentice()
+        Maple.handle_housing()
