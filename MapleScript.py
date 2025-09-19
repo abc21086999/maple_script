@@ -251,9 +251,14 @@ class MapleScript:
         else:
             print(f'沒鍵盤')
 
-    def press_and_wait(self, key: str, wait_time: float | int = 0.3):
-        self.press(key)
-        time.sleep(wait_time)
+    def press_and_wait(self, key: str | list[str], wait_time: float | int = 0.3):
+        if isinstance(key, str):
+            self.press(key)
+            time.sleep(wait_time)
+        elif isinstance(key, list):
+            for k in key:
+                self.press(k)
+                time.sleep(wait_time)
 
     def move(self, location: tuple) -> None:
         if self.mouse is not None:
@@ -306,8 +311,7 @@ class MapleScript:
         while self.skills_list and self.is_maple_focus():
             # 將按鍵一個一個按下
             key = self.skills_list.pop()
-            self.press(key)
-            time.sleep(random.uniform(*self.gap_time))
+            self.press_and_wait(key, random.uniform(*self.gap_time))
             self.move_by_pressing_up()
         # 不論是list沒東西，或是楓之谷不在前景，就直接清空之後跳過
         self.skills_list.clear()
