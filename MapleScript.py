@@ -2,7 +2,6 @@ import sys
 import time
 import pygetwindow as gw
 import pyautogui
-import random
 import pyscreeze
 import PIL.Image
 from XiaoController import XiaoController
@@ -39,6 +38,7 @@ class MapleScript:
         切換到楓之谷的程式
         :return: 楓之谷程式
         """
+        #TODO: 用其他package取代gw，因為gw完全是靠標題來辨識
         maplestory = gw.getWindowsWithTitle("Maplestory")
         # 在找不到的情況下，代表楓之谷沒開啟，直接結束腳本
         if not maplestory:
@@ -114,7 +114,7 @@ class MapleScript:
 
         try:
             # 取得目前滑鼠位置
-            current_mouse_location = pyautogui.position()
+            current_mouse_x, current_mouse_y = pyautogui.position()
 
             # 辨識遊戲截圖內有沒有我們要的東西
             picture_location = pyautogui.locateCenterOnScreen(pic, region=self.maple_full_screen_area, confidence=0.9)
@@ -122,8 +122,8 @@ class MapleScript:
             # 如果有辨識到東西
             if picture_location is not None:
                 # 計算目前滑鼠的相對位置
-                dx = int(picture_location.x - current_mouse_location[0])
-                dy = int(picture_location.y - current_mouse_location[1])
+                dx = int(picture_location.x - current_mouse_x)
+                dy = int(picture_location.y - current_mouse_y)
 
                 # 移動過去
                 self.move((dx, dy))
@@ -135,11 +135,11 @@ class MapleScript:
 
             # 如果沒辨識到東西就不做任何事情
             else:
-                print(f'畫面中找不到{pic}')
+                print(f'畫面中找不到{pic_for_search}')
 
         except pyautogui.ImageNotFoundException:
             # 如果沒辨識到東西就不做任何事情
-            print(f'畫面中找不到{pic}')
+            print(f'畫面中找不到{pic_for_search}')
 
 
     def press(self, key: str) -> None:
