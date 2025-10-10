@@ -53,128 +53,75 @@ class XiaoController:
             print(f"連接埠 {self.__port} 已關閉。")
         self.__connection = None
 
+    def __send(self, string: str):
+        """
+        向硬體發送一個按鍵指令
+        :param string: 要傳送的東西
+        """
+        if not self.__connection:
+            print("沒有建立連線")
+            return None
+        try:
+            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
+            self.__connection.write(f'{string}'.encode('utf-8'))
+        except serial.SerialException as e:
+            print(f'發生錯誤：{e}')
+            self._close()
+            raise
+
     def press_key(self, key: str):
         """
         向硬體發送一個按鍵指令
         :param key: 要按的按鈕
         """
-        if not self.__connection:
-            print("沒有建立連線")
-            return None
+        self.__send(f'{key}\n')
+        print(f"已發送指令: 按下 {key}")
 
-        try:
-            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'{key}\n'.encode('utf-8'))
-            print(f"已發送指令: 按下 {key}")
-        except serial.SerialException as e:
-            print(f'發生錯誤：{e}')
-            self._close()
-            raise
 
     def key_down(self, key: str):
         """
         向硬體發送一個長壓按鍵指令
         :param key: 要長壓的按鈕
         """
-        if not self.__connection:
-            print("沒有建立連線")
-            return None
-
-        try:
-            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'keyDown:{key}\n'.encode('utf-8'))
-            print(f"已發送指令: 長壓 {key}")
-        except serial.SerialException as e:
-            print(f'發生錯誤：{e}')
-            self._close()
-            raise
+        self.__send(f'keyDown:{key}\n')
+        print(f"已發送指令: 長壓 {key}")
 
     def key_up(self, key: str):
         """
         向硬體發送一個放開按鍵指令
         :param key: 要放開的按鈕
         """
-        if not self.__connection:
-            print("沒有建立連線")
-            return None
-
-        try:
-            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'keyUp:{key}\n'.encode('utf-8'))
-            print(f"已發送指令: 放開 {key}")
-        except serial.SerialException as e:
-            print(f'發生錯誤：{e}')
-            self._close()
-            raise
+        self.__send(f'keyUp:{key}\n')
+        print(f"已發送指令: 放開 {key}")
 
     def scroll_up(self):
         """
         向硬體發送一個滑鼠滾輪上滑指令
         """
-        if not self.__connection:
-            print("沒有建立連線")
-            return None
-
-        try:
-            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'scroll_up\n'.encode('utf-8'))
-            print(f"已發送指令: 要上滑")
-        except serial.SerialException as e:
-            print(f'發生錯誤：{e}')
-            self._close()
-            raise
+        self.__send(f'scroll_up\n')
+        print(f"已發送指令: 要上滑")
 
     def scroll_down(self):
         """
         向硬體發送一個滑鼠滾輪下滑指令
         """
-        if not self.__connection:
-            print("沒有建立連線")
-            return None
-
-        try:
-            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'scroll_down\n'.encode('utf-8'))
-            print(f"已發送指令: 要下滑")
-        except serial.SerialException as e:
-            print(f'發生錯誤：{e}')
-            self._close()
-            raise
+        self.__send(f'scroll_down\n')
+        print(f"已發送指令: 要下滑")
 
     def send_mouse_location(self, location: tuple):
         """
         向硬體發送一個按鍵指令
         :param location: 滑鼠和目標之間的距離差
         """
-        if not self.__connection:
-            print("沒有建立連線")
-            return None
-
-        try:
-            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'{location}\n'.encode('utf-8'))
-            print(f"已發送指令: 要移動'{location}'")
-        except serial.SerialException as e:
-            print(f'發生錯誤：{e}')
-            self._close()
-            raise
+        self.__send(f'{location}\n')
+        print(f"已發送指令: 要移動'{location}'")
 
     def click(self):
         """
         向硬體發送一個按下滑鼠的指令
         """
-        if not self.__connection:
-            print("沒有建立連線")
-            return None
-
-        try:
-            # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'click\n'.encode('utf-8'))
-            print(f"已發送指令：按下滑鼠")
-        except serial.SerialException as e:
-            print(f'發生錯誤：{e}')
-            self._close()
-            raise
+        self.__send(f'click\n')
+        print(f"已發送指令：按下滑鼠")
 
     def _read_from_port(self):
         while not self.__stop_event.is_set():
@@ -188,5 +135,4 @@ class XiaoController:
 
 if __name__ == "__main__":
     with XiaoController() as controller:
-        print(controller.port)
         controller.press_key("a")
