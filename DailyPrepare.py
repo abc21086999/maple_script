@@ -26,6 +26,8 @@ class DailyPrepare(MapleScript):
         切換到練功用的角色設定
         :return: None
         """
+        while not self.is_maple_focus():
+            time.sleep(0.1)
         if self.is_maple_focus():
             # 打開角色套組設定的界面
             self.press("f11")
