@@ -7,3 +7,7 @@ numpy
 pygetwindow
 pyserial
 adafruit_board_toolkit
+ultralytics
+torch
+dxcam
+pynput

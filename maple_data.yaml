@@ -1,0 +1,14 @@
+# YOLOv8 Dataset Configuration File
+
+# Dataset paths
+# IMPORTANT: Replace with the actual path on your Windows machine.
+# Using forward slashes is recommended as it works across OS and avoids escaping issues.
+train: C:/maple_dataset/images/train
+val: C:/maple_dataset/images/val
+
+# Number of classes
+nc: 1
+
+# Class names
+# Add more names if you train for more than one type of monster
+names: ['monster']
