@@ -10,3 +10,4 @@ adafruit_board_toolkit
 ultralytics
 torch
 dxcam
+pynput
