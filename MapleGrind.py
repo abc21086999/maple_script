@@ -4,7 +4,6 @@ import PIL.Image
 import random
 import time
 
-
 class MapleGrind(MapleScript):
 
     def __init__(self, controller=None):
@@ -153,6 +152,27 @@ class MapleGrind(MapleScript):
             self.key_down("down")
             self.press("alt")
             self.key_up("down")
+
+    def replay_script(self, recorded_events: list) -> None:
+        """
+        根據錄製的腳本來重播操作
+        :param recorded_events: 從 KeyLogger 錄製的事件列表
+        """
+        last_event_time = 0
+
+        for action, key_str, event_time in recorded_events:
+            delay = event_time - last_event_time
+            if delay > 0:
+                time.sleep(delay)
+
+            if action == 'press':
+                self.key_down(key_str)
+            elif action == 'release':
+                self.key_up(key_str)
+
+            last_event_time = event_time
+        
+        print("腳本重播完畢。")
 
     def start(self) -> None:
         try:
