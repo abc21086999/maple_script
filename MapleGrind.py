@@ -153,12 +153,29 @@ class MapleGrind(MapleScript):
             self.press("alt")
             self.key_up("down")
 
-    def replay_script(self, recorded_events: list) -> None:
+    def replay_script(self) -> None:
         """
         根據錄製的腳本來重播操作
         :param recorded_events: 從 KeyLogger 錄製的事件列表
         """
+        print("開始使用紀錄的腳本")
         last_event_time = 0
+
+        recorded_events = \
+        [('press', 'down', 1.33), ('press', 'alt', 1.54), ('release', 'alt', 1.78), ('release', 'down', 1.88),
+         ('press', 'down', 2.55), ('press', 'alt', 2.74), ('release', 'alt', 2.98), ('release', 'down', 3.12),
+         ('press', 'alt', 3.69), ('release', 'alt', 3.83), ('press', 'alt', 3.95), ('release', 'alt', 4.15),
+         ('press', 'alt', 4.91), ('release', 'alt', 5.02), ('press', 'alt', 5.15), ('release', 'alt', 5.33),
+         ('press', 'alt', 6.17), ('release', 'alt', 6.28), ('press', 'alt', 6.38), ('release', 'alt', 6.54),
+         ('press', 'alt', 7.38), ('release', 'alt', 7.49), ('press', 'alt', 7.61), ('release', 'alt', 7.74),
+         ('press', 'alt', 8.86), ('release', 'alt', 8.96), ('press', 'up', 9.01), ('press', 'alt', 9.11),
+         ('release', 'alt', 9.49), ('release', 'up', 9.72), ('press', 'left', 10.33), ('press', 'alt', 10.45),
+         ('release', 'alt', 10.56), ('press', 'alt', 10.66), ('release', 'alt', 10.86), ('release', 'left', 10.88),
+         ('press', 'alt', 11.93), ('release', 'alt', 12.07), ('press', 'alt', 12.19), ('release', 'alt', 12.54),
+         ('press', 'alt', 13.53), ('release', 'alt', 13.65), ('press', 'alt', 13.77), ('release', 'alt', 14.03),
+         ('press', 'alt', 14.79), ('release', 'alt', 14.91), ('press', 'alt', 15.17), ('release', 'alt', 15.3),
+         ('press', 'right', 15.58), ('release', 'right', 15.68), ('press', 'right', 16.38),
+         ('release', 'right', 16.49), ('press', 'right', 16.94), ('release', 'right', 17.01)]
 
         for action, key_str, event_time in recorded_events:
             delay = event_time - last_event_time
