@@ -18,7 +18,7 @@ class KeyLogger:
     def on_press(self, key):
         if self.start_time is None:
             return
-        elapsed_time = time.time() - self.start_time
+        elapsed_time = round(time.time() - self.start_time, 2)
         key_str = self._key_to_str(key)
         if key_str:
             self.events.append(('press', key_str, elapsed_time))
@@ -26,7 +26,7 @@ class KeyLogger:
     def on_release(self, key):
         if self.start_time is None:
             return
-        elapsed_time = time.time() - self.start_time
+        elapsed_time = round(time.time() - self.start_time, 2)
         key_str = self._key_to_str(key)
         if key_str:
             self.events.append(('release', key_str, elapsed_time))
