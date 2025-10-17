@@ -139,4 +139,3 @@ while True:
         except Exception as e:
             print(f"處理指令錯誤：{e}")
 
-    time.sleep(0.01)
