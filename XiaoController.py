@@ -13,7 +13,7 @@ class DeviceNotFoundException(Exception):
 class XiaoController:
     XIAO_SERIAL_NUMBER = "CCAB7951D342"
 
-    def __init__(self, baudrate=115200, timeout=0.01):
+    def __init__(self, baudrate=115200, timeout=0.001):
         self.__port = None
         self.__connection= None
         self.__baudrate = baudrate
