@@ -12,14 +12,15 @@ class MapleScript:
 
     def __init__(self, controller=None):
         self.maple = self._get_maple()
-        self.maple_full_screen_area = self._get_maple_full_screen_area()
-        self.maple_skill_area = self._get_maple_skill_area()
+        self.maple_full_screen_area = self.__get_maple_full_screen_area()
+        self.maple_skill_area = self.__get_maple_skill_area()
+        self.maple_mini_map_area = self.__get_mini_map_area()
         self.__cur_path = Path(__file__).resolve().parent
         self.__keyboard = controller
         self.__mouse = controller
 
     @staticmethod
-    def _get_window_area(window: gw.Win32Window):
+    def __get_window_area(window: gw.Win32Window):
         """
         這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。
         """
@@ -45,7 +46,7 @@ class MapleScript:
             print("找不到楓之谷的程式")
             sys.exit()
         # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
-        real_maple = max(maplestory, key=self._get_window_area)
+        real_maple = max(maplestory, key=self.__get_window_area)
         if not real_maple.isActive:
             real_maple.activate()
         return real_maple
@@ -57,7 +58,7 @@ class MapleScript:
         """
         return self.maple.isActive
 
-    def _get_maple_full_screen_area(self):
+    def __get_maple_full_screen_area(self):
         """
         回傳楓之谷視窗在螢幕上的位置
         :return: tuple
@@ -67,10 +68,49 @@ class MapleScript:
     def get_full_screen_screenshot(self):
         return pyautogui.screenshot(region=self.maple_full_screen_area)
 
-    def _get_maple_skill_area(self):
+    def __get_maple_skill_area(self):
         # 只要看右下角就好
         left, top, width, height = self.maple_full_screen_area
         return left+ width // 2, top + height // 2, width // 2, height // 2
+
+    def __get_mini_map_area(self):
+        left, top, _, _ = self.maple_full_screen_area
+        mini_map_region = left+15, top+99, 182, 71
+        return mini_map_region
+
+    def get_character_position(self, color_tolerance=30):
+        """
+        分析小地圖，回傳角色位置在左邊或右邊。
+        :param color_tolerance: int, 顏色容忍度
+        :return: "left", "right", or "not_found"
+        """
+        # 1. 擷取小地圖畫面
+        minimap_img = pyautogui.screenshot(region=self.maple_mini_map_area)
+        width, height = minimap_img.size
+        target_color = (239, 240, 12)
+        found_x_coords = []
+
+        # 2. 遍歷像素 (為了效能，每隔3個像素檢查一次)
+        for x in range(0, width, 3):
+            for y in range(0, height, 3):
+                pixel_color = minimap_img.getpixel((x, y))
+                
+                # 3. 比較顏色
+                if sum(abs(pixel_color[i] - target_color[i]) for i in range(3)) < color_tolerance * 3:
+                    found_x_coords.append(x)
+
+        # 4. 如果沒找到任何匹配的像素
+        if not found_x_coords:
+            return "not_found"
+
+        # 5. 計算平均X座標並判斷位置
+        avg_x = sum(found_x_coords) / len(found_x_coords)
+        midpoint_x = width / 2
+
+        if avg_x < midpoint_x:
+            return "left"
+        else:
+            return "right"
 
     def get_skill_area_screenshot(self):
         return pyautogui.screenshot(region=self.maple_skill_area)
@@ -199,3 +239,4 @@ class MapleScript:
 if __name__ == "__main__":
     with XiaoController() as Xiao:
         Maple = MapleScript(Xiao)
+        print(Maple.get_character_position())
