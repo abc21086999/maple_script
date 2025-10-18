@@ -8,6 +8,7 @@ class MapleGrind(MapleScript):
 
     def __init__(self, controller=None):
         super().__init__(controller=controller)
+        self.__position = "left"
         self.__skills_list = list()
         self.__gap_time = (0.5, 1.0)
         self.__skills_dict = {
@@ -129,7 +130,6 @@ class MapleGrind(MapleScript):
             # 將按鍵一個一個按下
             key = self.__skills_list.pop()
             self.press_and_wait(key, random.uniform(*self.__gap_time))
-            self.move_by_pressing_up()
         # 不論是list沒東西，或是楓之谷不在前景，就直接清空之後跳過
         self.__skills_list.clear()
         return None
@@ -156,40 +156,52 @@ class MapleGrind(MapleScript):
     def replay_script(self) -> None:
         """
         根據錄製的腳本來重播操作
-        :param recorded_events: 從 KeyLogger 錄製的事件列表
         """
-        print("開始使用紀錄的腳本")
-        last_event_time = 0
 
-        recorded_events = \
-        [('press', 'down', 1.33), ('press', 'alt', 1.54), ('release', 'alt', 1.78), ('release', 'down', 1.88),
-         ('press', 'down', 2.55), ('press', 'alt', 2.74), ('release', 'alt', 2.98), ('release', 'down', 3.12),
-         ('press', 'alt', 3.69), ('release', 'alt', 3.83), ('press', 'alt', 3.95), ('release', 'alt', 4.15),
-         ('press', 'alt', 4.91), ('release', 'alt', 5.02), ('press', 'alt', 5.15), ('release', 'alt', 5.33),
-         ('press', 'alt', 6.17), ('release', 'alt', 6.28), ('press', 'alt', 6.38), ('release', 'alt', 6.54),
-         ('press', 'alt', 7.38), ('release', 'alt', 7.49), ('press', 'alt', 7.61), ('release', 'alt', 7.74),
-         ('press', 'alt', 8.86), ('release', 'alt', 8.96), ('press', 'up', 9.01), ('press', 'alt', 9.11),
-         ('release', 'alt', 9.49), ('release', 'up', 9.72), ('press', 'left', 10.33), ('press', 'alt', 10.45),
-         ('release', 'alt', 10.56), ('press', 'alt', 10.66), ('release', 'alt', 10.86), ('release', 'left', 10.88),
-         ('press', 'alt', 11.93), ('release', 'alt', 12.07), ('press', 'alt', 12.19), ('release', 'alt', 12.54),
-         ('press', 'alt', 13.53), ('release', 'alt', 13.65), ('press', 'alt', 13.77), ('release', 'alt', 14.03),
-         ('press', 'alt', 14.79), ('release', 'alt', 14.91), ('press', 'alt', 15.17), ('release', 'alt', 15.3),
-         ('press', 'right', 15.58), ('release', 'right', 15.68), ('press', 'right', 16.38),
-         ('release', 'right', 16.49), ('press', 'right', 16.94), ('release', 'right', 17.01)]
+        recorded_events_left = \
+            [('press', 'down', 1.93), ('press', 'alt', 2.02), ('release', 'alt', 2.24), ('release', 'down', 2.29),
+             ('press', 'alt', 2.95), ('release', 'alt', 3.06), ('press', 'alt', 3.14), ('release', 'alt', 3.28),
+             ('press', 'alt', 3.96), ('release', 'alt', 4.07), ('press', 'alt', 4.2), ('release', 'alt', 4.34),
+             ('press', 'alt', 5.16), ('release', 'alt', 5.25), ('press', 'alt', 5.37), ('release', 'alt', 5.48),
+             ('press', 'alt', 6.31), ('release', 'alt', 6.39), ('press', 'alt', 6.5), ('release', 'alt', 6.63),
+             ('press', 'alt', 7.61), ('release', 'alt', 7.74), ('press', 'up', 7.84), ('press', 'alt', 8.12),
+             ('release', 'alt', 8.31), ('release', 'up', 8.41), ('press', 'left', 9.41), ('release', 'left', 9.47)]
 
-        for action, key_str, event_time in recorded_events:
-            delay = event_time - last_event_time
-            if delay > 0:
-                time.sleep(delay)
+        recorded_events_right = \
+            [('press', 'alt', 2.07), ('release', 'alt', 2.21), ('press', 'up', 2.22), ('press', 'alt', 2.37),
+             ('release', 'alt', 2.58), ('release', 'up', 2.66), ('press', 'alt', 3.48), ('release', 'alt', 3.57),
+             ('press', 'alt', 3.88), ('release', 'alt', 3.99), ('press', 'alt', 4.99), ('release', 'alt', 5.11),
+             ('press', 'alt', 5.27), ('release', 'alt', 5.45), ('press', 'alt', 6.22), ('release', 'alt', 6.35),
+             ('press', 'alt', 6.54), ('release', 'alt', 6.7), ('press', 'alt', 7.71), ('release', 'alt', 7.82),
+             ('press', 'alt', 7.96), ('release', 'alt', 8.11), ('press', 'down', 8.94), ('press', 'alt', 8.97),
+             ('release', 'alt', 9.11), ('release', 'down', 9.18), ('press', 'down', 9.96), ('press', 'alt', 9.99),
+             ('release', 'alt', 10.14), ('release', 'down', 10.21), ('press', 'right', 10.81),
+             ('release', 'right', 10.85)]
 
-            if action == 'press':
-                self.key_down(key_str)
-            elif action == 'release':
-                self.key_up(key_str)
+        start_replay_time = time.time()
+        if self.__position == "left":
+            recorded_events = recorded_events_left
+        else:
+            recorded_events = recorded_events_right
+        if random.random() < 0.1:
+            print("開始使用紀錄的腳本")
+            for action, key_str, event_time in recorded_events:
+                target_time = start_replay_time + event_time
+                sleep_duration = target_time - time.time()
+                if sleep_duration > 0:
+                    time.sleep(sleep_duration)
 
-            last_event_time = event_time
-        
-        print("腳本重播完畢。")
+                if action == 'press':
+                    self.key_down(key_str)
+                elif action == 'release':
+                    self.key_up(key_str)
+
+            if recorded_events == recorded_events_left:
+                self.__position = "right"
+            elif recorded_events == recorded_events_right:
+                self.__position = "left"
+
+            print("腳本重播完畢。")
 
     def start(self) -> None:
         try:
@@ -197,6 +209,7 @@ class MapleGrind(MapleScript):
                 if self.is_maple_focus():
                     self.find_ready_skill()
                     self.press_ready_skills()
+                    self.replay_script()
                     time.sleep(1)
                 else:
                     time.sleep(2)
