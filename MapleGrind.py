@@ -176,7 +176,7 @@ class MapleGrind(MapleScript):
         """
         根據錄製的腳本來重播操作
         """
-        # 機率小於10％再來跑圖
+        # 機率小於5％再來跑圖
         if random.random() < 0.05 and self.is_maple_focus():
             print("開始使用紀錄的腳本")
 
