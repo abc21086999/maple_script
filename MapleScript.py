@@ -1,30 +1,65 @@
 import sys
 import time
-import pygetwindow as gw
 import pyautogui
 import pyscreeze
 import PIL.Image
 from XiaoController import XiaoController
+import win32gui
+import win32con
 from pathlib import Path
+
+class WindowsObject:
+
+    def __init__(self, hwnd: int):
+        self.__hwnd = hwnd
+
+    def _rect(self):
+        l, t, r, b = win32gui.GetWindowRect(self.__hwnd)
+        return l, t, r, b
+
+    @property
+    def left(self):
+        return self._rect()[0]
+
+    @property
+    def top(self):
+        return self._rect()[1]
+
+    @property
+    def width(self):
+        l, _, r, _ = self._rect()
+        return r - l
+
+    @property
+    def height(self):
+        _, t, _, b = self._rect()
+        return b - t
+
+    @property
+    def is_active(self):
+        return win32gui.GetForegroundWindow() == self.__hwnd
+
+    def activate(self):
+        if win32gui.IsIconic(self.__hwnd):
+            win32gui.ShowWindow(self.__hwnd, win32con.SW_RESTORE)
+        win32gui.SetForegroundWindow(self.__hwnd)
 
 
 class MapleScript:
 
     def __init__(self, controller=None):
         self.maple = self._get_maple()
-        self.maple_full_screen_area = self.__get_maple_full_screen_area()
-        self.maple_skill_area = self.__get_maple_skill_area()
-        self.maple_mini_map_area = self.__get_mini_map_area()
         self.__cur_path = Path(__file__).resolve().parent
         self.__keyboard = controller
         self.__mouse = controller
 
     @staticmethod
-    def __get_window_area(window: gw.Win32Window):
+    def __get_window_area(hwnd):
         """
         這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。
         """
-        return window.width * window.height
+        win = WindowsObject(hwnd)
+        return win.width * win.height
 
     def get_photo_path(self, pic_name: str) -> Path:
         """
@@ -39,16 +74,35 @@ class MapleScript:
         切換到楓之谷的程式
         :return: 楓之谷程式
         """
-        #TODO: 用其他package取代gw，因為gw完全是靠標題來辨識
-        maplestory = gw.getWindowsWithTitle("Maplestory")
+        # 透過類別名稱尋找視窗句柄（HWND）
+        class_name = "MapleStoryClassTW"
+
+        # 處理聊天室和主遊戲
+        hwnds = []
+        def callback(hwnd, _):
+            if win32gui.GetClassName(hwnd) == class_name:
+                hwnds.append(hwnd)
+        win32gui.EnumWindows(callback, None)
+
         # 在找不到的情況下，代表楓之谷沒開啟，直接結束腳本
-        if not maplestory:
-            print("找不到楓之谷的程式")
+        if not hwnds:
+            print("找不到楓之谷的程式 (使用類別名稱)")
             sys.exit()
-        # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
-        real_maple = max(maplestory, key=self.__get_window_area)
-        if not real_maple.isActive:
-            real_maple.activate()
+
+        # 處理楓之谷視窗最小化
+        for hwnd in hwnds:
+            if win32gui.IsIconic(hwnd):
+                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+                win32gui.SetForegroundWindow(hwnd)
+
+        time.sleep(0.5)
+        # 如果回傳的視窗有ㄎ兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
+        hwnd = max(hwnds, key=self.__get_window_area)
+
+        # 切換到楓之谷
+        real_maple = WindowsObject(hwnd)
+        real_maple.activate()
+
         return real_maple
 
     def is_maple_focus(self) -> bool:
@@ -56,9 +110,10 @@ class MapleScript:
         根據楓之谷在不在前景決定回傳的bool值
         :return: bool
         """
-        return self.maple.isActive
+        return self.maple.is_active
 
-    def __get_maple_full_screen_area(self):
+    @property
+    def maple_full_screen_area(self):
         """
         回傳楓之谷視窗在螢幕上的位置
         :return: tuple
@@ -68,12 +123,14 @@ class MapleScript:
     def get_full_screen_screenshot(self):
         return pyautogui.screenshot(region=self.maple_full_screen_area)
 
-    def __get_maple_skill_area(self):
+    @property
+    def maple_skill_area(self):
         # 只要看右下角就好
         left, top, width, height = self.maple_full_screen_area
         return left+ width // 2, top + height // 2, width // 2, height // 2
 
-    def __get_mini_map_area(self):
+    @property
+    def maple_mini_map_area(self):
         left, top, _, _ = self.maple_full_screen_area
         mini_map_region = left+15, top+99, 182, 71
         return mini_map_region
