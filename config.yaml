@@ -1,0 +1,65 @@
+# MapleGrind 練功腳本相關設定
+grind_settings:
+  # 技能施放之間的隨機延遲範圍 (秒)
+  skill_gap_time: [0.5, 1.0]
+
+# 技能列表
+skills:
+  # 漩渦球球
+  ball:
+    key: 'pagedown'
+    image: 'vortex_sphere.png'
+  # 艾爾達斯降臨
+  erdas:
+    key: 'shift'
+    image: 'erda_shower.png'
+  # 風轉奇想
+  wind:
+    key: 'end'
+    image: 'merciless_wind.png'
+  # 小雞
+  chicken:
+    key: "'"
+    image: 'phalanx_charge.png'
+  # 龍捲風
+  tornado:
+    key: 'd'
+    image: 'howling_gale.png'
+  # 季風
+  monsoon:
+    key: 'b'
+    image: 'monsoon.png'
+  # 蜘蛛之鏡
+  spider:
+    key: 'f'
+    image: 'true_arachnid_reflection.png'
+  # 烈陽印記
+  sun:
+    key: 'f5'
+    image: 'solar_crest.png'
+  # 西爾芙之壁
+  shield:
+    key: '6'
+    image: 'gale_barrier.png'
+  # 武公
+  mu_gong:
+    key: 'f2'
+    image: 'mu_gong.png'
+  # 一鍵爆發
+  aio:
+    key: 'f1'
+    image: 'aio.png'
+  # 阿涅摩依
+  anemoi:
+    key: 'v'
+    image: 'anemoi.png'
+
+  # --- 以下為備用或已停用的技能 ---
+  # 爆擊強化
+  # vicious:
+  #   key: 'f3'
+  #   image: 'vicious_shot.png'
+  # 暴風加護
+  # big_arrow:
+  #   key: 'f4'
+  #   image: 'storm_whim.png'

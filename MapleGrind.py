@@ -1,6 +1,5 @@
 from XiaoController import XiaoController
 from MapleScript import MapleScript
-import PIL.Image
 import random
 import time
 
@@ -10,79 +9,8 @@ class MapleGrind(MapleScript):
         super().__init__(controller=controller)
         self.__position = self.get_character_position()
         self.__skills_list = list()
-        self.__gap_time = (0.5, 1.0)
-        self.__skills_dict = {
-            # 漩渦球球
-            "ball": {
-                "key": "pagedown",
-                "image": PIL.Image.open(self.get_photo_path("vortex_sphere.png")),
-            },
-            # 艾爾達斯降臨
-            "erdas": {
-                "key": "shift",
-                "image": PIL.Image.open(self.get_photo_path("erda_shower.png")),
-            },
-            # 風轉奇想
-            "wind": {
-                "key": "end",
-                "image": PIL.Image.open(self.get_photo_path("merciless_wind.png")),
-            },
-            # 小雞
-            "chicken": {
-                "key": "'",
-                "image": PIL.Image.open(self.get_photo_path("phalanx_charge.png")),
-            },
-            # 龍捲風
-            "tornado": {
-                "key": "d",
-                "image": PIL.Image.open(self.get_photo_path("howling_gale.png")),
-            },
-            # 季風
-            "monsoon": {
-                "key": "b",
-                "image": PIL.Image.open(self.get_photo_path("monsoon.png")),
-            },
-            # 蜘蛛之鏡
-            "spider": {
-                "key": "f",
-                "image": PIL.Image.open(self.get_photo_path("true_arachnid_reflection.png")),
-            },
-            # 烈陽印記
-            "sun": {
-                "key": "f5",
-                "image": PIL.Image.open(self.get_photo_path("solar_crest.png")),
-            },
-            # 西爾芙之壁
-            "shield": {
-                "key": "6",
-                "image": PIL.Image.open(self.get_photo_path("gale_barrier.png")),
-            },
-            # 武公
-            "mu_gong": {
-                "key": "f2",
-                "image": PIL.Image.open(self.get_photo_path("mu_gong.png")),
-            },
-            # 爆擊強化
-            # "vicious": {
-            #     "key": "f3",
-            #     "image": PIL.Image.open(self.get_photo_path("vicious_shot.png")),
-            # },
-            # 暴風加護
-            # "big_arrow": {
-            #     "key": "f4",
-            #     "image": PIL.Image.open(self.get_photo_path("storm_whim.png")),
-            # },
-            # 一鍵爆發（超越者西格諾斯的祝福+爆擊強化+暴風加護）
-            "aio": {
-                "key": "f1",
-                "image": PIL.Image.open(self.get_photo_path("aio.png")),
-            },
-            # 阿涅摩依
-            "anemoi": {
-                "key": "v",
-                "image": PIL.Image.open(self.get_photo_path("anemoi.png")),
-            }
-        }
+        self.__gap_time = self.yaml_loader.grind_setting
+        self.__skills_dict = self.yaml_loader.skill_dict
         self.__left_loop = \
             [('press', 'down', 1.93), ('press', 'alt', 2.02), ('release', 'alt', 2.24), ('release', 'down', 2.29),
              ('press', 'alt', 2.95), ('release', 'alt', 3.06), ('press', 'alt', 3.14), ('release', 'alt', 3.28),

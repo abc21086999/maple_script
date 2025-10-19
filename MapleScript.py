@@ -7,6 +7,8 @@ from XiaoController import XiaoController
 import win32gui
 import win32con
 from pathlib import Path
+from ConfigLoader import YamlLoader
+
 
 class WindowsObject:
 
@@ -49,6 +51,7 @@ class MapleScript:
 
     def __init__(self, controller=None):
         self.maple = self._get_maple()
+        self.yaml_loader = YamlLoader()
         self.__cur_path = Path(__file__).resolve().parent
         self.__keyboard = controller
         self.__mouse = controller
