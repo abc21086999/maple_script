@@ -4,10 +4,10 @@ opencv-python
 pillow
 PyScreeze
 numpy
-pygetwindow
 pyserial
 adafruit_board_toolkit
 ultralytics
 torch
 dxcam
 pynput
+pywin32
