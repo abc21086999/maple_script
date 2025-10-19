@@ -11,3 +11,4 @@ torch
 dxcam
 pynput
 pywin32
+PyYAML
