@@ -86,7 +86,7 @@ class MapleScript:
 
         # 在找不到的情況下，代表楓之谷沒開啟，直接結束腳本
         if not hwnds:
-            print("找不到楓之谷的程式 (使用類別名稱)")
+            print("找不到楓之谷的程式")
             sys.exit()
 
         # 處理楓之谷視窗最小化
@@ -96,7 +96,7 @@ class MapleScript:
                 win32gui.SetForegroundWindow(hwnd)
 
         time.sleep(0.5)
-        # 如果回傳的視窗有ㄎ兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
+        # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
         hwnd = max(hwnds, key=self.__get_window_area)
 
         # 切換到楓之谷
