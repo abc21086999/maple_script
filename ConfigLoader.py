@@ -6,7 +6,7 @@ import PIL.Image
 class YamlLoader:
 
     def __init__(self):
-        self.__config_path = Path(__file__).resolve().parent / "config.yaml"
+        self.__config_path = Path(__file__).resolve().parent / "config" / "config.yaml"
         self.__photo_path = Path(__file__).resolve().parent / 'photos'
         self.__config = None
         self.__load_yaml()
