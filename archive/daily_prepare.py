@@ -1,4 +1,4 @@
-from ArchiveFile.functions import *
+from archive.functions import *
 
 
 def daily_main():

@@ -1,9 +1,9 @@
 import PIL.Image
-
-from XiaoController import XiaoController
-from MapleScript import MapleScript
+from src.XiaoController import XiaoController
+from src.MapleScript import MapleScript
 import random
 import time
+
 
 class MapleGrind(MapleScript):
 

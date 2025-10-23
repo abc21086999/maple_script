@@ -1,6 +1,6 @@
 import time
-from XiaoController import XiaoController
-from MapleScript import MapleScript
+from src.XiaoController import XiaoController
+from src.MapleScript import MapleScript
 
 
 class DailyPrepare(MapleScript):
@@ -387,6 +387,20 @@ class DailyPrepare(MapleScript):
         for i in range(3):
             self.press_and_wait("right")
         self.press_and_wait(["up", "enter", "down", "enter"])
+
+    def start_daily(self):
+        """
+        執行所有的每日行程
+        """
+        self.switch_to_grinding_set()
+        self.collect_union_coin()
+        self.start_daily_or_weekly_mission()
+        self.dismantle_armours()
+        self.receive_hd_gift()
+        self.receive_milestones()
+        self.collect_market()
+        self.complete_master_and_apprentice()
+        self.handle_housing()
 
 
 if __name__ == "__main__":

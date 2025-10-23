@@ -1,6 +1,6 @@
 import time
-from XiaoController import XiaoController
-from MapleScript import MapleScript
+from src.XiaoController import XiaoController
+from src.MapleScript import MapleScript
 
 
 class MonsterCollection(MapleScript):
