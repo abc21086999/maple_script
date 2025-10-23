@@ -388,7 +388,7 @@ class DailyPrepare(MapleScript):
             self.press_and_wait("right")
         self.press_and_wait(["up", "enter", "down", "enter"])
 
-    def start_daily(self):
+    def start(self):
         """
         執行所有的每日行程
         """

@@ -51,6 +51,13 @@ class MonsterCollection(MapleScript):
         # 最後用Esc將怪物蒐藏界面關閉
         self.press_and_wait("esc")
 
+    def start(self):
+        """
+        一個提供給外部使用的入口
+        會完成怪物搜藏
+        """
+        self.collect_and_start_monster_collection()
+
 
 if __name__ == "__main__":
     with XiaoController() as controller:
