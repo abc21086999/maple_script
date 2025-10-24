@@ -112,7 +112,7 @@ class MapleGrind(MapleScript):
             self.press("alt")
             self.key_up("down")
 
-    def replay_script(self) -> None:
+    def walk_the_map(self) -> None:
         """
         根據錄製的腳本來重播操作
         """
@@ -120,24 +120,8 @@ class MapleGrind(MapleScript):
         if random.random() < 0.05 and self.is_maple_focus():
             print("開始使用紀錄的腳本")
 
-            recorded_events = self.__loop_map.get(self.get_character_position(), [])
-
-            start_replay_time = time.time()
-            for action, key_str, event_time in recorded_events:
-                if not self.is_maple_focus():
-                    print("楓之谷不在前景，中止跑圖")
-                    break
-                target_time = start_replay_time + event_time
-                sleep_duration = target_time - time.time()
-                if sleep_duration > 0:
-                    time.sleep(sleep_duration)
-
-                if action == 'press':
-                    self.key_down(key_str)
-                elif action == 'release':
-                    self.key_up(key_str)
-
-            print("腳本重播完畢")
+            recorded_events = self.__loop_map.get(self.get_character_position())
+            self.replay_script(recorded_events)
 
     def start(self) -> None:
         try:
