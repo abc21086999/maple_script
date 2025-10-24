@@ -1,5 +1,5 @@
+import time
 import PIL.Image
-
 from src.MapleScript import MapleScript
 from src.XiaoController import XiaoController
 from src.DailyPrepare import DailyPrepare
@@ -43,9 +43,44 @@ class DailyBoss(MapleScript):
         return boss_condition
 
     def __zakum_work(self):
-        self.press_and_wait("t")
+        """
+        打炎魔然後撿東西，最後回到村莊
+        """
+        # 打開Boss界面，然後切到炎魔那頁之後過去
+        self.press_and_wait("t", 0.7)
         self.find_and_click_image(self.get_photo_path("boss_ui_zakum.png"))
         self.find_and_click_image(self.__move_to_boss_map_button)
+
+        # 移動到炎魔入口，確保我們選到的是普通的炎魔難度，然後選完接收炎魔碎片之後入場
+        self.replay_script([('press', 'right', 1.82), ('release', 'right', 11.17), ('press', 'up', 11.79), ('release', 'up', 11.88)])
+        for _ in range(2):
+            self.press_and_wait("up")
+        self.press_and_wait(["down", "enter", "right", "enter"])
+        while not self.is_on_screen(self.get_photo_path("zakum_map.png")):
+            time.sleep(1)
+
+        # 移動到祭壇那邊，然後把火焰之眼丟出去
+        self.press_and_wait("space")
+        self.press_and_wait("i", 0.5)
+        self.find_and_click_image(self.get_photo_path("item_others_tab.png"))
+        self.find_and_click_image(self.get_photo_path("eye_of_fire.png"))
+        self.move((-600, 0))
+        self.click()
+        self.press_and_wait("esc")
+
+        # 等待炎魔生成
+        time.sleep(3.5)
+
+        # 開打，接著調整人物讓寵物撿東西
+        self.press_and_wait("end", 1)
+        self.press_and_wait(["left", "space", "space", "right", "space", "space", "space"], 0.7)
+
+        # 離開地圖
+        self.press_and_wait(["y", "right", "enter"])
+        time.sleep(1)
+
+        # 回到村莊
+        self.replay_script([('press', 'left', 1.92), ('release', 'left', 2.37), ('press', 'up', 2.81), ('release', 'up', 2.91)])
 
     def mock_boss_work(self):
         pass

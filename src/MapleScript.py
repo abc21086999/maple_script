@@ -249,6 +249,10 @@ class MapleScript:
             print(f'畫面中找不到{pic_for_search}')
 
     def replay_script(self, recorded_events: list[tuple[str, str, float | int]]):
+        """
+        重播已經錄製的腳本
+        :param recorded_events: 腳本list
+        """
         start_replay_time = time.time()
         for action, key_str, event_time in recorded_events:
             if not self.is_maple_focus():
