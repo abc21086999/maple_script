@@ -3,12 +3,14 @@ from src.MapleGrind import MapleGrind
 from src.MonsterCollection import MonsterCollection
 from src.DailyPrepare import DailyPrepare
 from src.XiaoController import XiaoController
+from src.DailyBoss import DailyBoss
 
 
 task_mapping = {
     "grind": MapleGrind,
     "collection": MonsterCollection,
     "daily": DailyPrepare,
+    "daily_boss": DailyBoss
 }
 
 def run():
