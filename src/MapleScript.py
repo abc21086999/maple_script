@@ -248,6 +248,24 @@ class MapleScript:
             # 如果沒辨識到東西就不做任何事情
             print(f'畫面中找不到{pic_for_search}')
 
+    def replay_script(self, recorded_events: list[tuple[str, str, float | int]]):
+        start_replay_time = time.time()
+        for action, key_str, event_time in recorded_events:
+            if not self.is_maple_focus():
+                print("楓之谷不在前景，中止重播腳本")
+                break
+
+            target_time = start_replay_time + event_time
+            sleep_duration = target_time - time.time()
+            if sleep_duration > 0:
+                time.sleep(sleep_duration)
+
+            if action == 'press':
+                self.key_down(key_str)
+            elif action == 'release':
+                self.key_up(key_str)
+
+        print("腳本重播完畢")
 
     def press(self, key: str) -> None:
         if self.__keyboard is not None:

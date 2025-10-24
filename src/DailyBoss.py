@@ -1,3 +1,5 @@
+import PIL.Image
+
 from src.MapleScript import MapleScript
 from src.XiaoController import XiaoController
 from src.DailyPrepare import DailyPrepare
@@ -9,6 +11,7 @@ class DailyBoss(MapleScript):
         super().__init__(controller=controller)
         self.__daily_helper = DailyPrepare(controller=controller)
         self.__boss_dict = self.yaml_loader.boss_dict
+        self.__move_to_boss_map_button = PIL.Image.open(self.get_photo_path("boss_ui_move_to_boss_map_button.png"))
 
     def check_daily_boss_progress(self):
         """
@@ -39,7 +42,10 @@ class DailyBoss(MapleScript):
         # 回傳沒打過的Boss列表
         return boss_condition
 
-    def
+    def __zakum_work(self):
+        self.press_and_wait("t")
+        self.find_and_click_image(self.get_photo_path("boss_ui_zakum.png"))
+        self.find_and_click_image(self.__move_to_boss_map_button)
 
     def mock_boss_work(self):
         pass
@@ -51,7 +57,7 @@ class DailyBoss(MapleScript):
         """
         # 一個Boss名稱和對應的工作的對應表
         boss_work_mapping_dict = {
-            'zakum': self.mock_boss_work,
+            'zakum': self.__zakum_work,
             'magnus': self.mock_boss_work,
             'hilla': self.mock_boss_work,
             'pierre': self.mock_boss_work,
@@ -85,5 +91,4 @@ class DailyBoss(MapleScript):
 if __name__ == "__main__":
     with XiaoController() as Xiao:
         Maple = DailyBoss(controller=Xiao)
-        print(Maple.decide_daily_boss_schedule())
-
+        Maple.start()
