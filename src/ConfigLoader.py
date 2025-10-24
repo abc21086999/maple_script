@@ -12,6 +12,7 @@ class YamlLoader:
         self.__load_yaml()
         self.skill_dict = self.__get_skills_dict()
         self.grind_setting = self.__get_grind_settings()
+        self.boss_dict = self.__get_daily_boss_dict()
 
     def __load_yaml(self):
         """
@@ -42,8 +43,20 @@ class YamlLoader:
             }
         return skills_dict
 
+    def __get_daily_boss_dict(self) -> dict:
+        """
+        建立並回傳每日行事曆當中每日Boss的圖片列表
+        """
+        boss_config = self.__config["boss"]
+        boss_dict = {}
+
+        for boss_name, boss_tab_pic in boss_config.items():
+            img_path = self.__photo_path / boss_tab_pic
+            boss_dict[boss_name] = PIL.Image.open(img_path)
+
+        return boss_dict
+
 
 if __name__ == "__main__":
     yaml_operator = YamlLoader()
-    for i in range(10):
-        print(yaml_operator.skill_dict)
+    print(yaml_operator.boss_dict)
