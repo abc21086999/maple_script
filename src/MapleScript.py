@@ -38,10 +38,17 @@ class WindowsObject:
         return b - t
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
+        """
+        回傳楓之谷視窗是否在前景
+        :return: bool
+        """
         return win32gui.GetForegroundWindow() == self.__hwnd
 
     def activate(self):
+        """
+        將楓之谷視窗取消最小化並拉到前景
+        """
         if win32gui.IsIconic(self.__hwnd):
             win32gui.ShowWindow(self.__hwnd, win32con.SW_RESTORE)
         win32gui.SetForegroundWindow(self.__hwnd)
@@ -98,7 +105,7 @@ class MapleScript:
                 win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
                 win32gui.SetForegroundWindow(hwnd)
 
-        time.sleep(0.5)
+        time.sleep(0.3)
         # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
         hwnd = max(hwnds, key=self.__get_window_area)
 
