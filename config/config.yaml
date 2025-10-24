@@ -63,3 +63,30 @@ skills:
   # big_arrow:
   #   key: 'f4'
   #   image: 'storm_whim.png'
+
+# Boss列表
+boss:
+  # 炎魔
+  zakum: 'schedule_daily_boss_zakum_tab.png'
+  # 梅格耐斯
+  magnus: 'schedule_daily_boss_magnus_tab.png'
+  # 希拉
+  hilla: 'schedule_daily_boss_hilla_tab.png'
+  # 比艾樂
+  pierre: 'schedule_daily_boss_pierre_tab.png'
+  # 斑斑
+  von_bon: 'schedule_daily_boss_von_bon_tab.png'
+  # 血腥皇后
+  crimson_queen: 'schedule_daily_boss_crimson_queen_tab.png'
+  # 貝倫
+  vellum: 'schedule_daily_boss_vellum_tab.png'
+  # 凡雷恩
+  von_leon: 'schedule_daily_boss_von_leon_tab.png'
+  # 闇黑龍王
+  horntail: 'schedule_daily_boss_horntail_tab.png'
+  # 阿卡伊農
+  arkarium: 'schedule_daily_boss_arkarium_tab.png'
+  # 粉豆
+  pink_bean: 'schedule_daily_boss_pink_bean_tab.png'
+  # 培羅德
+  gollux: 'schedule_daily_boss_gollux_tab.png'
