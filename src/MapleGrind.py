@@ -9,7 +9,6 @@ class MapleGrind(MapleScript):
 
     def __init__(self, controller=None):
         super().__init__(controller=controller)
-        self.__position = self.get_character_position()
         self.__skills_list = list()
         self.__gap_time = self.yaml_loader.grind_setting
         self.__skills_dict = self.yaml_loader.skill_dict
