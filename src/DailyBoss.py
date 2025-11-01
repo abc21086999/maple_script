@@ -40,7 +40,6 @@ class DailyBoss(MapleScript):
 
         self.find_and_click_image(boss_tab_img)
         self.find_and_click_image(self.__move_to_boss_map_button)
-        pass
 
     def check_daily_boss_progress(self):
         """
@@ -113,6 +112,29 @@ class DailyBoss(MapleScript):
     def __arkarium_work(self):
         self.__got_to_boss_map("arkarium")
 
+    def __magnus_work(self):
+        self.__got_to_boss_map("magnus")
+        while not self.is_on_screen(self.__get_boss_photo_path("tyrants_castle_map_icon.png")):
+            time.sleep(0.5)
+        self.press_and_wait(["space", "y", "up", "up", "down", "enter"], wait_time=0.5)
+        while not self.is_on_screen(self.__get_boss_photo_path("magnus_map.png")):
+            time.sleep(0.5)
+        self.key_down("a")
+        self.key_down("right")
+        time.sleep(10)
+        self.key_up("a")
+        self.key_up("right")
+        self.key_down("left")
+        time.sleep(10)
+        self.key_up("left")
+
+    def __hilla_work(self):
+        self.__got_to_boss_map("hilla")
+        while not self.is_on_screen(self.__get_boss_photo_path("hillas_tower_map_icon.png")):
+            time.sleep(1)
+        self.press_and_wait(["space", "space", "y", "up", "enter"], wait_time=0.7)
+
+
     def mock_boss_work(self):
         pass
 
@@ -124,15 +146,15 @@ class DailyBoss(MapleScript):
         # 一個Boss名稱和對應的工作的對應表
         boss_work_mapping_dict = {
             'zakum': self.__zakum_work,
-            'magnus': self.mock_boss_work,
-            'hilla': self.mock_boss_work,
+            'magnus': self.__magnus_work,
+            'hilla': self.__hilla_work,
             'pierre': self.mock_boss_work,
             'von_bon': self.mock_boss_work,
             'crimson_queen': self.mock_boss_work,
             'vellum': self.mock_boss_work,
             'von_leon': self.mock_boss_work,
             'horntail': self.mock_boss_work,
-            'arkarium': self.__arkarium_work,
+            'arkarium': self.mock_boss_work,
             'pink_bean': self.mock_boss_work,
             'gollux': self.mock_boss_work,
         }
