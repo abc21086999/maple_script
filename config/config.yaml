@@ -90,3 +90,16 @@ boss:
   pink_bean: 'schedule_daily_boss_pink_bean_tab.png'
   # 培羅德
   gollux: 'schedule_daily_boss_gollux_tab.png'
+
+# 倉庫列表
+warehouse:
+  1: '1.png'
+  2: '2.png'
+  3: '3.png'
+  4: '4.png'
+  5: '5.png'
+  6: '6.png'
+  7: '7.png'
+  8: '8.png'
+  9: '9.png'
+  0: '0.png'
