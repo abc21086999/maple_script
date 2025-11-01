@@ -1,4 +1,6 @@
 import time
+from pathlib import Path
+
 import PIL.Image
 from src.MapleScript import MapleScript
 from src.XiaoController import XiaoController
@@ -11,7 +13,34 @@ class DailyBoss(MapleScript):
         super().__init__(controller=controller)
         self.__daily_helper = DailyPrepare(controller=controller)
         self.__boss_dict = self.yaml_loader.boss_dict
-        self.__move_to_boss_map_button = PIL.Image.open(self.get_photo_path("boss_ui_move_to_boss_map_button.png"))
+        self.__move_to_boss_map_button = PIL.Image.open(self.__get_boss_photo_path("boss_ui_move_to_boss_map_button.png"))
+
+    def __get_boss_photo_path(self, pic_name: str) -> Path:
+        """
+        適用於Boss相關的圖片
+        :param pic_name: 圖片的檔名
+        :return: Path路徑
+        """
+        return self.get_photo_path("") / "boss" / pic_name
+
+    def __got_to_boss_map(self, boss: str):
+        boss_tab_img = self.__get_boss_photo_path(f'boss_ui_{boss}.png')
+        # 打開Boss界面
+        self.press_and_wait("t")
+        # 等待
+        while not self.is_on_screen(self.__get_boss_photo_path("boss_ui.png")):
+            time.sleep(0.3)
+        # 如果不在畫面上，那就把滑鼠移動到比較下面的地方然後往下滑
+        if not self.is_on_screen(boss_tab_img):
+            self.find_and_click_image(self.__get_boss_photo_path("boss_ui_von_leon.png"))
+            time.sleep(0.3)
+            self.scroll_down()
+        while not self.is_on_screen(boss_tab_img):
+            time.sleep(0.3)
+
+        self.find_and_click_image(boss_tab_img)
+        self.find_and_click_image(self.__move_to_boss_map_button)
+        pass
 
     def check_daily_boss_progress(self):
         """
@@ -47,25 +76,28 @@ class DailyBoss(MapleScript):
         打炎魔然後撿東西，最後回到村莊
         """
         # 打開Boss界面，然後切到炎魔那頁之後過去
-        self.press_and_wait("t", 0.7)
-        self.find_and_click_image(self.get_photo_path("boss_ui_zakum.png"))
-        self.find_and_click_image(self.__move_to_boss_map_button)
+        self.__got_to_boss_map("zakum")
 
         # 移動到炎魔入口，確保我們選到的是普通的炎魔難度，然後選完接收炎魔碎片之後入場
         self.replay_script([('press', 'right', 1.82), ('release', 'right', 11.17), ('press', 'up', 11.79), ('release', 'up', 11.88)])
         for _ in range(2):
             self.press_and_wait("up")
-        self.press_and_wait(["down", "enter", "right", "enter"])
-        while not self.is_on_screen(self.get_photo_path("zakum_map.png")):
+        self.press_and_wait(["down", "enter"])
+
+        # 處理身上有沒有火焰之眼的的狀況
+        if self.is_on_screen(self.__get_boss_photo_path("adobis.png")):
+            self.press_and_wait(["right", "enter"])
+
+        # 等待地圖移動
+        while not self.is_on_screen(self.__get_boss_photo_path("zakum_map.png")):
             time.sleep(1)
 
-        # 移動到祭壇那邊，然後把火焰之眼丟出去
+        # 移動到祭壇那邊，然後把火焰之眼丟出去，然後把物品欄關掉
         self.press_and_wait("space")
         self.press_and_wait("i", 0.5)
         self.find_and_click_image(self.get_photo_path("item_others_tab.png"))
-        self.find_and_click_image(self.get_photo_path("eye_of_fire.png"))
-        self.move((-600, 0))
-        self.click()
+        self.find_and_click_image(self.__get_boss_photo_path("eye_of_fire.png"))
+        self.find_and_click_image(self.__get_boss_photo_path("zakum_map_stone.png"))
         self.press_and_wait("esc")
 
         # 等待炎魔生成
@@ -77,10 +109,9 @@ class DailyBoss(MapleScript):
 
         # 離開地圖
         self.press_and_wait(["y", "right", "enter"])
-        time.sleep(1)
 
-        # 回到村莊
-        self.replay_script([('press', 'left', 1.92), ('release', 'left', 2.37), ('press', 'up', 2.81), ('release', 'up', 2.91)])
+    def __arkarium_work(self):
+        self.__got_to_boss_map("arkarium")
 
     def mock_boss_work(self):
         pass
@@ -101,7 +132,7 @@ class DailyBoss(MapleScript):
             'vellum': self.mock_boss_work,
             'von_leon': self.mock_boss_work,
             'horntail': self.mock_boss_work,
-            'arkarium': self.mock_boss_work,
+            'arkarium': self.__arkarium_work,
             'pink_bean': self.mock_boss_work,
             'gollux': self.mock_boss_work,
         }

@@ -51,7 +51,7 @@ class YamlLoader:
         boss_dict = {}
 
         for boss_name, boss_tab_pic in boss_config.items():
-            img_path = self.__photo_path / boss_tab_pic
+            img_path = self.__photo_path / "boss" / boss_tab_pic
             boss_dict[boss_name] = PIL.Image.open(img_path)
 
         return boss_dict
