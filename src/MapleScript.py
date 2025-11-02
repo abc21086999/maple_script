@@ -8,6 +8,7 @@ import win32gui
 import win32con
 from pathlib import Path
 from src.ConfigLoader import YamlLoader
+from dotenv import load_dotenv
 
 
 class WindowsObject:
@@ -62,6 +63,7 @@ class MapleScript:
         self.__cur_path = Path(__file__).resolve().parent.parent
         self.__keyboard = controller
         self.__mouse = controller
+        load_dotenv()
 
     @staticmethod
     def __get_window_area(hwnd):
