@@ -8,7 +8,7 @@ The architecture is composed of two main parts:
 1.  **A Python control script** running on a **Windows** host computer. It uses computer vision libraries (`PyAutoGUI`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action.
 2.  **A Seeed Studio Xiao ESP32S3 microcontroller** acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It then translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
 
-The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities. Specific automation routines, like `src/DailyPrepare.py`, `src/MonsterCollection.py`, and `src/MapleGrind.py`, inherit from this base class. The project is now configuration-driven, with skills and settings defined in `config/config.yaml` and loaded by `src/ConfigLoader.py`. The grinding script (`src/MapleGrind.py`) uses minimap analysis to determine the character's position and execute patrol routes.
+The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities. Specific automation routines, like `src/DailyPrepare.py`, `src/MonsterCollection.py`, `src/MapleGrind.py`, and `src/Storage.py`, inherit from this base class. The project is now configuration-driven, with skills and settings defined in `config/config.yaml` and loaded by `src/ConfigLoader.py`. The grinding script (`src/MapleGrind.py`) uses minimap analysis to determine the character's position and execute patrol routes.
 
 All tasks are executed through the main entry point `src/__main__.py`.
 
@@ -45,6 +45,10 @@ To execute a specific automation task, run `src/__main__.py` with the desired ta
   ```bash
   python -m src grind
   ```
+- To run the storage input routine:
+  ```bash
+  python -m src storage
+  ```
 
 ### 4. Testing
 
@@ -53,6 +57,10 @@ There is no dedicated testing framework (like `pytest` or `unittest`) apparent i
 ## Development Conventions
 
 - **Class-based Structure:** The project uses an object-oriented approach, with a base `MapleScript` class defining common functionalities and task-specific classes inheriting from it.
+- **Secrets Management (.env)**: Sensitive information, such as the second password for the storage, is managed using a `.env` file in the project root.
+    - This file is **not** committed to version control and should be listed in `.gitignore`.
+    - The base `MapleScript` class automatically loads variables from this file using `python-dotenv`.
+    - A template file, `.env.example`, should be maintained to show required environment variables.
 - **Configuration-driven Logic:** Most of the dynamic settings are managed in `config/config.yaml`. This includes:
     - **Skills:** Defining skill names, their assigned keys, and the corresponding image files for cooldown detection.
     - **Script Parameters:** Adjusting values like the time gap between skill casts for the grinding script.
