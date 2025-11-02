@@ -12,3 +12,4 @@ dxcam
 pynput
 pywin32
 PyYAML
+python-dotenv

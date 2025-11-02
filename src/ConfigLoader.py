@@ -13,7 +13,7 @@ class YamlLoader:
         self.skill_dict = self.__get_skills_dict()
         self.grind_setting = self.__get_grind_settings()
         self.boss_dict = self.__get_daily_boss_dict()
-        self.warehouse_dict = self.__get_warehouse_dict()
+        self.storage_dict = self.__get_storage_dict()
 
     def __load_yaml(self):
         """
@@ -57,18 +57,18 @@ class YamlLoader:
 
         return boss_dict
 
-    def __get_warehouse_dict(self) -> dict:
+    def __get_storage_dict(self) -> dict:
         """
         建立並回傳倉庫UI的號碼和圖片
         """
-        warehouse_config = self.__config["warehouse"]
-        warehouse_dict = {}
+        storage_config = self.__config["storage"]
+        storage_dict = {}
 
-        for number, num_pic in warehouse_config.items():
-            img_path = self.__photo_path / "warehouse" / num_pic
-            warehouse_dict[number] = PIL.Image.open(img_path)
+        for number, num_pic in storage_config.items():
+            img_path = self.__photo_path / "storage" / num_pic
+            storage_dict[number] = PIL.Image.open(img_path)
 
-        return warehouse_dict
+        return storage_dict
 
 
 if __name__ == "__main__":

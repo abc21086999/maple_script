@@ -11,7 +11,7 @@ venv/
 env/
 
 # Secret files (例如 API Keys)
-.env
+*.env
 
 # Build artifacts and logs
 dist/
