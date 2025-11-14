@@ -1,6 +1,5 @@
 import time
 from pathlib import Path
-
 import PIL.Image
 from src.MapleScript import MapleScript
 from src.XiaoController import XiaoController
@@ -120,10 +119,13 @@ class DailyBoss(MapleScript):
         while not self.is_on_screen(self.__get_boss_photo_path("magnus_map.png")):
             time.sleep(0.5)
         self.key_down("a")
+        time.sleep(0.5)
         self.key_down("right")
         time.sleep(10)
         self.key_up("a")
+        time.sleep(0.5)
         self.key_up("right")
+        time.sleep(0.5)
         self.key_down("left")
         time.sleep(10)
         self.key_up("left")
