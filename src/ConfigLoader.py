@@ -1,6 +1,7 @@
 import yaml
 from pathlib import Path
 import PIL.Image
+from functools import cached_property
 
 
 class YamlLoader:
@@ -8,28 +9,24 @@ class YamlLoader:
     def __init__(self):
         self.__config_path = Path(__file__).resolve().parent.parent / "config" / "config.yaml"
         self.__photo_path = Path(__file__).resolve().parent.parent / 'photos'
-        self.__config = None
-        self.__load_yaml()
-        self.skill_dict = self.__get_skills_dict()
-        self.grind_setting = self.__get_grind_settings()
-        self.boss_dict = self.__get_daily_boss_dict()
-        self.storage_dict = self.__get_storage_dict()
-
-    def __load_yaml(self):
+    
+    @cached_property
+    def __config(self):
         """
         讀取YAML檔案
-        :return: None
         """
         with open(self.__config_path, 'r', encoding='utf-8') as file:
-            self.__config = yaml.safe_load(file)
+            return yaml.safe_load(file)
 
-    def __get_grind_settings(self):
+    @cached_property
+    def grind_setting(self):
         """
         提供練功相關的設定
         """
         return tuple(self.__config['grind_settings']['skill_gap_time'])
 
-    def __get_skills_dict(self):
+    @cached_property
+    def skill_dict(self):
         """
         動態建立並回傳包含 PIL.Image 物件的技能字典
         """
@@ -44,7 +41,8 @@ class YamlLoader:
             }
         return skills_dict
 
-    def __get_daily_boss_dict(self) -> dict:
+    @cached_property
+    def boss_dict(self) -> dict:
         """
         建立並回傳每日行事曆當中每日Boss的圖片列表
         """
@@ -57,7 +55,8 @@ class YamlLoader:
 
         return boss_dict
 
-    def __get_storage_dict(self) -> dict:
+    @cached_property
+    def storage_dict(self) -> dict:
         """
         建立並回傳倉庫UI的號碼和圖片
         """
@@ -74,3 +73,6 @@ class YamlLoader:
 if __name__ == "__main__":
     yaml_operator = YamlLoader()
     print(yaml_operator.boss_dict)
+    print(yaml_operator.boss_dict)
+    print(yaml_operator.skill_dict)
+    print(yaml_operator.skill_dict)
