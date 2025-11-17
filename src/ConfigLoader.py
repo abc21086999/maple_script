@@ -69,6 +69,20 @@ class YamlLoader:
 
         return storage_dict
 
+    @cached_property
+    def dancing_dict(self) -> dict:
+        """
+        建立並回傳跳舞機活動的方向和圖片
+        """
+        dancing_config = self.__config["dancing"]
+        dancing_dict = {}
+
+        for direction, pic in dancing_config.items():
+            img_path = self.__photo_path / "dancing" / pic
+            dancing_dict[direction] = PIL.Image.open(img_path)
+
+        return dancing_dict
+
 
 if __name__ == "__main__":
     yaml_operator = YamlLoader()

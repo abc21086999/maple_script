@@ -103,3 +103,11 @@ storage:
   '8': '8.png'
   '9': '9.png'
   '0': '0.png'
+
+# 活動跳舞機
+dancing:
+  'left': 'direction_left.png'
+  'right': 'direction_right.png'
+  'down': 'direction_down.png'
+  'up': 'direction_up.png'
+
