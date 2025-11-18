@@ -106,8 +106,12 @@ storage:
 
 # 活動跳舞機
 dancing:
-  'left': 'direction_left.png'
-  'right': 'direction_right.png'
-  'down': 'direction_down.png'
-  'up': 'direction_up.png'
+  left: 'direction_left.png'
+  right: 'direction_right.png'
+  down: 'direction_down.png'
+  up: 'direction_up.png'
 
+# 跳舞機相關的UI
+dancing_ui:
+  ending_npc: 'end_npc.png'
+  start_ui: 'end.png'

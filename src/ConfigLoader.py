@@ -70,7 +70,7 @@ class YamlLoader:
         return storage_dict
 
     @cached_property
-    def dancing_dict(self) -> dict:
+    def dancing_config(self) -> tuple[dict, dict]:
         """
         建立並回傳跳舞機活動的方向和圖片
         """
@@ -81,7 +81,14 @@ class YamlLoader:
             img_path = self.__photo_path / "dancing" / pic
             dancing_dict[direction] = PIL.Image.open(img_path)
 
-        return dancing_dict
+        dancing_ui_config = self.__config["dancing_ui"]
+        dancing_ui_dict = dict()
+
+        for ui, ui_pic in dancing_ui_config.items():
+            img_path = self.__photo_path / "dancing" / ui_pic
+            dancing_ui_dict[ui] = img_path
+
+        return dancing_dict, dancing_ui_dict
 
 
 if __name__ == "__main__":
