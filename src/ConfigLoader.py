@@ -65,18 +65,27 @@ class YamlLoader:
         return boss_dict
 
     @cached_property
-    def storage_dict(self) -> dict:
+    def storage_resources(self) -> tuple[dict, dict]:
         """
         建立並回傳倉庫UI的號碼和圖片
+        Returns:
+            tuple[dict, dict]: (numbers_dict, ui_dict)
         """
         storage_config = self.__config["storage"]
-        storage_dict = {}
+        numbers_dict = {}
+        ui_dict = {}
 
-        for number, num_pic in storage_config.items():
+        # 處理數字圖片 (預設在 storage 資料夾下)
+        for number, num_pic in storage_config.get('numbers', {}).items():
             img_path = self.__photo_path / "storage" / num_pic
-            storage_dict[number] = PIL.Image.open(img_path)
+            numbers_dict[number] = PIL.Image.open(img_path)
 
-        return storage_dict
+        # 處理 UI 圖片 (依照設定檔路徑)
+        for name, pic_path in storage_config.get('ui', {}).items():
+            img_path = self.__photo_path / pic_path
+            ui_dict[name] = PIL.Image.open(img_path)
+
+        return numbers_dict, ui_dict
 
     @cached_property
     def dancing_config(self) -> tuple[dict, dict]:
@@ -114,6 +123,33 @@ class YamlLoader:
         config = self.__config.get('daily_prepare', {})
         result = {}
         # config 結構為 Category -> Key -> Filename
+        for category, items in config.items():
+            result[category] = {}
+            for key, filename in items.items():
+                img_path = self.__photo_path / filename
+                result[category][key] = PIL.Image.open(img_path)
+        return result
+
+    @cached_property
+    def monster_collection_images(self) -> dict:
+        """
+        載入怪物收藏相關圖片
+        """
+        config = self.__config.get('monster_collection', {})
+        images = {}
+        for key, filename in config.items():
+            img_path = self.__photo_path / filename
+            images[key] = PIL.Image.open(img_path)
+        return images
+
+    @cached_property
+    def daily_boss_images(self) -> dict:
+        """
+        載入每日Boss相關圖片
+        """
+        config = self.__config.get('daily_boss', {})
+        result = {}
+        # config 結構為 Category/Boss -> Key -> Filename
         for category, items in config.items():
             result[category] = {}
             for key, filename in items.items():

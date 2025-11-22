@@ -8,27 +8,14 @@ class DailyPrepare(MapleScript):
     def __init__(self, controller=None):
         super().__init__(controller=controller)
         # 預先載入每日任務相關圖片
-        self.images = self.yaml_loader.daily_prepare_images
-
-    def invoke_menu(self) -> None:
-        """
-        打開總攬界面
-        :return:
-        """
-        # 打開總攬界面
-        self.press_and_wait("esc")
-        # 確保有打開
-        while not self.is_on_screen(self.images['common']['menu_market_icon']):
-            time.sleep(0.3)
-            self.press_and_wait("esc")
-        return None
+        self.__images = self.yaml_loader.daily_prepare_images
 
     def switch_to_grinding_set(self):
         """
         切換到練功用的角色設定
         :return: None
         """
-        imgs = self.images['settings']
+        imgs = self.__images['settings']
 
         while not self.is_maple_focus():
             time.sleep(0.1)
@@ -62,7 +49,7 @@ class DailyPrepare(MapleScript):
         蒐集戰地聯盟的硬幣
         :return: None
         """
-        imgs = self.images['union']
+        imgs = self.__images['union']
 
         if self.is_maple_focus():
             # 打開戰地聯盟的界面
@@ -96,7 +83,7 @@ class DailyPrepare(MapleScript):
         開始或結束每日或是每週任務
         :return: None
         """
-        imgs = self.images['mission']
+        imgs = self.__images['mission']
 
         if self.is_maple_focus():
             # 打開每日任務的界面
@@ -146,7 +133,7 @@ class DailyPrepare(MapleScript):
         分解裝備
         :return: None
         """
-        imgs = self.images['dismantle']
+        imgs = self.__images['dismantle']
 
         if self.is_maple_focus():
             # 點下快速移動的界面
@@ -207,7 +194,7 @@ class DailyPrepare(MapleScript):
         領取HD禮物
         :return: None
         """
-        imgs = self.images['hd']
+        imgs = self.__images['hd']
 
         if self.is_maple_focus():
             # 打開總攬菜單
@@ -251,7 +238,7 @@ class DailyPrepare(MapleScript):
         領取里程
         :return: None
         """
-        imgs = self.images['milestone']
+        imgs = self.__images['milestone']
 
         if self.is_maple_focus():
             # 打開總攬菜單
@@ -274,14 +261,14 @@ class DailyPrepare(MapleScript):
         處理拍賣
         :return: None
         """
-        imgs = self.images['market']
+        imgs = self.__images['market']
 
         if self.is_maple_focus():
             # 打開總攬菜單
             self.invoke_menu()
 
             # 按下拍賣 (注意：這邊使用 common 的圖示)
-            self.find_and_click_image(self.images['common']['menu_market_icon'])
+            self.find_and_click_image(self.__images['common']['menu_market_icon'])
 
             # 等待進入拍賣
             while not self.is_on_screen(imgs['title']):
@@ -328,7 +315,7 @@ class DailyPrepare(MapleScript):
         完成師徒系統
         :return: None
         """
-        imgs = self.images['master_apprentice']
+        imgs = self.__images['master_apprentice']
 
         if self.is_maple_focus():
             # 打開總攬菜單，然後按下師徒
@@ -354,7 +341,7 @@ class DailyPrepare(MapleScript):
         處理小屋每日對話
         :return: None
         """
-        imgs = self.images['housing']
+        imgs = self.__images['housing']
 
         # 打開總攬界面
         self.invoke_menu()

@@ -8,11 +8,8 @@ class Storage(MapleScript):
 
     def __init__(self, controller=None):
         super().__init__(controller=controller)
-        self.__number_dict = self.yaml_loader.storage_dict
+        self.__number_dict, self.__ui_dict = self.yaml_loader.storage_resources
         self.__second_password = os.getenv("SECOND_PASSWORD")
-
-    def __get_storage_photo_path(self, pic_name: str):
-        return self.get_photo_path("") / "storage" / pic_name
 
     def __fill_in_the_password(self):
         """
@@ -23,8 +20,8 @@ class Storage(MapleScript):
         if self.__second_password is None:
             return
 
-        storage_ui_title = self.__get_storage_photo_path("storage_ui.png")
-        fast_travel_icon = self.get_photo_path("fast_travel.png")
+        storage_ui_title = self.__ui_dict['title']
+        fast_travel_icon = self.__ui_dict['fast_travel']
 
         # 如果畫面上沒有輸入第二組密碼的UI，那就打開倉庫界面
         if not self.is_on_screen(storage_ui_title):
@@ -33,7 +30,7 @@ class Storage(MapleScript):
                 pass
             else:
                 self.find_and_click_image(fast_travel_icon)
-                self.find_and_click_image(self.get_photo_path("storage_icon.png"))
+                self.find_and_click_image(self.__ui_dict['icon'])
 
         # 等待界面出現
         while not self.is_on_screen(storage_ui_title):
@@ -47,7 +44,7 @@ class Storage(MapleScript):
             self.find_and_click_image(password_char_pic)
 
         # 點擊確認
-        self.find_and_click_image(self.__get_storage_photo_path("storage_confirm.png"))
+        self.find_and_click_image(self.__ui_dict['confirm'])
 
     def start(self):
         self.__fill_in_the_password()
@@ -57,4 +54,3 @@ if __name__ == "__main__":
     with XiaoController() as Xiao:
         Maple = Storage(Xiao)
         Maple.start()
-

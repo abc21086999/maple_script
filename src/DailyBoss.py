@@ -1,37 +1,33 @@
 import time
-from pathlib import Path
-import PIL.Image
 from src.MapleScript import MapleScript
 from src.XiaoController import XiaoController
-from src.DailyPrepare import DailyPrepare
 
 
 class DailyBoss(MapleScript):
 
     def __init__(self, controller=None):
         super().__init__(controller=controller)
-        self.__daily_helper = DailyPrepare(controller=controller)
+        # 載入圖片資源
+        self.__images = self.yaml_loader.daily_boss_images
+        self.__common_images = self.yaml_loader.daily_prepare_images['common']
         self.__boss_dict = self.yaml_loader.boss_dict
-        self.__move_to_boss_map_button = PIL.Image.open(self.__get_boss_photo_path("boss_ui_move_to_boss_map_button.png"))
-
-    def __get_boss_photo_path(self, pic_name: str) -> Path:
-        """
-        適用於Boss相關的圖片
-        :param pic_name: 圖片的檔名
-        :return: Path路徑
-        """
-        return self.get_photo_path("") / "boss" / pic_name
+        
+        # 預先定義常用圖片
+        self.__move_to_boss_map_button = self.__images['ui']['move_button']
 
     def __got_to_boss_map(self, boss: str):
-        boss_tab_img = self.__get_boss_photo_path(f'boss_ui_{boss}.png')
+        # 直接從字典中取得對應 Boss 的 Tab 圖片
+        boss_tab_img = self.__images[boss]['tab_pic']
+        
         # 打開Boss界面
         self.press_and_wait("t")
         # 等待
-        while not self.is_on_screen(self.__get_boss_photo_path("boss_ui.png")):
+        while not self.is_on_screen(self.__images['ui']['panel']):
             time.sleep(0.3)
         # 如果不在畫面上，那就把滑鼠移動到比較下面的地方然後往下滑
         if not self.is_on_screen(boss_tab_img):
-            self.find_and_click_image(self.__get_boss_photo_path("boss_ui_von_leon.png"))
+            # 使用 Von Leon 的 Tab 作為參考點 (原本邏輯)
+            self.find_and_click_image(self.__images['ui']['reference_scroll'])
             time.sleep(0.3)
             self.scroll_down()
         while not self.is_on_screen(boss_tab_img):
@@ -45,14 +41,14 @@ class DailyBoss(MapleScript):
         檢查每日Boss的進度
         :return: 一個包含所有沒打過得Boss的list
         """
-        # 先打開到行事曆的界面
-        self.__daily_helper.invoke_menu()
-        self.find_and_click_image(self.get_photo_path("daily_schedule.png"))
+        # 先打開到行事曆的界面 (直接呼叫父類別方法)
+        self.invoke_menu()
+        self.find_and_click_image(self.yaml_loader.daily_prepare_images['mission']['daily_schedule'])
 
         # 滑鼠移動到每週Boss的Tab並且往下滑
-        self.find_and_click_image(self.get_photo_path("schedule_weekly_tab.png"))
+        self.find_and_click_image(self.__common_images['schedule_weekly_tab'])
         self.scroll_down()
-        self.find_and_click_image(self.get_photo_path("schedule_boss_tab.png"))
+        self.find_and_click_image(self.__common_images['schedule_boss_tab'])
 
         boss_condition = []
 
@@ -73,6 +69,8 @@ class DailyBoss(MapleScript):
         """
         打炎魔然後撿東西，最後回到村莊
         """
+        imgs = self.__images['zakum']
+        
         # 打開Boss界面，然後切到炎魔那頁之後過去
         self.__got_to_boss_map("zakum")
 
@@ -83,19 +81,21 @@ class DailyBoss(MapleScript):
         self.press_and_wait(["down", "enter"])
 
         # 處理身上有沒有火焰之眼的的狀況
-        if self.is_on_screen(self.__get_boss_photo_path("adobis.png")):
+        if self.is_on_screen(imgs['npc_adobis']):
             self.press_and_wait(["right", "enter"])
 
         # 等待地圖移動
-        while not self.is_on_screen(self.__get_boss_photo_path("zakum_map.png")):
+        while not self.is_on_screen(imgs['map_check']):
             time.sleep(1)
 
         # 移動到祭壇那邊，然後把火焰之眼丟出去，然後把物品欄關掉
         self.press_and_wait("space")
         self.press_and_wait("i", 0.5)
-        self.find_and_click_image(self.get_photo_path("item_others_tab.png"))
-        self.find_and_click_image(self.__get_boss_photo_path("eye_of_fire.png"))
-        self.find_and_click_image(self.__get_boss_photo_path("zakum_map_stone.png"))
+        
+        # 使用 common_images 裡的 item_others_tab
+        self.find_and_click_image(self.__common_images['item_others_tab'])
+        self.find_and_click_image(imgs['item_eye'])
+        self.find_and_click_image(imgs['altar'])
         self.press_and_wait("esc")
 
         # 等待炎魔生成
@@ -112,11 +112,12 @@ class DailyBoss(MapleScript):
         self.__got_to_boss_map("arkarium")
 
     def __magnus_work(self):
+        imgs = self.__images['magnus']
         self.__got_to_boss_map("magnus")
-        while not self.is_on_screen(self.__get_boss_photo_path("tyrants_castle_map_icon.png")):
+        while not self.is_on_screen(imgs['castle_map_icon']):
             time.sleep(0.5)
         self.press_and_wait(["space", "y", "up", "up", "down", "enter"], wait_time=0.5)
-        while not self.is_on_screen(self.__get_boss_photo_path("magnus_map.png")):
+        while not self.is_on_screen(imgs['map_check']):
             time.sleep(0.5)
         self.key_down("a")
         time.sleep(0.5)
@@ -131,8 +132,9 @@ class DailyBoss(MapleScript):
         self.key_up("left")
 
     def __hilla_work(self):
+        imgs = self.__images['hilla']
         self.__got_to_boss_map("hilla")
-        while not self.is_on_screen(self.__get_boss_photo_path("hillas_tower_map_icon.png")):
+        while not self.is_on_screen(imgs['tower_map_icon']):
             time.sleep(1)
         self.press_and_wait(["space", "space", "y", "up", "enter"], wait_time=0.7)
 
