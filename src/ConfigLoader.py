@@ -106,6 +106,21 @@ class YamlLoader:
         """
         return self.__config.get('ui_offsets', {})
 
+    @cached_property
+    def daily_prepare_images(self) -> dict:
+        """
+        讀取並回傳每日任務所需的圖片 (巢狀字典)
+        """
+        config = self.__config.get('daily_prepare', {})
+        result = {}
+        # config 結構為 Category -> Key -> Filename
+        for category, items in config.items():
+            result[category] = {}
+            for key, filename in items.items():
+                img_path = self.__photo_path / filename
+                result[category][key] = PIL.Image.open(img_path)
+        return result
+
 
 if __name__ == "__main__":
     yaml_operator = YamlLoader()
