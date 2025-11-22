@@ -99,6 +99,13 @@ class YamlLoader:
 
         return dancing_dict, dancing_ui_dict
 
+    @cached_property
+    def ui_offsets(self) -> dict:
+        """
+        回傳 UI 相關的偏移量與大小設定
+        """
+        return self.__config.get('ui_offsets', {})
+
 
 if __name__ == "__main__":
     yaml_operator = YamlLoader()

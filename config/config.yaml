@@ -115,3 +115,11 @@ dancing:
 dancing_ui:
   ending_npc: 'end_npc.png'
   start_ui: 'end.png'
+
+# UI相關的位置與大小設定 (Magic Numbers)
+ui_offsets:
+  minimap:
+    x: 15
+    y: 99
+    width: 182
+    height: 71
