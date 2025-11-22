@@ -239,19 +239,19 @@ daily_boss:
     tab_pic: 'boss/boss_ui_arkarium.png'
     
   # 其他 Boss 暫時只有 tab_pic，根據 boss_ui_{boss}.png 規則推導
-  pierre:
-    tab_pic: 'boss/boss_ui_pierre.png' # 假設檔案存在
-  von_bon:
-    tab_pic: 'boss/boss_ui_von_bon.png'
-  crimson_queen:
-    tab_pic: 'boss/boss_ui_crimson_queen.png'
-  vellum:
-    tab_pic: 'boss/boss_ui_vellum.png'
-  von_leon:
-    tab_pic: 'boss/boss_ui_von_leon.png'
-  horntail:
-    tab_pic: 'boss/boss_ui_horntail.png'
-  pink_bean:
-    tab_pic: 'boss/boss_ui_pink_bean.png'
-  gollux:
-    tab_pic: 'boss/boss_ui_gollux.png'
+#  pierre:
+#    tab_pic: 'boss/boss_ui_pierre.png' # 假設檔案存在
+#  von_bon:
+#    tab_pic: 'boss/boss_ui_von_bon.png'
+#  crimson_queen:
+#    tab_pic: 'boss/boss_ui_crimson_queen.png'
+#  vellum:
+#    tab_pic: 'boss/boss_ui_vellum.png'
+#  von_leon:
+#    tab_pic: 'boss/boss_ui_von_leon.png'
+#  horntail:
+#    tab_pic: 'boss/boss_ui_horntail.png'
+#  pink_bean:
+#    tab_pic: 'boss/boss_ui_pink_bean.png'
+#  gollux:
+#    tab_pic: 'boss/boss_ui_gollux.png'

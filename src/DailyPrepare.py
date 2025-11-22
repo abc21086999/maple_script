@@ -7,7 +7,6 @@ class DailyPrepare(MapleScript):
 
     def __init__(self, controller=None):
         super().__init__(controller=controller)
-        # 預先載入每日任務相關圖片
         self.__images = self.yaml_loader.daily_prepare_images
 
     def switch_to_grinding_set(self):

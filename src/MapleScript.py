@@ -63,7 +63,6 @@ class MapleScript:
         self.__cur_path = Path(__file__).resolve().parent.parent
         self.__keyboard = controller
         self.__mouse = controller
-        self.__common = self.yaml_loader.daily_prepare_images["common"]
         load_dotenv()
 
     def invoke_menu(self) -> None:
@@ -74,7 +73,7 @@ class MapleScript:
         # 打開總攬界面
         self.press_and_wait("esc")
         # 確保有打開
-        while not self.is_on_screen(self.__common['menu_market_icon']):
+        while not self.is_on_screen(self.yaml_loader.daily_prepare_images["common"]['menu_market_icon']):
             time.sleep(0.3)
             self.press_and_wait("esc")
         return None
