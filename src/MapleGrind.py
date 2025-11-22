@@ -12,24 +12,11 @@ class MapleGrind(MapleScript):
         self.__skills_list = list()
         self.__gap_time = self.yaml_loader.grind_setting
         self.__skills_dict = self.yaml_loader.skill_dict
-        self.__left_loop = \
-            [('press', 'down', 1.93), ('press', 'alt', 2.02), ('release', 'alt', 2.24), ('release', 'down', 2.29),
-             ('press', 'alt', 2.95), ('release', 'alt', 3.06), ('press', 'alt', 3.14), ('release', 'alt', 3.28),
-             ('press', 'alt', 3.96), ('release', 'alt', 4.07), ('press', 'alt', 4.2), ('release', 'alt', 4.34),
-             ('press', 'alt', 5.16), ('release', 'alt', 5.25), ('press', 'alt', 5.37), ('release', 'alt', 5.48),
-             ('press', 'alt', 6.31), ('release', 'alt', 6.39), ('press', 'alt', 6.5), ('release', 'alt', 6.63),
-             ('press', 'alt', 7.61), ('release', 'alt', 7.74), ('press', 'up', 7.84), ('press', 'alt', 8.12),
-             ('release', 'alt', 8.31), ('release', 'up', 8.41), ('press', 'left', 9.41), ('release', 'left', 9.47)]
-        self.__right_loop = \
-            [('press', 'alt', 2.07), ('release', 'alt', 2.21), ('press', 'up', 2.22), ('press', 'alt', 2.37),
-             ('release', 'alt', 2.58), ('release', 'up', 2.66), ('press', 'alt', 3.48), ('release', 'alt', 3.57),
-             ('press', 'alt', 3.88), ('release', 'alt', 3.99), ('press', 'alt', 4.99), ('release', 'alt', 5.11),
-             ('press', 'alt', 5.27), ('release', 'alt', 5.45), ('press', 'alt', 6.22), ('release', 'alt', 6.35),
-             ('press', 'alt', 6.54), ('release', 'alt', 6.7), ('press', 'alt', 7.71), ('release', 'alt', 7.82),
-             ('press', 'alt', 7.96), ('release', 'alt', 8.11), ('press', 'down', 8.94), ('press', 'alt', 8.97),
-             ('release', 'alt', 9.11), ('release', 'down', 9.18), ('press', 'down', 9.96), ('press', 'alt', 9.99),
-             ('release', 'alt', 10.14), ('release', 'down', 10.21), ('press', 'right', 10.81),
-             ('release', 'right', 10.85)]
+        
+        routes = self.yaml_loader.grind_routes
+        self.__left_loop = routes.get('left_loop', [])
+        self.__right_loop = routes.get('right_loop', [])
+        
         self.__loop_map = {"left": self.__left_loop, "right": self.__right_loop, "not_found": []}
         self.point = PIL.Image.open(self.get_photo_path("collect_point.png"))
 

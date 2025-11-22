@@ -8,6 +8,7 @@ class YamlLoader:
 
     def __init__(self):
         self.__config_path = Path(__file__).resolve().parent.parent / "config" / "config.yaml"
+        self.__grind_routes_path = Path(__file__).resolve().parent.parent / "config" / "grind_routes.yaml"
         self.__photo_path = Path(__file__).resolve().parent.parent / 'photos'
     
     @cached_property
@@ -16,6 +17,14 @@ class YamlLoader:
         讀取YAML檔案
         """
         with open(self.__config_path, 'r', encoding='utf-8') as file:
+            return yaml.safe_load(file)
+
+    @cached_property
+    def grind_routes(self):
+        """
+        讀取練功路徑的YAML檔案
+        """
+        with open(self.__grind_routes_path, 'r', encoding='utf-8') as file:
             return yaml.safe_load(file)
 
     @cached_property

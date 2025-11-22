@@ -32,7 +32,7 @@ class Dancing(MapleScript):
             if self.is_on_screen(pic=self.__ui_dict.get("start_ui"), img=sc):
                 print(self.__ans_list)
                 for key in self.__ans_list:
-                    self.press_and_wait(key, wait_time=uniform(0.5, 0.8))
+                    self.press_and_wait(key, wait_time=uniform(0.3, 0.6))
                 self.__ans_list.clear()
 
 
