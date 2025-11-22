@@ -93,16 +93,23 @@ boss:
 
 # 倉庫列表
 storage:
-  '1': '1.png'
-  '2': '2.png'
-  '3': '3.png'
-  '4': '4.png'
-  '5': '5.png'
-  '6': '6.png'
-  '7': '7.png'
-  '8': '8.png'
-  '9': '9.png'
-  '0': '0.png'
+  numbers:
+    '1': '1.png'
+    '2': '2.png'
+    '3': '3.png'
+    '4': '4.png'
+    '5': '5.png'
+    '6': '6.png'
+    '7': '7.png'
+    '8': '8.png'
+    '9': '9.png'
+    '0': '0.png'
+  
+  ui:
+    title: 'storage/storage_ui.png'
+    confirm: 'storage/storage_confirm.png'
+    icon: 'storage_icon.png'
+    fast_travel: 'fast_travel.png'
 
 # 活動跳舞機
 dancing:
@@ -127,6 +134,9 @@ ui_offsets:
 daily_prepare:
   common:
     menu_market_icon: 'market.png'
+    schedule_weekly_tab: 'schedule_weekly_tab.png'
+    schedule_boss_tab: 'schedule_boss_tab.png'
+    item_others_tab: 'item_others_tab.png'
 
   settings:
     daily_set: 'daily_set.png'
@@ -196,3 +206,52 @@ daily_prepare:
     house_map_check: 'querencia.png'
     talk_caretaker: 'talk_with_caretaker.png'
     stop_conversation: 'stop_conversation.png'
+
+monster_collection:
+  title: 'monster_collection/monster_collection_title.png'
+  adventure_tab: 'monster_collection/adventure_tab.png'
+  reward_button: 'monster_collection/receive_monster_collection_reward.png'
+  start_button: 'monster_collection/start_adventure.png'
+
+daily_boss:
+  ui:
+    panel: 'boss/boss_ui.png'
+    move_button: 'boss/boss_ui_move_to_boss_map_button.png'
+    reference_scroll: 'boss/boss_ui_von_leon.png'
+
+  zakum:
+    tab_pic: 'boss/boss_ui_zakum.png'
+    npc_adobis: 'boss/adobis.png'
+    map_check: 'boss/zakum_map.png'
+    item_eye: 'boss/eye_of_fire.png'
+    altar: 'boss/zakum_map_stone.png'
+
+  magnus:
+    tab_pic: 'boss/boss_ui_magnus.png'
+    castle_map_icon: 'boss/tyrants_castle_map_icon.png'
+    map_check: 'boss/magnus_map.png'
+
+  hilla:
+    tab_pic: 'boss/boss_ui_hilla.png'
+    tower_map_icon: 'boss/hillas_tower_map_icon.png'
+
+  arkarium:
+    tab_pic: 'boss/boss_ui_arkarium.png'
+    
+  # 其他 Boss 暫時只有 tab_pic，根據 boss_ui_{boss}.png 規則推導
+  pierre:
+    tab_pic: 'boss/boss_ui_pierre.png' # 假設檔案存在
+  von_bon:
+    tab_pic: 'boss/boss_ui_von_bon.png'
+  crimson_queen:
+    tab_pic: 'boss/boss_ui_crimson_queen.png'
+  vellum:
+    tab_pic: 'boss/boss_ui_vellum.png'
+  von_leon:
+    tab_pic: 'boss/boss_ui_von_leon.png'
+  horntail:
+    tab_pic: 'boss/boss_ui_horntail.png'
+  pink_bean:
+    tab_pic: 'boss/boss_ui_pink_bean.png'
+  gollux:
+    tab_pic: 'boss/boss_ui_gollux.png'
