@@ -144,7 +144,15 @@ class MapleScript:
     @property
     def maple_mini_map_area(self):
         left, top, _, _ = self.maple_full_screen_area
-        mini_map_region = left+15, top+99, 182, 71
+        
+        minimap_config = self.yaml_loader.ui_offsets.get('minimap', {})
+        # 如果設定檔讀取失敗，使用預設值以防崩潰
+        offset_x = minimap_config.get('x', 15)
+        offset_y = minimap_config.get('y', 99)
+        width = minimap_config.get('width', 182)
+        height = minimap_config.get('height', 71)
+        
+        mini_map_region = left + offset_x, top + offset_y, width, height
         return mini_map_region
 
     def get_character_position(self, color_tolerance=30):
