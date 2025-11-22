@@ -123,3 +123,76 @@ ui_offsets:
     y: 99
     width: 182
     height: 71
+
+daily_prepare:
+  common:
+    menu_market_icon: 'market.png'
+
+  settings:
+    daily_set: 'daily_set.png'
+    daily_apply: 'daily_apply.png'
+    confirm_popup: 'confirm_daily_pop_up.png'
+    buff_storm: 'storm_elemental.png'
+    buff_trifling: 'trifling_wind.png'
+    buff_guided_arrow: 'guided_arrow.png'
+
+  union:
+    get_coin: 'get_coin.png'
+    artifact_tab: 'union_artifact_tab.png'
+    extend_button: 'extend_union_artifact_button.png'
+    extend_error: 'extend_union_artifact_error_message.png'
+    extend_confirm: 'extend_union_artifact_confirm_button.png'
+
+  mission:
+    daily_schedule: 'daily_schedule.png'
+    daily_start: 'schedule_daily_all_start.png'
+    daily_complete: 'schedule_daily_all_complete.png'
+    panel_confirm: 'schedule_panel_confirm.png'
+    daily_bonus: 'daily_bonus.png'
+    weekly_start: 'weekly_mission_start_button.png'
+    weekly_complete: 'complete_weekly_mission_button.png'
+
+  dismantle:
+    fast_travel: 'fast_travel.png'
+    village_icon: 'ardentmill_village_icon.png'
+    village_map_check: 'ardentmill.png'
+    panel_button: 'disassemble_panel.png'
+    put_armor: 'put_all_armor_on_table.png'
+    empty_table: 'empty_disassembly_table.png'
+    disassemble_button: 'disassemble.png'
+    complete_popup: 'dismantle_complete.png'
+
+  hd:
+    icon: 'hd.png'
+    safe_spot_click: 'carcion.png'
+    receive_button: 'receive_hd_gift.png'
+    all_received: 'all_hd_gifts_received.png'
+    has_gift: 'hd_has_gift.png'
+    take_coin: 'take_hd_coin.png'
+
+  milestone:
+    icon: 'milestone.png'
+    has_collectable: 'has_collectable_milestones.png'
+    confirm: 'milestone_confirm_button.png'
+    no_milestone: 'no_milestone.png'
+
+  market:
+    title: 'market_title.png'
+    collectable_tab: 'market_collectable_tab.png'
+    restock_all: 're_stock_all.png'
+    restock_finish: 're_stock_finish.png'
+    no_vacancy: 'no_vacancy_in_market.png'
+    collect_money: 'collect_money.png'
+    all_collectable: 'all_collectable.png'
+    all_collected: 'all_collected.png'
+    leave: 'leave_market.png'
+
+  master_apprentice:
+    button: 'master_and_apprentice_button.png'
+    title: 'master_and_apprentice_title.png'
+    complete_button: 'master_and_apprentice_complete_button.png'
+
+  housing:
+    house_map_check: 'querencia.png'
+    talk_caretaker: 'talk_with_caretaker.png'
+    stop_conversation: 'stop_conversation.png'
