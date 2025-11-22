@@ -7,13 +7,9 @@ class DailyBoss(MapleScript):
 
     def __init__(self, controller=None):
         super().__init__(controller=controller)
-        # 載入圖片資源
         self.__images = self.yaml_loader.daily_boss_images
-        self.__common_images = self.yaml_loader.daily_prepare_images['common']
+        self.__common_images = self.yaml_loader.daily_prepare_images
         self.__boss_dict = self.yaml_loader.boss_dict
-        
-        # 預先定義常用圖片
-        self.__move_to_boss_map_button = self.__images['ui']['move_button']
 
     def __got_to_boss_map(self, boss: str):
         # 直接從字典中取得對應 Boss 的 Tab 圖片
@@ -34,7 +30,7 @@ class DailyBoss(MapleScript):
             time.sleep(0.3)
 
         self.find_and_click_image(boss_tab_img)
-        self.find_and_click_image(self.__move_to_boss_map_button)
+        self.find_and_click_image(self.__images['ui']['move_button'])
 
     def check_daily_boss_progress(self):
         """
@@ -43,12 +39,12 @@ class DailyBoss(MapleScript):
         """
         # 先打開到行事曆的界面 (直接呼叫父類別方法)
         self.invoke_menu()
-        self.find_and_click_image(self.yaml_loader.daily_prepare_images['mission']['daily_schedule'])
+        self.find_and_click_image(self.__common_images['mission']['daily_schedule'])
 
         # 滑鼠移動到每週Boss的Tab並且往下滑
-        self.find_and_click_image(self.__common_images['schedule_weekly_tab'])
+        self.find_and_click_image(self.__common_images['common']['schedule_weekly_tab'])
         self.scroll_down()
-        self.find_and_click_image(self.__common_images['schedule_boss_tab'])
+        self.find_and_click_image(self.__common_images['common']['schedule_boss_tab'])
 
         boss_condition = []
 
@@ -93,7 +89,7 @@ class DailyBoss(MapleScript):
         self.press_and_wait("i", 0.5)
         
         # 使用 common_images 裡的 item_others_tab
-        self.find_and_click_image(self.__common_images['item_others_tab'])
+        self.find_and_click_image(self.__common_images['common']['item_others_tab'])
         self.find_and_click_image(imgs['item_eye'])
         self.find_and_click_image(imgs['altar'])
         self.press_and_wait("esc")
