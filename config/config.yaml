@@ -122,6 +122,8 @@ dancing:
 dancing_ui:
   ending_npc: 'end_npc.png'
   start_ui: 'end.png'
+  event_tab: 'dancing_event_tab.png'
+  participate_button: 'participate.png'
 
 # UI相關的位置與大小設定 (Magic Numbers)
 ui_offsets:
