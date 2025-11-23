@@ -21,7 +21,8 @@ def run():
     """
     if len(sys.argv) < 2:
         print("錯誤：請提供一個任務指令。")
-        print("可用指令: grind, collection, daily")
+        print("可用指令: grind, collection, daily, daily_boss, storage")
+        input("輸入任意鍵繼續...")
         return
 
     task = sys.argv[1]
