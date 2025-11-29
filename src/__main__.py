@@ -5,6 +5,7 @@ from src.DailyPrepare import DailyPrepare
 from src.Storage import Storage
 from src.XiaoController import XiaoController
 from src.DailyBoss import DailyBoss
+from src.DancingMachine import Dancing
 
 
 task_mapping = {
@@ -13,6 +14,7 @@ task_mapping = {
     "daily": DailyPrepare,
     "daily_boss": DailyBoss,
     "storage": Storage,
+    "dance": Dancing,
 }
 
 def run():
@@ -33,6 +35,7 @@ def run():
             work(controller=xiao).start()
         else:
             print(f"未知的任務：{task}")
+            input("輸入任意鍵繼續...")
 
 
 if __name__ == "__main__":
