@@ -70,6 +70,7 @@ class MapleScript(ABC):
         # 在找不到的情況下，代表楓之谷沒開啟，直接結束腳本
         if not hwnds:
             print("找不到楓之谷的程式")
+            input("輸入任意鍵繼續...")
             sys.exit()
 
         # 處理楓之谷視窗最小化
