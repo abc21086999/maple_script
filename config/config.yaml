@@ -133,6 +133,10 @@ ui_offsets:
     width: 182
     height: 71
 
+# 一個獨立的市場icon，用於打開總覽視窗時辨識用
+menu:
+  menu_market_icon: 'market.png'
+
 daily_prepare:
   common:
     menu_market_icon: 'market.png'

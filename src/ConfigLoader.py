@@ -143,6 +143,18 @@ class YamlLoader:
         return images
 
     @cached_property
+    def menu(self) -> dict:
+        """
+        載入總攬界面當中的拍賣的圖片
+        """
+        config = self.__config.get('menu', {})
+        images = {}
+        for key, filename in config.items():
+            img_path = self.__photo_path / filename
+            images[key] = PIL.Image.open(img_path)
+        return images
+
+    @cached_property
     def daily_boss_images(self) -> dict:
         """
         載入每日Boss相關圖片

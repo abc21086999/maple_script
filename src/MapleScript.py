@@ -1,11 +1,8 @@
-import sys
 import time
 import pyautogui
 import pyscreeze
 import PIL.Image
 from src.XiaoController import XiaoController
-import win32gui
-import win32con
 from pathlib import Path
 from src.ConfigLoader import YamlLoader
 from dotenv import load_dotenv
@@ -16,7 +13,7 @@ from abc import ABC, abstractmethod
 class MapleScript(ABC):
 
     def __init__(self, controller=None):
-        self.maple = self._get_maple()
+        self.maple = WindowsObject.find_maple("MapleStoryClassTW")
         self.yaml_loader = YamlLoader()
         self.__cur_path = Path(__file__).resolve().parent.parent
         self.__keyboard = controller
@@ -31,8 +28,8 @@ class MapleScript(ABC):
         # 打開總攬界面
         self.press_and_wait("esc")
         # 確保有打開
-        while not self.is_on_screen(self.yaml_loader.daily_prepare_images["common"]['menu_market_icon']):
-            time.sleep(0.3)
+        while not self.is_on_screen(self.yaml_loader.menu["menu_market_icon"]):
+            time.sleep(0.5)
             self.press_and_wait("esc")
         return None
 
@@ -51,43 +48,6 @@ class MapleScript(ABC):
         :return: Path
         """
         return self.__cur_path / "photos" / pic_name
-
-    def _get_maple(self):
-        """
-        切換到楓之谷的程式
-        :return: 楓之谷程式
-        """
-        # 透過類別名稱尋找視窗句柄（HWND）
-        class_name = "MapleStoryClassTW"
-
-        # 處理聊天室和主遊戲
-        hwnds = []
-        def callback(hwnd, _):
-            if win32gui.GetClassName(hwnd) == class_name:
-                hwnds.append(hwnd)
-        win32gui.EnumWindows(callback, None)
-
-        # 在找不到的情況下，代表楓之谷沒開啟，直接結束腳本
-        if not hwnds:
-            print("找不到楓之谷的程式")
-            input("輸入任意鍵繼續...")
-            sys.exit()
-
-        # 處理楓之谷視窗最小化
-        for hwnd in hwnds:
-            if win32gui.IsIconic(hwnd):
-                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-                win32gui.SetForegroundWindow(hwnd)
-
-        time.sleep(0.3)
-        # 如果回傳的視窗有兩個，代表有一個是遊戲本體，一個是聊天室，但是遊戲本體一定比聊天室還要大
-        hwnd = max(hwnds, key=self.__get_window_area)
-
-        # 切換到楓之谷
-        real_maple = WindowsObject(hwnd)
-        real_maple.activate()
-
-        return real_maple
 
     def is_maple_focus(self) -> bool:
         """
