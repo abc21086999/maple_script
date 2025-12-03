@@ -165,7 +165,7 @@ class YamlLoader:
         for category, items in config.items():
             result[category] = {}
             for key, filename in items.items():
-                img_path = self.__photo_path / filename
+                img_path = self.__photo_path / "boss" / filename
                 result[category][key] = PIL.Image.open(img_path)
         return result
 
