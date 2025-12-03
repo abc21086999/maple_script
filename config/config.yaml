@@ -213,6 +213,15 @@ daily_prepare:
     talk_caretaker: 'talk_with_caretaker.png'
     stop_conversation: 'stop_conversation.png'
 
+  event:
+    event_daily_checkin_tab: 'event/event_daily_checkin_tab.png'
+    event_daily_checkin_tab_2: 'event/event_daily_checkin_tab_2.png'
+    event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header.png'
+    event_daily_checkin_ui_header_2: 'event/event_daily_checkin_ui_header_2.png'
+    daily_check_in_button: 'event/daily_check_in_button.png'
+    weekly_check_in_button: 'event/weekly_check_in_button.png'
+
+
 monster_collection:
   title: 'monster_collection/monster_collection_title.png'
   adventure_tab: 'monster_collection/adventure_tab.png'
@@ -221,28 +230,28 @@ monster_collection:
 
 daily_boss:
   ui:
-    panel: 'boss/boss_ui.png'
-    move_button: 'boss/boss_ui_move_to_boss_map_button.png'
-    reference_scroll: 'boss/boss_ui_von_leon.png'
+    panel: 'boss_ui.png'
+    move_button: 'boss_ui_move_to_boss_map_button.png'
+    reference_scroll: 'boss_ui_von_leon.png'
 
   zakum:
-    tab_pic: 'boss/boss_ui_zakum.png'
-    npc_adobis: 'boss/adobis.png'
-    map_check: 'boss/zakum_map.png'
-    item_eye: 'boss/eye_of_fire.png'
-    altar: 'boss/zakum_map_stone.png'
+    tab_pic: 'boss_ui_zakum.png'
+    npc_adobis: 'adobis.png'
+    map_check: 'zakum_map.png'
+    item_eye: 'eye_of_fire.png'
+    altar: 'zakum_map_stone.png'
 
   magnus:
-    tab_pic: 'boss/boss_ui_magnus.png'
-    castle_map_icon: 'boss/tyrants_castle_map_icon.png'
-    map_check: 'boss/magnus_map.png'
+    tab_pic: 'boss_ui_magnus.png'
+    castle_map_icon: 'tyrants_castle_map_icon.png'
+    map_check: 'magnus_map.png'
 
   hilla:
-    tab_pic: 'boss/boss_ui_hilla.png'
-    tower_map_icon: 'boss/hillas_tower_map_icon.png'
+    tab_pic: 'boss_ui_hilla.png'
+    tower_map_icon: 'hillas_tower_map_icon.png'
 
   arkarium:
-    tab_pic: 'boss/boss_ui_arkarium.png'
+    tab_pic: 'boss_ui_arkarium.png'
     
   # 其他 Boss 暫時只有 tab_pic，根據 boss_ui_{boss}.png 規則推導
 #  pierre:

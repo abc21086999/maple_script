@@ -385,6 +385,32 @@ class DailyPrepare(MapleScript):
             self.press_and_wait("right")
         self.press_and_wait(["up", "enter", "down", "enter"])
 
+    def complete_event_related_stuff(self):
+        """
+        活動相關的放這邊
+        :return: None
+        """
+        img = self.__images["event"]
+        # 打開活動面板
+        self.press_and_wait(".")
+
+        # 點下時間之力的那個tab，然後點下填滿，還有點下每週的獲得效果按鈕
+        self.find_and_click_image(img['event_daily_checkin_tab'])
+        while not  self.is_on_screen(img['event_daily_checkin_ui_header']):
+            time.sleep(0.3)
+        self.find_and_click_image(img['daily_check_in_button'])
+        self.press_and_wait("enter")
+        self.find_and_click_image(img['weekly_check_in_button'])
+        self.press_and_wait(["enter", "esc"])
+
+        # 點下耶芙尼亞的禮物的tab，然後點下考察按鈕
+        self.find_and_click_image(img['event_daily_checkin_tab_2'])
+        while not self.is_on_screen(img['event_daily_checkin_ui_header_2']):
+            time.sleep(0.3)
+        print("等等等～～～")
+        self.press_and_wait(["esc", "esc"])
+
+
     def start(self):
         """
         執行所有的每日行程
@@ -397,6 +423,7 @@ class DailyPrepare(MapleScript):
         self.receive_milestones()
         self.collect_market()
         self.complete_master_and_apprentice()
+        self.complete_event_related_stuff()
         self.handle_housing()
 
 
@@ -411,4 +438,5 @@ if __name__ == "__main__":
         Maple.receive_milestones()
         Maple.collect_market()
         Maple.complete_master_and_apprentice()
+        Maple.complete_event_related_stuff()
         Maple.handle_housing()
