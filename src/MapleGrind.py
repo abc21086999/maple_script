@@ -58,7 +58,6 @@ class MapleGrind(MapleScript):
         如果楓之谷不在前景，那麼就會清空
         :return:
         """
-        self.get_point()
         # 如果list是空的，就跳過所有步驟
         if not self.__skills_list:
             return None
@@ -67,18 +66,9 @@ class MapleGrind(MapleScript):
             # 將按鍵一個一個按下
             key = self.__skills_list.pop()
             self.press_and_wait(key, random.uniform(*self.__gap_time))
-            self.get_point()
         # 不論是list沒東西，或是楓之谷不在前景，就直接清空之後跳過
         self.__skills_list.clear()
         return None
-
-    def get_point(self):
-        """
-        點那個蒐集點數的圖案
-        :return:
-        """
-        if self.is_on_screen(self.point):
-            self.find_and_click_image(self.point)
 
     def move_by_pressing_up(self) -> None:
         """
@@ -116,8 +106,8 @@ class MapleGrind(MapleScript):
                 if self.is_maple_focus():
                     self.find_ready_skill()
                     self.press_ready_skills()
-                    self.move_by_pressing_up()
-                    # self.replay_script()
+                    # self.move_by_pressing_up()
+                    self.walk_the_map()
                     time.sleep(1)
                 else:
                     time.sleep(1)
