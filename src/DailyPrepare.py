@@ -407,7 +407,9 @@ class DailyPrepare(MapleScript):
         self.find_and_click_image(img['event_daily_checkin_tab_2'])
         while not self.is_on_screen(img['event_daily_checkin_ui_header_2']):
             time.sleep(0.3)
-        print("等等等～～～")
+        if self.is_on_screen(img['daily_check_in_button_2']):
+            self.find_and_click_image(img['daily_check_in_button_2'])
+            self.press_and_wait("esc")
         self.press_and_wait(["esc", "esc"])
 
 

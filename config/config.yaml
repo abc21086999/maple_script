@@ -219,6 +219,7 @@ daily_prepare:
     event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header.png'
     event_daily_checkin_ui_header_2: 'event/event_daily_checkin_ui_header_2.png'
     daily_check_in_button: 'event/daily_check_in_button.png'
+    daily_check_in_button_2: 'event/daily_check_in_button_2.png'
     weekly_check_in_button: 'event/weekly_check_in_button.png'
 
 
