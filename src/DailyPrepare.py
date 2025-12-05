@@ -398,7 +398,8 @@ class DailyPrepare(MapleScript):
         self.find_and_click_image(img['event_daily_checkin_tab'])
         while not  self.is_on_screen(img['event_daily_checkin_ui_header']):
             time.sleep(0.3)
-        self.find_and_click_image(img['daily_check_in_button'])
+        if self.is_on_screen(img['daily_check_in_button']):
+            self.find_and_click_image(img['daily_check_in_button'])
         self.press_and_wait("enter")
         self.find_and_click_image(img['weekly_check_in_button'])
         self.press_and_wait(["enter", "esc"])
