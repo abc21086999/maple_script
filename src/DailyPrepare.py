@@ -20,8 +20,8 @@ class DailyPrepare(MapleScript):
             time.sleep(0.1)
         if self.is_maple_focus():
             # 打開角色套組設定的界面
-            self.press("f11")
-            time.sleep(0.3)
+            self.invoke_menu()
+            self.press_and_wait(["tab", "down", "enter"])
 
             # 移動過去練功的圖案，並且點下去
             self.find_and_click_image(imgs['daily_set'])
@@ -52,7 +52,8 @@ class DailyPrepare(MapleScript):
 
         if self.is_maple_focus():
             # 打開戰地聯盟的界面
-            self.press_and_wait("f10")
+            self.invoke_menu()
+            self.press_and_wait(["tab", "down", "down", "enter"])
             while not self.is_on_screen(imgs['get_coin']):
                 time.sleep(0.1)
 
@@ -72,7 +73,6 @@ class DailyPrepare(MapleScript):
             else:
                 self.find_and_click_image(imgs['extend_confirm'])
 
-
             # 最後按Esc離開
             self.press_and_wait("esc")
 
@@ -87,7 +87,7 @@ class DailyPrepare(MapleScript):
         if self.is_maple_focus():
             # 打開每日任務的界面
             self.invoke_menu()
-            self.find_and_click_image(imgs['daily_schedule'])
+            self.press_and_wait(["tab", "right", "right", "right", "enter"])
 
             # 如果有開始任務的按鈕，那就按下去
             if self.is_on_screen(imgs['daily_start']):
@@ -199,9 +199,8 @@ class DailyPrepare(MapleScript):
             # 打開總攬菜單
             self.invoke_menu()
 
-            # 點下HD按鈕，然後移動滑鼠避免干擾
-            self.find_and_click_image(imgs['icon'])
-            self.find_and_click_image(imgs['safe_spot_click'])
+            # 進入HD界面
+            self.press_and_wait(["tab", "left", "left", "down", "enter"])
 
             # 如果這個月都已經領完了，那就離開
             if self.is_on_screen(imgs['all_received']):
@@ -243,8 +242,8 @@ class DailyPrepare(MapleScript):
             # 打開總攬菜單
             self.invoke_menu()
 
-            # 點下里程的圖案
-            self.find_and_click_image(imgs['icon'])
+            # 進入里程界面
+            self.press_and_wait(["tab", "left", "left", "down", "down", "down", "enter"])
 
             # 如果有里程可以領
             if self.is_on_screen(imgs['has_collectable']):
@@ -319,7 +318,7 @@ class DailyPrepare(MapleScript):
         if self.is_maple_focus():
             # 打開總攬菜單，然後按下師徒
             self.invoke_menu()
-            self.find_and_click_image(imgs['button'])
+            self.press_and_wait(["tab", "left", "left", "left", "down", "down", "down", "enter"])
 
             # 等待界面打開
             while not self.is_on_screen(imgs['title']):
