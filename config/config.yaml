@@ -160,7 +160,6 @@ daily_prepare:
     extend_confirm: 'extend_union_artifact_confirm_button.png'
 
   mission:
-    daily_schedule: 'daily_schedule.png'
     daily_start: 'schedule_daily_all_start.png'
     daily_complete: 'schedule_daily_all_complete.png'
     panel_confirm: 'schedule_panel_confirm.png'
@@ -179,15 +178,12 @@ daily_prepare:
     complete_popup: 'dismantle_complete.png'
 
   hd:
-    icon: 'hd.png'
-    safe_spot_click: 'carcion.png'
     receive_button: 'receive_hd_gift.png'
     all_received: 'all_hd_gifts_received.png'
     has_gift: 'hd_has_gift.png'
     take_coin: 'take_hd_coin.png'
 
   milestone:
-    icon: 'milestone.png'
     has_collectable: 'has_collectable_milestones.png'
     confirm: 'milestone_confirm_button.png'
     no_milestone: 'no_milestone.png'
@@ -204,7 +200,6 @@ daily_prepare:
     leave: 'leave_market.png'
 
   master_apprentice:
-    button: 'master_and_apprentice_button.png'
     title: 'master_and_apprentice_title.png'
     complete_button: 'master_and_apprentice_complete_button.png'
 
