@@ -2,6 +2,7 @@ import time
 
 import win32gui
 import win32con
+import win32api
 import sys
 from typing import Self
 
@@ -16,12 +17,25 @@ class WindowsObject:
         return l, t, r, b
 
     @property
+    def screen_offset(self) -> tuple[int, int]:
+        """
+        回傳虛擬螢幕的左上角座標偏移量 (x, y)
+        """
+        screen_x = win32api.GetSystemMetrics(win32con.SM_XVIRTUALSCREEN)
+        screen_y = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
+        return screen_x, screen_y
+
+    @property
     def left(self):
-        return self._rect()[0]
+        l, _, _, _ = self._rect()
+        offset_x, _ = self.screen_offset
+        return l - offset_x
 
     @property
     def top(self):
-        return self._rect()[1]
+        _, t, _, _ = self._rect()
+        _, offset_y = self.screen_offset
+        return t - offset_y
 
     @property
     def width(self):

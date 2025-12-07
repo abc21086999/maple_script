@@ -65,7 +65,7 @@ class MapleScript(ABC):
         return self.maple.left, self.maple.top, self.maple.width, self.maple.height
 
     def get_full_screen_screenshot(self):
-        return pyautogui.screenshot(region=self.maple_full_screen_area)
+        return pyautogui.screenshot(region=self.maple_full_screen_area, allScreens=True)
 
     @property
     def maple_skill_area(self):
@@ -94,7 +94,7 @@ class MapleScript(ABC):
         :return: "left", "right", or "not_found"
         """
         # 1. 擷取小地圖畫面
-        minimap_img = pyautogui.screenshot(region=self.maple_mini_map_area)
+        minimap_img = pyautogui.screenshot(region=self.maple_mini_map_area, allScreens=True)
         width, height = minimap_img.size
         target_color = (239, 240, 12)
         found_x_coords = []
@@ -122,7 +122,7 @@ class MapleScript(ABC):
             return "right"
 
     def get_skill_area_screenshot(self):
-        return pyautogui.screenshot(region=self.maple_skill_area)
+        return pyautogui.screenshot(region=self.maple_skill_area, allScreens=True)
 
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
         """
@@ -165,8 +165,13 @@ class MapleScript(ABC):
             # 取得目前滑鼠位置
             current_mouse_x, current_mouse_y = pyautogui.position()
 
+            # 校正滑鼠座標至虛擬螢幕座標系
+            offset_x, offset_y = self.maple.screen_offset
+            current_mouse_x -= offset_x
+            current_mouse_y -= offset_y
+
             # 辨識遊戲截圖內有沒有我們要的東西
-            picture_location = pyautogui.locateCenterOnScreen(pic, region=self.maple_full_screen_area, confidence=0.9)
+            picture_location = pyautogui.locateCenterOnScreen(pic, region=self.maple_full_screen_area, confidence=0.9, allScreens=True)
 
             # 如果有辨識到東西
             if picture_location is not None:
