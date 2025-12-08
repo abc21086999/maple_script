@@ -171,13 +171,22 @@ class MapleScript(ABC):
             current_mouse_y -= offset_y
 
             # 辨識遊戲截圖內有沒有我們要的東西
-            picture_location = pyautogui.locateCenterOnScreen(pic, region=self.maple_full_screen_area, confidence=0.9, allScreens=True)
+            # 改用截圖後 locate 避免 allScreens 參數錯誤
+            screenshot = self.get_full_screen_screenshot()
+            box = pyautogui.locate(pic, screenshot, confidence=0.9)
 
             # 如果有辨識到東西
-            if picture_location is not None:
+            if box is not None:
+                box_left, box_top, box_width, box_height = box
+
+                # 計算目標中心點 (相對於虛擬螢幕座標系)
+                win_x, win_y, _, _ = self.maple_full_screen_area
+                target_x = win_x + box_left + box_width / 2
+                target_y = win_y + box_top + box_height / 2
+
                 # 計算目前滑鼠的相對位置
-                dx = int(picture_location.x - current_mouse_x)
-                dy = int(picture_location.y - current_mouse_y)
+                dx = int(target_x - current_mouse_x)
+                dy = int(target_y - current_mouse_y)
 
                 # 移動過去
                 self.move((dx, dy))
