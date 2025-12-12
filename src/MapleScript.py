@@ -213,6 +213,7 @@ class MapleScript(ABC):
         for action, key_str, event_time in recorded_events:
             if not self.is_maple_focus():
                 print("楓之谷不在前景，中止重播腳本")
+                self.__keyboard.release_all()
                 break
 
             target_time = start_replay_time + event_time

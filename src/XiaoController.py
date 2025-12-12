@@ -123,6 +123,13 @@ class XiaoController:
         self.__send(f'click\n')
         print(f"已發送指令：按下滑鼠")
 
+    def release_all(self):
+        """
+        向硬體發送一個放開所有按壓的按鍵的指令
+        """
+        self.__send(f'release_all\n')
+        print(f"已發送指令: 放開全部按鍵")
+
     def _read_from_port(self):
         while not self.__stop_event.is_set():
             if self.__connection is not None and self.__connection.is_open:

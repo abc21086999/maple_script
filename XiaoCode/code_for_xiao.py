@@ -85,6 +85,10 @@ def keyUp(decoded_string: str):
     else:
         print(f"未知指令：{decoded_string}")
 
+def release_all():
+    keyboard.release_all()
+    mouse.release_all()
+
 
 def scroll_up():
     mouse.move(wheel=1)
@@ -130,6 +134,10 @@ while True:
             # 如果是scroll_down，那就是要下滑
             elif decoded_str == "scroll_down":
                 scroll_down()
+
+            # 如果是release_all，那就要把全部的按鍵都放開
+            elif decoded_str == "release_all":
+                release_all()
 
             # 此外的都是要按下的按鍵
             else:
