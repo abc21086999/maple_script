@@ -18,8 +18,6 @@ class MapleGrind(MapleScript):
         self.__right_loop = routes.get('right_loop', [])
         
         self.__loop_map = {"left": self.__left_loop, "right": self.__right_loop, "not_found": []}
-        self.point = PIL.Image.open(self.get_photo_path("collect_point.png"))
-
 
     def find_ready_skill(self) -> None:
         """

@@ -1,4 +1,5 @@
 import sys
+from dotenv import load_dotenv
 from src.MapleGrind import MapleGrind
 from src.MonsterCollection import MonsterCollection
 from src.DailyPrepare import DailyPrepare
@@ -28,6 +29,7 @@ def run():
         return
 
     task = sys.argv[1]
+    load_dotenv()
 
     with XiaoController() as xiao:
         if task in task_mapping:

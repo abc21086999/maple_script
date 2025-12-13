@@ -1,6 +1,7 @@
 import serial.tools.list_ports
 import threading
 from serial import Serial
+import os
 
 
 class DeviceNotFoundException(Exception):
@@ -11,19 +12,19 @@ class DeviceNotFoundException(Exception):
 
 
 class XiaoController:
-    XIAO_SERIAL_NUMBER = "CCAB7951D342"
 
     def __init__(self, baudrate=115200, timeout=0.001):
         self.__port = None
         self.__connection= None
         self.__baudrate = baudrate
         self.__timeout = timeout
+        self.__serial_number = os.getenv("SERIAL_NUMBER")
         self.__stop_event = threading.Event()
 
     def _get_xiao_ports(self):
         ports = serial.tools.list_ports.comports()
         for port in ports:
-            if port.serial_number == self.XIAO_SERIAL_NUMBER:
+            if port.serial_number == self.__serial_number:
                 return port.name
         raise DeviceNotFoundException("找不到xiao")
 
@@ -63,7 +64,7 @@ class XiaoController:
             return None
         try:
             # 字串需要被編碼成位元組 (bytes) 才能透過序列埠傳輸
-            self.__connection.write(f'{string}'.encode('utf-8'))
+            self.__connection.write(string.encode('utf-8'))
         except serial.SerialException as e:
             print(f'發生錯誤：{e}')
             self._close()
