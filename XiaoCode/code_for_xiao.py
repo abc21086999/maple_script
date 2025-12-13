@@ -63,7 +63,7 @@ def handle_mouse(mouse_location: str):
 def click_mouse():
     mouse.click(Mouse.LEFT_BUTTON)
     mouse.release_all()
-    print(f'已經按下滑鼠右鍵後放開')
+    print(f'已經按下滑鼠左鍵後放開')
 
 
 def keyDown(decoded_string: str):

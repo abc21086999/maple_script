@@ -5,7 +5,6 @@ import PIL.Image
 from src.XiaoController import XiaoController
 from pathlib import Path
 from src.ConfigLoader import YamlLoader
-from dotenv import load_dotenv
 from src.WindowsObject import WindowsObject
 from abc import ABC, abstractmethod
 
@@ -18,7 +17,6 @@ class MapleScript(ABC):
         self.__cur_path = Path(__file__).resolve().parent.parent
         self.__keyboard = controller
         self.__mouse = controller
-        load_dotenv()
 
     def invoke_menu(self) -> None:
         """
@@ -32,14 +30,6 @@ class MapleScript(ABC):
             time.sleep(0.5)
             self.press_and_wait("esc")
         return None
-
-    @staticmethod
-    def __get_window_area(hwnd):
-        """
-        這是一個計算視窗面積的輔助函式，專門給 max() 的 key 使用。
-        """
-        win = WindowsObject(hwnd)
-        return win.width * win.height
 
     def get_photo_path(self, pic_name: str) -> Path:
         """
