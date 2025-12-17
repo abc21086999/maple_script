@@ -27,6 +27,7 @@
     - 將 `XiaoCode/` 資料夾內的程式碼燒錄至開發板。
 2.  **軟體安裝**：
     - 安裝 Python 3.10+。
+    - 啟用虛擬環境
     - 安裝相依套件：
       ```bash
       pip install -r requirements.txt
