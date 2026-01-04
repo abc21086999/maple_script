@@ -325,4 +325,4 @@ if __name__ == "__main__":
         while True:
             time.sleep(0.3)
             print(Maple.has_other_players())
-        print(Maple.get_character_position())
+            print(Maple.get_character_position())
