@@ -101,7 +101,7 @@ class MapleGrind(MapleScript):
     def start(self) -> None:
         try:
             while True:
-                if self.is_maple_focus():
+                if self.is_maple_focus() and not self.has_other_players():
                     self.find_ready_skill()
                     self.press_ready_skills()
                     # self.move_by_pressing_up()
