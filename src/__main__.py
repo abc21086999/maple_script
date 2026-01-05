@@ -4,7 +4,7 @@ from src.MapleGrind import MapleGrind
 from src.MonsterCollection import MonsterCollection
 from src.DailyPrepare import DailyPrepare
 from src.Storage import Storage
-from src.XiaoController import XiaoController
+from src.utils.xiao_controller import XiaoController
 from src.DailyBoss import DailyBoss
 from src.DancingMachine import Dancing
 

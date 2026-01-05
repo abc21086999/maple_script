@@ -4,11 +4,12 @@ import pyscreeze
 import PIL.Image
 import numpy as np
 import cv2
-from src.XiaoController import XiaoController
+from src.utils.xiao_controller import XiaoController
 from pathlib import Path
-from src.ConfigLoader import YamlLoader
-from src.WindowsObject import WindowsObject
+from src.utils.config_loader import YamlLoader
+from src.utils.windows_object import WindowsObject
 from abc import ABC, abstractmethod
+from utils.maple_vision import MapleVision
 
 
 class MapleScript(ABC):
@@ -16,6 +17,7 @@ class MapleScript(ABC):
     def __init__(self, controller=None):
         self.maple = WindowsObject.find_maple("MapleStoryClassTW")
         self.yaml_loader = YamlLoader()
+        self.__vision = MapleVision()
         self.__cur_path = Path(__file__).resolve().parent.parent
         self.__keyboard = controller
         self.__mouse = controller
@@ -67,17 +69,13 @@ class MapleScript(ABC):
 
     @property
     def maple_mini_map_area(self):
-        left, top, _, _ = self.maple_full_screen_area
-        
-        minimap_config = self.yaml_loader.ui_offsets.get('minimap', {})
-        # 如果設定檔讀取失敗，使用預設值以防崩潰
-        offset_x = minimap_config.get('x', 15)
-        offset_y = minimap_config.get('y', 99)
-        width = minimap_config.get('width', 182)
-        height = minimap_config.get('height', 71)
-        
-        mini_map_region = left + offset_x, top + offset_y, width, height
-        return mini_map_region
+        """
+        回傳小地圖位置，
+        結果會被快取，只計算一次。
+        """
+        maple_x, maple_y, maple_w, maple_h = self.maple_full_screen_area
+        mini_map_x, mini_map_y, mini_map_w, mini_map_h = self.__vision.get_mini_map_area(maple_x, maple_y, maple_w, maple_h)
+        return maple_x + mini_map_x, maple_y + mini_map_y, mini_map_w, mini_map_h
 
     def get_character_position(self, color_tolerance=30):
         """
@@ -85,42 +83,7 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: "left", "right", or "not_found"
         """
-        # 1. 擷取小地圖畫面 (傳回的是 PIL Image, RGB 模式)
-        minimap_img = pyautogui.screenshot(region=self.maple_mini_map_area, allScreens=True)
-        
-        # 2. 將圖片轉為 NumPy 陣列 (Height, Width, 3)
-        img_np = np.array(minimap_img)
-        
-        # 3. 定義目標顏色 (R, G, B) - 黃點
-        target_color = np.array([239, 240, 12])
-        
-        # 4. 計算整張圖每個像素與目標顏色的差異 (向量化運算)
-        # axis=2 表示沿著顏色通道 (R,G,B) 計算絕對差值的總和
-        # 這裡會產生一個 (Height, Width) 的二維陣列
-        diff_matrix = np.sum(np.abs(img_np - target_color), axis=2)
-        
-        # 5. 篩選符合容忍度的像素 (Boolean Mask)
-        mask = diff_matrix < (color_tolerance * 3)
-        
-        # 6. 找出所有符合條件的座標 (y, x)
-        # np.where 回傳的是 (row_indices, col_indices) -> (y座標陣列, x座標陣列)
-        _, x_coords = np.where(mask)
-        
-        # 7. 如果沒找到任何匹配的像素
-        if x_coords.size == 0:
-            return "not_found"
-
-        # 8. 計算平均 X 座標
-        avg_x = np.mean(x_coords)
-        
-        # 9. 判斷位置 (比較平均 X 與圖片中心點)
-        width = img_np.shape[1] # shape is (Height, Width, Channels)
-        midpoint_x = width / 2
-
-        if avg_x < midpoint_x:
-            return "left"
-        else:
-            return "right"
+        return self.__vision.get_character_position(self.maple_mini_map_area, color_tolerance)
 
     def has_other_players(self, color_tolerance=10) -> bool:
         """
@@ -129,24 +92,7 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: bool
         """
-        # 1. 擷取小地圖畫面
-        minimap_img = pyautogui.screenshot(region=self.maple_mini_map_area, allScreens=True)
-        img_np = np.array(minimap_img)
-
-        # 2. 定義目標顏色 (R, G, B) - 玩家紅點 (253, 45, 118)
-        target_color = np.array([253, 45, 118])
-
-        # 3. 計算色差並建立遮罩 (符合顏色為 255, 不符合為 0)
-        diff_matrix = np.sum(np.abs(img_np - target_color), axis=2)
-        mask = (diff_matrix < (color_tolerance * 3)).astype(np.uint8) * 255
-
-        # 4. 使用 3x3 Kernel 進行腐蝕 (Erosion)
-        # 這會要求紅點必須至少是一個 3x3 的實心區塊
-        kernel = np.ones((3, 3), np.uint8)
-        eroded_mask = cv2.erode(mask, kernel, iterations=1)
-
-        # 5. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的紅點
-        return cv2.countNonZero(eroded_mask) > 0
+        return self.__vision.has_other_players(self.maple_mini_map_area, color_tolerance)
 
     def get_skill_area_screenshot(self):
         return pyautogui.screenshot(region=self.maple_skill_area, allScreens=True)
@@ -323,6 +269,5 @@ if __name__ == "__main__":
     with XiaoController() as Xiao:
         Maple = DebugMaple(Xiao)
         while True:
-            time.sleep(0.3)
-            print(Maple.has_other_players())
+            time.sleep(0.5)
             print(Maple.get_character_position())
