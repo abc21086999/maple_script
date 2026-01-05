@@ -2,7 +2,7 @@ import time
 import math
 import dxcam
 from ultralytics import YOLO
-from src.XiaoController import XiaoController
+from src.utils.xiao_controller import XiaoController
 from src.MapleScript import MapleScript
 
 

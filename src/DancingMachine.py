@@ -1,7 +1,7 @@
 import random
 import time
 from src.MapleScript import MapleScript
-from src.XiaoController import XiaoController
+from src.utils.xiao_controller import XiaoController
 from random import uniform
 
 
