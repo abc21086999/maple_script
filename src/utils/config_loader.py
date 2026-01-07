@@ -7,9 +7,9 @@ from functools import cached_property
 class YamlLoader:
 
     def __init__(self):
-        self.__config_path = Path(__file__).resolve().parent.parent / "config" / "config.yaml"
-        self.__grind_routes_path = Path(__file__).resolve().parent.parent / "config" / "grind_routes.yaml"
-        self.__photo_path = Path(__file__).resolve().parent.parent / 'photos'
+        self.__config_path = Path(__file__).resolve().parent.parent.parent / "config" / "config.yaml"
+        self.__grind_routes_path = Path(__file__).resolve().parent.parent.parent / "config" / "grind_routes.yaml"
+        self.__photo_path = Path(__file__).resolve().parent.parent.parent / 'photos'
     
     @cached_property
     def __config(self):

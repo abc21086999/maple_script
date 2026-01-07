@@ -2,14 +2,12 @@ import time
 import pyautogui
 import pyscreeze
 import PIL.Image
-import numpy as np
-import cv2
 from src.utils.xiao_controller import XiaoController
 from pathlib import Path
 from src.utils.config_loader import YamlLoader
 from src.utils.windows_object import WindowsObject
 from abc import ABC, abstractmethod
-from utils.maple_vision import MapleVision
+from src.utils.maple_vision import MapleVision
 
 
 class MapleScript(ABC):
