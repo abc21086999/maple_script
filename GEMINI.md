@@ -8,9 +8,9 @@ The architecture is composed of two main parts:
 1.  **A Python control script** running on a **Windows** host computer. It uses computer vision libraries (`PyAutoGUI`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action.
 2.  **A Seeed Studio Xiao ESP32S3 microcontroller** acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It then translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
 
-The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities. Low-level window management and screen coordinate calculations are handled by `src/WindowsObject.py`. Specific automation routines, like `src/DailyPrepare.py`, `src/MonsterCollection.py`, `src/MapleGrind.py`, `src/DailyBoss.py`, `src/Storage.py`, and `src/DancingMachine.py`, inherit from the base `MapleScript` class.
+The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities. Computer vision tasks, such as minimap analysis and player detection, are delegated to `src/utils/maple_vision.py`. Low-level window management and screen coordinate calculations are handled by `src/utils/windows_object.py`. Specific automation routines, like `src/DailyPrepare.py`, `src/MonsterCollection.py`, `src/MapleGrind.py`, `src/DailyBoss.py`, `src/Storage.py`, and `src/DancingMachine.py`, inherit from the base `MapleScript` class.
 
-The project is now **configuration-driven**, with skills, UI elements, and settings defined in `config/config.yaml` and loaded by the `YamlLoader` class in `src/ConfigLoader.py`. The grinding script (`src/MapleGrind.py`) uses minimap analysis to determine the character's position and execute patrol routes defined in `config/grind_routes.yaml`.
+The project is now **configuration-driven**, with skills, UI elements, and settings defined in `config/config.yaml` and loaded by the `YamlLoader` class in `src/utils/config_loader.py`. The grinding script (`src/MapleGrind.py`) uses minimap analysis to determine the character's position and execute patrol routes defined in `config/grind_routes.yaml`.
 
 All tasks are executed through the main entry point `src/__main__.py`.
 
@@ -80,6 +80,6 @@ There is no dedicated testing framework (like `pytest` or `unittest`) apparent i
     - The base `MapleScript` class automatically loads variables from this file using `python-dotenv`.
     - A template file, `.env.example`, should be maintained to show required environment variables.
 
-- **Hardware Communication:** All hardware-level keyboard and mouse actions are routed through `src/XiaoController.py`, which communicates with the Xiao microcontroller.
+- **Hardware Communication:** All hardware-level keyboard and mouse actions are routed through `src/utils/xiao_controller.py`, which communicates with the Xiao microcontroller.
 
 - **Keystroke Recording:** The project includes a `tools/KeyLogger.py` utility. This tool can be run to record a sequence of keystrokes and their timings, which is useful for creating complex, hardcoded movement or action sequences like the patrol routes found in `config/grind_routes.yaml`.
