@@ -7,6 +7,9 @@ class MapleVision:
 
     def __init__(self):
         self.mini_map_area = None
+        self.other_player_color = [253, 45, 118]
+        self.my_character_color = [239, 240, 12]
+        self.mini_map_rectangle_color = [228, 228, 228]
 
     def get_mini_map_area(self, maple_x, maple_y, maple_w, maple_h):
         """
@@ -25,8 +28,8 @@ class MapleVision:
         img_np = np.array(img)
 
         # 2. 設定目標顏色 (直接瞄準 228, 228, 228)
-        lower_bound = np.array([228, 228, 228])
-        upper_bound = np.array([228, 228, 228])
+        lower_bound = np.array(self.mini_map_rectangle_color)
+        upper_bound = np.array(self.mini_map_rectangle_color)
 
         # 3. 製作遮罩 (Mask)
         mask = cv2.inRange(img_np, lower_bound, upper_bound)
@@ -72,7 +75,7 @@ class MapleVision:
         img_np = np.array(minimap_img)
 
         # 3. 定義目標顏色 (R, G, B) - 黃點
-        target_color = np.array([239, 240, 12])
+        target_color = np.array(self.my_character_color)
 
         # 4. 計算整張圖每個像素與目標顏色的差異 (向量化運算)
         # axis=2 表示沿著顏色通道 (R,G,B) 計算絕對差值的總和
@@ -115,7 +118,7 @@ class MapleVision:
         img_np = np.array(minimap_img)
 
         # 2. 定義目標顏色 (R, G, B) - 玩家紅點 (253, 45, 118)
-        target_color = np.array([253, 45, 118])
+        target_color = np.array(self.other_player_color)
 
         # 3. 計算色差並建立遮罩 (符合顏色為 255, 不符合為 0)
         diff_matrix = np.sum(np.abs(img_np - target_color), axis=2)
