@@ -1,6 +1,5 @@
 import time
 import pyautogui
-import pyscreeze
 import PIL.Image
 from src.utils.xiao_controller import XiaoController
 from pathlib import Path
@@ -15,8 +14,7 @@ class MapleScript(ABC):
     def __init__(self, controller=None):
         self.maple = WindowsObject.find_maple("MapleStoryClassTW")
         self.yaml_loader = YamlLoader()
-        self.__vision = MapleVision()
-        self.__cur_path = Path(__file__).resolve().parent.parent
+        self.__vision = MapleVision(self.maple)
         self.__keyboard = controller
         self.__mouse = controller
 
@@ -33,14 +31,6 @@ class MapleScript(ABC):
             self.press_and_wait("esc")
         return None
 
-    def get_photo_path(self, pic_name: str) -> Path:
-        """
-        回傳圖片的路徑
-        :param pic_name: 圖片的檔案名稱
-        :return: Path
-        """
-        return self.__cur_path / "photos" / pic_name
-
     def is_maple_focus(self) -> bool:
         """
         根據楓之谷在不在前景決定回傳的bool值
@@ -48,32 +38,14 @@ class MapleScript(ABC):
         """
         return self.maple.is_active
 
-    @property
-    def maple_full_screen_area(self):
-        """
-        回傳楓之谷視窗在螢幕上的位置
-        :return: tuple
-        """
-        return self.maple.left, self.maple.top, self.maple.width, self.maple.height
-
     def get_full_screen_screenshot(self):
-        return pyautogui.screenshot(region=self.maple_full_screen_area, allScreens=True)
+        return self.__vision.get_full_screen_screenshot()
 
-    @property
-    def maple_skill_area(self):
-        # 只要看右下角就好
-        left, top, width, height = self.maple_full_screen_area
-        return left+ width // 2, top + height // 2, width // 2, height // 2
+    def get_skill_area_screenshot(self):
+        return self.__vision.get_skill_area_screenshot()
 
-    @property
-    def maple_mini_map_area(self):
-        """
-        回傳小地圖位置，
-        結果會被快取，只計算一次。
-        """
-        maple_x, maple_y, maple_w, maple_h = self.maple_full_screen_area
-        mini_map_x, mini_map_y, mini_map_w, mini_map_h = self.__vision.get_mini_map_area(maple_x, maple_y, maple_w, maple_h)
-        return maple_x + mini_map_x, maple_y + mini_map_y, mini_map_w, mini_map_h
+    def get_mini_map_area_screenshot(self):
+        return self.__vision.get_mini_map_area_screenshot()
 
     def get_character_position(self, color_tolerance=30):
         """
@@ -81,7 +53,7 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: "left", "right", or "not_found"
         """
-        return self.__vision.get_character_position(self.maple_mini_map_area, color_tolerance)
+        return self.__vision.get_character_position(color_tolerance)
 
     def has_other_players(self, color_tolerance=10) -> bool:
         """
@@ -90,10 +62,7 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: bool
         """
-        return self.__vision.has_other_players(self.maple_mini_map_area, color_tolerance)
-
-    def get_skill_area_screenshot(self):
-        return pyautogui.screenshot(region=self.maple_skill_area, allScreens=True)
+        return self.__vision.has_other_players(color_tolerance)
 
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
         """
@@ -102,21 +71,7 @@ class MapleScript(ABC):
         :param img: 一張截圖，沒有傳入就會自動擷取一張
         :return: bool
         """
-        # 處理各種路徑格式
-        if isinstance(pic, str):
-            pic = PIL.Image.open(pic)
-        elif isinstance(pic, Path):
-            pic = PIL.Image.open(str(pic))
-
-        # 如果沒有傳入截圖，那就截一張圖
-        if img is None:
-            img = self.get_full_screen_screenshot()
-
-        try:
-            skill_location = next(pyautogui.locateAll(pic, img, confidence=0.96), None)
-            return bool(skill_location)
-        except pyscreeze.ImageNotFoundException:
-            return False
+        return self.__vision.is_on_screen(pic=pic, img=img)
 
     def find_and_click_image(self, pic_for_search: str | PIL.Image.Image | Path) -> None:
         """
@@ -124,56 +79,15 @@ class MapleScript(ABC):
         :param pic_for_search: 要辨識的圖片
         :return: None
         """
-        # 處理各種不同的路徑格式
-        if isinstance(pic_for_search, str):
-            pic = PIL.Image.open(pic_for_search)
-        elif isinstance(pic_for_search, Path):
-            pic = PIL.Image.open(str(pic_for_search))
-        else:
-            pic = pic_for_search
-
-        try:
-            # 取得目前滑鼠位置
-            current_mouse_x, current_mouse_y = pyautogui.position()
-
-            # 校正滑鼠座標至虛擬螢幕座標系
-            offset_x, offset_y = self.maple.screen_offset
-            current_mouse_x -= offset_x
-            current_mouse_y -= offset_y
-
-            # 辨識遊戲截圖內有沒有我們要的東西
-            # 改用截圖後 locate 避免 allScreens 參數錯誤
-            screenshot = self.get_full_screen_screenshot()
-            box = pyautogui.locate(pic, screenshot, confidence=0.9)
-
-            # 如果有辨識到東西
-            if box is not None:
-                box_left, box_top, box_width, box_height = box
-
-                # 計算目標中心點 (相對於虛擬螢幕座標系)
-                win_x, win_y, _, _ = self.maple_full_screen_area
-                target_x = win_x + box_left + box_width / 2
-                target_y = win_y + box_top + box_height / 2
-
-                # 計算目前滑鼠的相對位置
-                dx = int(target_x - current_mouse_x)
-                dy = int(target_y - current_mouse_y)
-
-                # 移動過去
+        match self.__vision.find_image_location(pic_for_search):
+            case (dx, dy):
                 self.move((dx, dy))
-                time.sleep(0.1)
-
-                # 點下
-                self.click()
                 time.sleep(0.3)
 
-            # 如果沒辨識到東西就不做任何事情
-            else:
-                print(f'畫面中找不到{pic_for_search}')
-
-        except pyautogui.ImageNotFoundException:
-            # 如果沒辨識到東西就不做任何事情
-            print(f'畫面中找不到{pic_for_search}')
+                self.click()
+                time.sleep(0.3)
+            case None:
+                pass
 
     def replay_script(self, recorded_events: list[list | tuple]):
         """

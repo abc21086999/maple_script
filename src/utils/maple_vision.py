@@ -1,17 +1,54 @@
 import numpy as np
 import cv2
 import pyautogui
+import PIL.Image
+from pathlib import Path
+import pyscreeze
 
 
 class MapleVision:
 
-    def __init__(self):
+    def __init__(self, maple):
+        self.maple = maple
         self.mini_map_area = None
         self.other_player_color = [253, 45, 118]
         self.my_character_color = [239, 240, 12]
         self.mini_map_rectangle_color = [228, 228, 228]
 
-    def get_mini_map_area(self, maple_x, maple_y, maple_w, maple_h):
+    @property
+    def maple_full_screen_area(self):
+        """
+        回傳楓之谷視窗在螢幕上的位置
+        :return: tuple
+        """
+        return self.maple.left, self.maple.top, self.maple.width, self.maple.height
+
+    @property
+    def maple_skill_area(self):
+        # 只要看右下角就好
+        left, top, width, height = self.maple_full_screen_area
+        return left+ width // 2, top + height // 2, width // 2, height // 2
+
+    @property
+    def maple_mini_map_area(self):
+        """
+        回傳小地圖位置，
+        結果會被快取，只計算一次。
+        """
+        maple_x, maple_y, maple_w, maple_h = self.maple_full_screen_area
+        mini_map_x, mini_map_y, mini_map_w, mini_map_h = self.get_mini_map_area()
+        return maple_x + mini_map_x, maple_y + mini_map_y, mini_map_w, mini_map_h
+
+    def get_full_screen_screenshot(self):
+        return pyautogui.screenshot(region=self.maple_full_screen_area, allScreens=True)
+
+    def get_skill_area_screenshot(self):
+        return pyautogui.screenshot(region=self.maple_skill_area, allScreens=True)
+
+    def get_mini_map_area_screenshot(self):
+        return pyautogui.screenshot(region=self.maple_mini_map_area, allScreens=True)
+
+    def get_mini_map_area(self):
         """
         計算小地圖在楓之谷視窗的相對位置
         :return: 小地圖在楓之谷視窗的相對位置
@@ -20,7 +57,7 @@ class MapleVision:
             return self.mini_map_area
 
         # 1. 鎖定搜尋範圍：只看視窗左上角 1/4 區域，提升效能
-        full_x, full_y, full_w, full_h = maple_x, maple_y, maple_w, maple_h
+        full_x, full_y, full_w, full_h = self.maple_full_screen_area
         roi_w, roi_h = full_w // 6, full_h // 3
 
         # 截圖 (RGB 模式)
@@ -61,15 +98,14 @@ class MapleVision:
                 self.mini_map_area = rect_x, rect_y, rect_w, rect_h
                 return self.mini_map_area
 
-    def get_character_position(self, maple_mini_map_area: tuple[int, int, int, int], color_tolerance=30):
+    def get_character_position(self, color_tolerance=30):
         """
         分析小地圖，回傳角色位置在左邊或右邊。 (NumPy 優化版)
         :param color_tolerance: int, 顏色容忍度
-        :param maple_mini_map_area, 小地圖區域
         :return: "left", "right", or "not_found"
         """
         # 1. 擷取小地圖畫面 (傳回的是 PIL Image, RGB 模式)
-        minimap_img = pyautogui.screenshot(region=maple_mini_map_area, allScreens=True)
+        minimap_img = self.get_mini_map_area_screenshot()
 
         # 2. 將圖片轉為 NumPy 陣列 (Height, Width, 3)
         img_np = np.array(minimap_img)
@@ -105,16 +141,15 @@ class MapleVision:
         else:
             return "right"
 
-    def has_other_players(self, maple_mini_map_area: tuple[int, int, int, int], color_tolerance=10) -> bool:
+    def has_other_players(self, color_tolerance=10) -> bool:
         """
         偵測小地圖上有沒有其他玩家（紅點）。
         使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
         :param color_tolerance: int, 顏色容忍度
-        :param maple_mini_map_area, 小地圖區域
         :return: bool
         """
         # 1. 擷取小地圖畫面
-        minimap_img = pyautogui.screenshot(region=maple_mini_map_area, allScreens=True)
+        minimap_img = self.get_mini_map_area_screenshot()
         img_np = np.array(minimap_img)
 
         # 2. 定義目標顏色 (R, G, B) - 玩家紅點 (253, 45, 118)
@@ -131,3 +166,77 @@ class MapleVision:
 
         # 5. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的紅點
         return cv2.countNonZero(eroded_mask) > 0
+
+    def is_on_screen(self, pic: PIL.Image.Image | str | Path, img) -> bool:
+        """
+        辨識想要找的東西在不在畫面上
+        :param pic: 想要辨識的圖片
+        :param img: 一張截圖，沒有傳入就會自動擷取一張
+        :return: bool
+        """
+        # 處理各種路徑格式
+        if isinstance(pic, str):
+            pic = PIL.Image.open(pic)
+        elif isinstance(pic, Path):
+            pic = PIL.Image.open(str(pic))
+
+        # 如果沒有傳入截圖，那就截一張圖
+        if img is None:
+            img = self.get_full_screen_screenshot()
+
+        try:
+            skill_location = next(pyautogui.locateAll(pic, img, confidence=0.96), None)
+            return bool(skill_location)
+        except pyscreeze.ImageNotFoundException:
+            return False
+
+    def find_image_location(self, pic_for_search: str | PIL.Image.Image | Path) -> tuple[int, int] | None:
+        """
+        用於辨識按鈕之後移動
+        :param pic_for_search: 要辨識的圖片
+        :return: None
+        """
+        # 處理各種不同的路徑格式
+        if isinstance(pic_for_search, str):
+            pic = PIL.Image.open(pic_for_search)
+        elif isinstance(pic_for_search, Path):
+            pic = PIL.Image.open(str(pic_for_search))
+        else:
+            pic = pic_for_search
+
+        try:
+            # 取得目前滑鼠位置
+            current_mouse_x, current_mouse_y = pyautogui.position()
+
+            # 校正滑鼠座標至虛擬螢幕座標系
+            offset_x, offset_y = self.maple.screen_offset
+            current_mouse_x -= offset_x
+            current_mouse_y -= offset_y
+
+            # 辨識遊戲截圖內有沒有我們要的東西
+            # 改用截圖後 locate 避免 allScreens 參數錯誤
+            screenshot = self.get_full_screen_screenshot()
+            box = pyautogui.locate(pic, screenshot, confidence=0.9)
+
+            # 如果有辨識到東西
+            if box is not None:
+                box_left, box_top, box_width, box_height = box
+
+                # 計算目標中心點 (相對於虛擬螢幕座標系)
+                win_x, win_y, _, _ = self.maple_full_screen_area
+                target_x = win_x + box_left + box_width / 2
+                target_y = win_y + box_top + box_height / 2
+
+                # 計算目前滑鼠的相對位置
+                dx = int(target_x - current_mouse_x)
+                dy = int(target_y - current_mouse_y)
+
+                return dx, dy
+
+            # 如果沒辨識到東西就不做任何事情
+            else:
+                print(f'畫面中找不到{pic_for_search}')
+
+        except pyautogui.ImageNotFoundException:
+            # 如果沒辨識到東西就不做任何事情
+            print(f'畫面中找不到{pic_for_search}')
