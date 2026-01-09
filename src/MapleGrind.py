@@ -77,9 +77,7 @@ class MapleGrind(MapleScript):
             time.sleep(random.uniform(*self.__gap_time))
 
     def move_by_grappling(self) -> None:
-        if (self.is_maple_focus() and
-            self.is_on_screen(self.get_photo_path("grappling.png")) and
-            random.random() < 0.1):
+        if self.is_maple_focus() and random.random() < 0.1:
             self.press_and_wait("8", 2)
             time.sleep(random.uniform(*self.__gap_time))
             self.key_down("down")
