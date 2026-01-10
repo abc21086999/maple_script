@@ -23,9 +23,10 @@ class XiaoController:
 
     def _get_xiao_ports(self):
         ports = serial.tools.list_ports.comports()
-        for port in ports:
-            if port.serial_number == self.__serial_number:
-                return port.name
+        if self.__serial_number is not None:
+            for port in ports:
+                if port.serial_number == self.__serial_number:
+                    return port.name
         raise DeviceNotFoundException("找不到xiao")
 
     def __enter__(self):

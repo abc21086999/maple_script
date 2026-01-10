@@ -1,5 +1,4 @@
 import time
-import pyautogui
 import PIL.Image
 from src.utils.xiao_controller import XiaoController
 from pathlib import Path
