@@ -205,7 +205,9 @@ daily_prepare:
 
   housing:
     house_map_check: 'querencia.png'
-    talk_caretaker: 'talk_with_caretaker.png'
+    caretaker:  'caretaker.png'
+    talk_with_caretaker: 'talk_with_caretaker.png'
+    caretaker_talkable: 'caretaker_talkable.png'
     stop_conversation: 'stop_conversation.png'
 
   event:

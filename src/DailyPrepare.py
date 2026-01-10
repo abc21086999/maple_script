@@ -358,15 +358,14 @@ class DailyPrepare(MapleScript):
         while not self.is_on_screen(imgs['house_map_check']):
             time.sleep(0.5)
 
-        # 向前移動兩次
-        for i in range(2):
-            self.press_and_wait("space", 0.7)
+        # 點擊管理人圖案
+        self.find_and_click_image(imgs['caretaker'])
 
         # 跟管家對話
-        self.press_and_wait("y")
+        self.find_and_click_image(imgs['talk_with_caretaker'])
 
         # 如果有可以對話（這段還有改善空間但是先這樣寫ㄅ）
-        if self.is_on_screen(imgs['talk_caretaker']):
+        if self.is_on_screen(imgs['caretaker_talkable']):
             for i in range(6):
                 self.press_and_wait("y")
 
@@ -391,7 +390,8 @@ class DailyPrepare(MapleScript):
         """
         img = self.__images["event"]
         # 打開活動面板
-        self.press_and_wait(".")
+        self.invoke_menu()
+        self.press_and_wait(["tab", "left", "left", "enter"])
 
         # 點下時間之力的那個tab，然後點下填滿，還有點下每週的獲得效果按鈕
         self.find_and_click_image(img['event_daily_checkin_tab'])
@@ -420,7 +420,7 @@ class DailyPrepare(MapleScript):
         self.switch_to_grinding_set()
         self.collect_union_coin()
         self.start_daily_or_weekly_mission()
-        self.dismantle_armours()
+        # self.dismantle_armours()
         self.receive_hd_gift()
         self.receive_milestones()
         self.collect_market()
