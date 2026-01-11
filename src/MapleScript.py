@@ -63,6 +63,15 @@ class MapleScript(ABC):
         """
         return self.__vision.has_other_players(color_tolerance)
 
+    def has_rune(self, color_tolerance=10) -> bool:
+        """
+        偵測小地圖上有沒有倫。
+        使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
+        :param color_tolerance: int, 顏色容忍度
+        :return: bool
+        """
+        return self.__vision.has_rune(color_tolerance)
+
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
         """
         辨識想要找的東西在不在畫面上
@@ -81,10 +90,10 @@ class MapleScript(ABC):
         match self.__vision.find_image_location(pic_for_search):
             case (dx, dy):
                 self.move((dx, dy))
-                time.sleep(0.3)
+                time.sleep(0.2)
 
                 self.click()
-                time.sleep(0.3)
+                time.sleep(0.2)
             case None:
                 pass
 
@@ -181,4 +190,4 @@ if __name__ == "__main__":
         Maple = DebugMaple(Xiao)
         while True:
             time.sleep(0.5)
-            print(Maple.get_character_position())
+            print(Maple.has_rune())
