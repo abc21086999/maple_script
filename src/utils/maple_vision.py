@@ -14,6 +14,7 @@ class MapleVision:
         self.other_player_color = [253, 45, 118]
         self.my_character_color = [239, 240, 12]
         self.mini_map_rectangle_color = [228, 228, 228]
+        self.rune_color = [221, 102, 255]
 
     @property
     def maple_full_screen_area(self):
@@ -165,6 +166,32 @@ class MapleVision:
         eroded_mask = cv2.erode(mask, kernel, iterations=1)
 
         # 5. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的紅點
+        return cv2.countNonZero(eroded_mask) > 0
+
+    def has_rune(self, color_tolerance=10) -> bool:
+        """
+        偵測小地圖上有沒有輪（符文）。
+        使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
+        :param color_tolerance: int, 顏色容忍度
+        :return: bool
+        """
+        # 1. 擷取小地圖畫面
+        minimap_img = self.get_mini_map_area_screenshot()
+        img_np = np.array(minimap_img)
+
+        # 2. 定義目標顏色 (R, G, B) - 輪 (221, 102, 255)
+        target_color = np.array(self.rune_color)
+
+        # 3. 計算色差並建立遮罩
+        diff_matrix = np.sum(np.abs(img_np - target_color), axis=2)
+        mask = (diff_matrix < (color_tolerance * 3)).astype(np.uint8) * 255
+
+        # 4. 使用 3x3 Kernel 進行腐蝕 (Erosion)
+        # 這會要求輪必須至少是一個 3x3 的實心區塊
+        kernel = np.ones((3, 3), np.uint8)
+        eroded_mask = cv2.erode(mask, kernel, iterations=1)
+
+        # 5. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的輪的色塊
         return cv2.countNonZero(eroded_mask) > 0
 
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img) -> bool:

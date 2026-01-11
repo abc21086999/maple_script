@@ -98,15 +98,27 @@ class MapleGrind(MapleScript):
     def start(self) -> None:
         try:
             while True:
-                if self.is_maple_focus() and not self.has_other_players():
-                    self.find_ready_skill()
-                    self.press_ready_skills()
-                    # self.move_by_pressing_up()
-                    self.walk_the_map()
-                    time.sleep(1)
+                # 在楓之谷在前景的狀況下，
+                if self.is_maple_focus() :
+
+                    # 如果地圖上有符文，那就暫停一下，手動解除符文
+                    if self.has_rune():
+                        print("地圖上有符文")
+                        time.sleep(10)
+
+                    # 如果沒有符文而且地圖上沒有其他人，那就開始練功
+                    elif not self.has_other_players():
+                        self.find_ready_skill()
+                        self.press_ready_skills()
+                        # self.move_by_pressing_up()
+                        self.walk_the_map()
+                        time.sleep(1)
+                    else:
+                        print("地圖上有其他人")
+                        time.sleep(1)
                 else:
                     time.sleep(1)
-                    continue
+
         except KeyboardInterrupt:
             print(f'腳本中止')
 
