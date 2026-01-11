@@ -15,7 +15,8 @@ class MonsterCollection(MapleScript):
         :return: None
         """
         # 打開怪物蒐藏界面
-        self.press_and_wait("f10")
+        self.invoke_menu()
+        self.press_and_wait(['tab', "right", "right", "right", "up", "up", "up", "enter"])
 
         # 等待界面打開
         while not self.is_on_screen(self.images['title']):
