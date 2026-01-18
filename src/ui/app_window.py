@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.controller = controller
         
-        self.setWindowTitle("Guai Guai Automation Control Center")
+        self.setWindowTitle("Automation Control Center")
         self.resize(900, 600)
         
         # 建立中央小部件
@@ -65,9 +65,23 @@ class MainWindow(QMainWindow):
         right_panel = QFrame()
         right_layout = QVBoxLayout(right_panel)
         
+        # Log 標題列 (水平佈局：左邊標題，右邊清除按鈕)
+        log_header_layout = QHBoxLayout()
+        
         log_label = QLabel("執行日誌")
         log_label.setStyleSheet("font-weight: bold;")
-        right_layout.addWidget(log_label)
+        log_header_layout.addWidget(log_label)
+        
+        log_header_layout.addStretch() # 把按鈕推到最右邊
+        
+        # 清除按鈕
+        self.btn_clear_log = QPushButton("🧹") # 掃把 Emoji
+        self.btn_clear_log.setToolTip("清除日誌")
+        self.btn_clear_log.setFixedSize(30, 30) # 設定為小方形
+        self.btn_clear_log.clicked.connect(self.text_area_clear)
+        log_header_layout.addWidget(self.btn_clear_log)
+        
+        right_layout.addLayout(log_header_layout)
         
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
@@ -92,6 +106,10 @@ class MainWindow(QMainWindow):
         btn.clicked.connect(slot)
         layout.addWidget(btn)
         return btn
+
+    def text_area_clear(self):
+        """清除日誌區域"""
+        self.text_area.clear()
 
     @Slot(str)
     def append_text(self, text):
