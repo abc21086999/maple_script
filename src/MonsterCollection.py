@@ -5,8 +5,8 @@ from src.MapleScript import MapleScript
 
 class MonsterCollection(MapleScript):
 
-    def __init__(self, controller=None):
-        super().__init__(controller=controller)
+    def __init__(self, controller=None, log_callback=None):
+        super().__init__(controller=controller, log_callback=log_callback)
         self.images = self.yaml_loader.monster_collection_images
 
     def collect_and_start_monster_collection(self):
@@ -14,13 +14,16 @@ class MonsterCollection(MapleScript):
         完成和重新開始怪物蒐藏
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在執行怪物收藏...")
+
         # 打開怪物蒐藏界面
         self.invoke_menu()
         self.press_and_wait(['tab', "right", "right", "right", "up", "up", "up", "enter"])
 
         # 等待界面打開
-        while not self.is_on_screen(self.images['title']):
-            time.sleep(0.5)
+        while self.should_continue() and not self.is_on_screen(self.images['title']):
+            self.sleep(0.5)
 
         # 按下探險的那個Tab
         adventure_tab = self.images['adventure_tab']
@@ -32,7 +35,7 @@ class MonsterCollection(MapleScript):
         # 一直截圖進行辨識，如果畫面上還有還沒領取的怪物蒐藏
         reward_button = self.images['reward_button']
 
-        while self.is_on_screen(reward_button):
+        while self.should_continue() and self.is_on_screen(reward_button):
             # 按下領取按鈕
             self.find_and_click_image(reward_button)
 
@@ -41,17 +44,18 @@ class MonsterCollection(MapleScript):
 
         # 一直截圖進行辨識，如果畫面上還有還沒開始的怪物蒐藏，就開始進行蒐藏
         start_button = self.images['start_button']
-        while self.is_on_screen(start_button):
+        while self.should_continue() and self.is_on_screen(start_button):
             # 按下開始按鈕
             self.find_and_click_image(start_button)
-            time.sleep(0.5)
+            self.sleep(0.5)
 
         # 鬆開Enter
         self.key_up("enter")
-        time.sleep(0.5)
+        self.sleep(0.5)
 
         # 最後用Esc將怪物蒐藏界面關閉
         self.press_and_wait("esc")
+        self.log("怪物收藏執行完畢")
 
     def start(self):
         """

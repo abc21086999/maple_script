@@ -5,8 +5,8 @@ from src.MapleScript import MapleScript
 
 class DailyPrepare(MapleScript):
 
-    def __init__(self, controller=None):
-        super().__init__(controller=controller)
+    def __init__(self, controller=None, log_callback=None):
+        super().__init__(controller=controller, log_callback=log_callback)
         self.__images = self.yaml_loader.daily_prepare_images
 
     def switch_to_grinding_set(self):
@@ -14,10 +14,12 @@ class DailyPrepare(MapleScript):
         切換到練功用的角色設定
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在切換至練功套組...")
         imgs = self.__images['settings']
 
-        while not self.is_maple_focus():
-            time.sleep(0.1)
+        while self.should_continue() and not self.is_maple_focus():
+            self.sleep(0.1)
         if self.is_maple_focus():
             # 打開角色套組設定的界面
             self.invoke_menu()
@@ -48,14 +50,16 @@ class DailyPrepare(MapleScript):
         蒐集戰地聯盟的硬幣
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在領取戰地硬幣...")
         imgs = self.__images['union']
 
         if self.is_maple_focus():
             # 打開戰地聯盟的界面
             self.invoke_menu()
             self.press_and_wait(["tab", "down", "down", "enter"])
-            while not self.is_on_screen(imgs['get_coin']):
-                time.sleep(0.1)
+            while self.should_continue() and not self.is_on_screen(imgs['get_coin']):
+                self.sleep(0.1)
 
             # 按下拿硬幣的按鈕，接著按Enter關掉確認畫面
             self.find_and_click_image(imgs['get_coin'])
@@ -63,8 +67,8 @@ class DailyPrepare(MapleScript):
 
             # 切換到神器頁面
             self.find_and_click_image(imgs['artifact_tab'])
-            while not self.is_on_screen(imgs['extend_button']):
-                time.sleep(0.1)
+            while self.should_continue() and not self.is_on_screen(imgs['extend_button']):
+                self.sleep(0.1)
 
             # 點擊延長按鈕
             self.find_and_click_image(imgs['extend_button'])
@@ -82,6 +86,8 @@ class DailyPrepare(MapleScript):
         開始或結束每日或是每週任務
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在處理每日/每週任務...")
         imgs = self.__images['mission']
 
         if self.is_maple_focus():
@@ -132,6 +138,8 @@ class DailyPrepare(MapleScript):
         分解裝備
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在分解裝備...")
         imgs = self.__images['dismantle']
 
         if self.is_maple_focus():
@@ -146,13 +154,13 @@ class DailyPrepare(MapleScript):
             self.press_and_wait("enter")
 
             # 移動中
-            while not self.is_on_screen(imgs['village_map_check']):
-                time.sleep(0.5)
+            while self.should_continue() and not self.is_on_screen(imgs['village_map_check']):
+                self.sleep(0.5)
 
             # 打開裝備欄
             self.press_and_wait("i")
-            while not self.is_on_screen(imgs['panel_button']):
-                time.sleep(0.1)
+            while self.should_continue() and not self.is_on_screen(imgs['panel_button']):
+                self.sleep(0.1)
 
             # 點下分解裝備的按鈕
             self.find_and_click_image(imgs['panel_button'])
@@ -161,7 +169,7 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(imgs['put_armor'])
 
             # 在點了之後如果沒有裝備被放上面板，那就離開，反之就進行分解
-            while not self.is_on_screen(imgs['empty_table']):
+            while self.should_continue() and not self.is_on_screen(imgs['empty_table']):
                 # 滑鼠移動到地圖icon以減少干擾
                 self.find_and_click_image(imgs['village_map_check'])
 
@@ -170,8 +178,8 @@ class DailyPrepare(MapleScript):
 
                 # 確定分解並等待
                 self.press_and_wait("enter")
-                while not self.is_on_screen(imgs['complete_popup']):
-                    time.sleep(0.1)
+                while self.should_continue() and not self.is_on_screen(imgs['complete_popup']):
+                    self.sleep(0.1)
 
                 # 確認分解完成的訊息
                 self.press_and_wait("enter")
@@ -180,7 +188,7 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(imgs['put_armor'])
 
             # 最後都沒有裝備要分解了，按兩下Esc以關閉分解界面和裝備界面
-            print("裝備分解完成")
+            self.log("裝備分解完成")
             for i in range(2):
                 self.press_and_wait("esc", 0.1)
 
@@ -193,6 +201,8 @@ class DailyPrepare(MapleScript):
         領取HD禮物
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在領取 HD 獎勵...")
         imgs = self.__images['hd']
 
         if self.is_maple_focus():
@@ -212,7 +222,7 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(imgs['receive_button'])
 
                 # 如果有可以領取的禮物（考量到禮拜天可以領兩次所以就用while）
-                while self.is_on_screen(imgs['has_gift']):
+                while self.should_continue() and self.is_on_screen(imgs['has_gift']):
                     self.find_and_click_image(imgs['take_coin'])
 
                     # 關閉領完之後的確認頁面
@@ -228,7 +238,7 @@ class DailyPrepare(MapleScript):
             # 不然就直接離開HD界面
             else:
                 self.press("esc")
-            time.sleep(0.5)
+            self.sleep(0.5)
 
 
     def receive_milestones(self):
@@ -236,6 +246,8 @@ class DailyPrepare(MapleScript):
         領取里程
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在領取里程...")
         imgs = self.__images['milestone']
 
         if self.is_maple_focus():
@@ -259,6 +271,8 @@ class DailyPrepare(MapleScript):
         處理拍賣
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在處理拍賣場...")
         imgs = self.__images['market']
 
         if self.is_maple_focus():
@@ -269,8 +283,8 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(self.__images['common']['menu_market_icon'])
 
             # 等待進入拍賣
-            while not self.is_on_screen(imgs['title']):
-                time.sleep(0.5)
+            while self.should_continue() and not self.is_on_screen(imgs['title']):
+                self.sleep(0.5)
 
             # 切換到完成的那個Tab
             self.find_and_click_image(imgs['collectable_tab'])
@@ -281,15 +295,15 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(imgs['restock_all'])
                 self.press_and_wait("enter")
                 # 處理重新上架遇到位子不夠或是需要等待的狀況
-                while not self.is_on_screen(imgs['restock_finish']):
+                while self.should_continue() and not self.is_on_screen(imgs['restock_finish']):
 
                     # 如果遇到上架的時候沒位子了，那麼先把有賣掉的回收楓幣
                     if self.is_on_screen(imgs['no_vacancy']):
-                        while self.is_on_screen(imgs['collect_money']):
+                        while self.should_continue() and self.is_on_screen(imgs['collect_money']):
                             self.find_and_click_image(imgs['collect_money'])
                             self.press_and_wait("enter")
                     else:
-                        time.sleep(1)
+                        self.sleep(1)
                 # 重新上架完按個Esc把訊息關掉
                 self.press_and_wait("esc")
 
@@ -300,8 +314,8 @@ class DailyPrepare(MapleScript):
                 # 那就回收楓幣，回收完按個Esc把訊息關掉
                 self.find_and_click_image(imgs['all_collectable'])
                 self.press_and_wait("enter", 0.5)
-                while not self.is_on_screen(imgs['all_collected']):
-                    time.sleep(1)
+                while self.should_continue() and not self.is_on_screen(imgs['all_collected']):
+                    self.sleep(1)
                 self.press_and_wait("esc")
 
             # 離開拍賣
@@ -313,6 +327,8 @@ class DailyPrepare(MapleScript):
         完成師徒系統
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在處理師徒系統...")
         imgs = self.__images['master_apprentice']
 
         if self.is_maple_focus():
@@ -321,16 +337,16 @@ class DailyPrepare(MapleScript):
             self.press_and_wait(["tab", "left", "left", "left", "down", "down", "down", "enter"])
 
             # 等待界面打開
-            while not self.is_on_screen(imgs['title']):
-                time.sleep(0.1)
+            while self.should_continue() and not self.is_on_screen(imgs['title']):
+                self.sleep(0.1)
 
             # 當界面上還有完成出現的時候，就一個一個按下去
-            while self.is_on_screen(imgs['complete_button']):
+            while self.should_continue() and self.is_on_screen(imgs['complete_button']):
                 self.find_and_click_image(imgs['complete_button'])
                 self.press_and_wait("enter")
 
             # 最後按下Esc來離開師徒界面
-            time.sleep(0.3)
+            self.sleep(0.3)
             self.press_and_wait("esc")
 
 
@@ -339,6 +355,8 @@ class DailyPrepare(MapleScript):
         處理小屋每日對話
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在處理小屋...")
         imgs = self.__images['housing']
 
         # 打開總攬界面
@@ -355,8 +373,8 @@ class DailyPrepare(MapleScript):
             self.press_and_wait("enter", 0.7)
 
         # 等待到達小屋
-        while not self.is_on_screen(imgs['house_map_check']):
-            time.sleep(0.5)
+        while self.should_continue() and not self.is_on_screen(imgs['house_map_check']):
+            self.sleep(0.5)
 
         # 點擊管理人圖案
         self.find_and_click_image(imgs['caretaker'])
@@ -370,8 +388,8 @@ class DailyPrepare(MapleScript):
                 self.press_and_wait("y")
 
         # 如果有多按導致跳出對話視窗就關掉
-        while self.is_on_screen(imgs['stop_conversation']):
-            time.sleep(0.3)
+        while self.should_continue() and self.is_on_screen(imgs['stop_conversation']):
+            self.sleep(0.3)
             self.press_and_wait("esc")
 
         # 打開總攬界面離開小屋
@@ -388,6 +406,8 @@ class DailyPrepare(MapleScript):
         活動相關的放這邊
         :return: None
         """
+        if not self.should_continue(): return
+        self.log("正在處理活動...")
         img = self.__images["event"]
         # 打開活動面板
         self.invoke_menu()
@@ -395,8 +415,8 @@ class DailyPrepare(MapleScript):
 
         # 點下時間之力的那個tab，然後點下填滿，還有點下每週的獲得效果按鈕
         self.find_and_click_image(img['event_daily_checkin_tab'])
-        while not  self.is_on_screen(img['event_daily_checkin_ui_header']):
-            time.sleep(0.3)
+        while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header']):
+            self.sleep(0.3)
         if self.is_on_screen(img['daily_check_in_button']):
             self.find_and_click_image(img['daily_check_in_button'])
         self.press_and_wait("enter")
@@ -405,8 +425,8 @@ class DailyPrepare(MapleScript):
 
         # 點下耶芙尼亞的禮物的tab，然後點下考察按鈕
         self.find_and_click_image(img['event_daily_checkin_tab_2'])
-        while not self.is_on_screen(img['event_daily_checkin_ui_header_2']):
-            time.sleep(0.3)
+        while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header_2']):
+            self.sleep(0.3)
         if self.is_on_screen(img['daily_check_in_button_2']):
             self.find_and_click_image(img['daily_check_in_button_2'])
             self.press_and_wait("esc")

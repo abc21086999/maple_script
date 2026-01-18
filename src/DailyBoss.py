@@ -5,29 +5,32 @@ from src.utils.xiao_controller import XiaoController
 
 class DailyBoss(MapleScript):
 
-    def __init__(self, controller=None):
-        super().__init__(controller=controller)
+    def __init__(self, controller=None, log_callback=None):
+        super().__init__(controller=controller, log_callback=log_callback)
         self.__images = self.yaml_loader.daily_boss_images
         self.__common_images = self.yaml_loader.daily_prepare_images
         self.__boss_dict = self.yaml_loader.boss_dict
 
     def __got_to_boss_map(self, boss: str):
+        if not self.should_continue(): return
+        self.log(f"正在前往 Boss: {boss}")
+        
         # 直接從字典中取得對應 Boss 的 Tab 圖片
         boss_tab_img = self.__images[boss]['tab_pic']
         
         # 打開Boss界面
         self.press_and_wait("t")
         # 等待
-        while not self.is_on_screen(self.__images['ui']['panel']):
-            time.sleep(0.3)
+        while self.should_continue() and not self.is_on_screen(self.__images['ui']['panel']):
+            self.sleep(0.3)
         # 如果不在畫面上，那就把滑鼠移動到比較下面的地方然後往下滑
-        if not self.is_on_screen(boss_tab_img):
+        if self.should_continue() and not self.is_on_screen(boss_tab_img):
             # 使用 Von Leon 的 Tab 作為參考點 (原本邏輯)
             self.find_and_click_image(self.__images['ui']['reference_scroll'])
-            time.sleep(0.3)
+            self.sleep(0.3)
             self.scroll_down()
-        while not self.is_on_screen(boss_tab_img):
-            time.sleep(0.3)
+        while self.should_continue() and not self.is_on_screen(boss_tab_img):
+            self.sleep(0.3)
 
         self.find_and_click_image(boss_tab_img)
         self.find_and_click_image(self.__images['ui']['move_button'])
@@ -37,6 +40,9 @@ class DailyBoss(MapleScript):
         檢查每日Boss的進度
         :return: 一個包含所有沒打過得Boss的list
         """
+        if not self.should_continue(): return []
+        self.log("正在檢查每日 Boss 進度...")
+
         # 先打開到行事曆的界面 (直接呼叫父類別方法)
         self.invoke_menu()
         self.find_and_click_image(self.__common_images['mission']['daily_schedule'])
@@ -51,6 +57,7 @@ class DailyBoss(MapleScript):
         # 先擷取一張截圖，然後辨識每個Boss打過了沒
         screenshot = self.get_full_screen_screenshot()
         for boss_name, boss_tab_img in self.__boss_dict.items():
+            if not self.should_continue(): break
             # 如果Boss的tab亮著那代表沒打過
             if self.is_on_screen(pic=boss_tab_img, img=screenshot):
                 boss_condition.append(boss_name)
@@ -65,6 +72,8 @@ class DailyBoss(MapleScript):
         """
         打炎魔然後撿東西，最後回到村莊
         """
+        if not self.should_continue(): return
+        self.log("開始執行：炎魔 (Zakum)")
         imgs = self.__images['zakum']
         
         # 打開Boss界面，然後切到炎魔那頁之後過去
@@ -72,6 +81,8 @@ class DailyBoss(MapleScript):
 
         # 移動到炎魔入口，確保我們選到的是普通的炎魔難度，然後選完接收炎魔碎片之後入場
         self.replay_script([('press', 'right', 1.82), ('release', 'right', 11.17), ('press', 'up', 11.79), ('release', 'up', 11.88)])
+        
+        if not self.should_continue(): return
         for _ in range(2):
             self.press_and_wait("up")
         self.press_and_wait(["down", "enter"])
@@ -81,8 +92,8 @@ class DailyBoss(MapleScript):
             self.press_and_wait(["right", "enter"])
 
         # 等待地圖移動
-        while not self.is_on_screen(imgs['map_check']):
-            time.sleep(1)
+        while self.should_continue() and not self.is_on_screen(imgs['map_check']):
+            self.sleep(1)
 
         # 移動到祭壇那邊，然後把火焰之眼丟出去，然後把物品欄關掉
         self.press_and_wait("space")
@@ -95,7 +106,7 @@ class DailyBoss(MapleScript):
         self.press_and_wait("esc")
 
         # 等待炎魔生成
-        time.sleep(3.5)
+        self.sleep(3.5)
 
         # 開打，接著調整人物讓寵物撿東西
         self.press_and_wait("end", 1)
@@ -105,33 +116,41 @@ class DailyBoss(MapleScript):
         self.press_and_wait(["y", "right", "enter"])
 
     def __arkarium_work(self):
+        if not self.should_continue(): return
+        self.log("開始執行：阿卡伊農 (Arkarium)")
         self.__got_to_boss_map("arkarium")
 
     def __magnus_work(self):
+        if not self.should_continue(): return
+        self.log("開始執行：梅格耐斯 (Magnus)")
         imgs = self.__images['magnus']
         self.__got_to_boss_map("magnus")
-        while not self.is_on_screen(imgs['castle_map_icon']):
-            time.sleep(0.5)
+        while self.should_continue() and not self.is_on_screen(imgs['castle_map_icon']):
+            self.sleep(0.5)
         self.press_and_wait(["space", "y", "up", "up", "down", "enter"], wait_time=0.5)
-        while not self.is_on_screen(imgs['map_check']):
-            time.sleep(0.5)
+        while self.should_continue() and not self.is_on_screen(imgs['map_check']):
+            self.sleep(0.5)
+        
+        if not self.should_continue(): return
         self.key_down("a")
-        time.sleep(0.5)
+        self.sleep(0.5)
         self.key_down("right")
-        time.sleep(10)
+        self.sleep(10)
         self.key_up("a")
-        time.sleep(0.5)
+        self.sleep(0.5)
         self.key_up("right")
-        time.sleep(0.5)
+        self.sleep(0.5)
         self.key_down("left")
-        time.sleep(10)
+        self.sleep(10)
         self.key_up("left")
 
     def __hilla_work(self):
+        if not self.should_continue(): return
+        self.log("開始執行：希拉 (Hilla)")
         imgs = self.__images['hilla']
         self.__got_to_boss_map("hilla")
-        while not self.is_on_screen(imgs['tower_map_icon']):
-            time.sleep(1)
+        while self.should_continue() and not self.is_on_screen(imgs['tower_map_icon']):
+            self.sleep(1)
         self.press_and_wait(["space", "space", "y", "up", "enter"], wait_time=0.7)
 
 
@@ -143,6 +162,8 @@ class DailyBoss(MapleScript):
         決定這一次運行有什麼Boss需要打
         :return:
         """
+        if not self.should_continue(): return []
+        
         # 一個Boss名稱和對應的工作的對應表
         boss_work_mapping_dict = {
             'zakum': self.__zakum_work,
@@ -169,11 +190,19 @@ class DailyBoss(MapleScript):
         """
         開始每日Boss
         """
+        self.log("=== 開始每日 Boss 流程 ===")
         # 拿到所有要執行的打Boss的function
         boss_work = self.decide_daily_boss_schedule()
+        
+        self.log(f"預計執行 Boss 數量: {len(boss_work)}")
+        
         # 一個一個執行
         for func in boss_work:
+            if not self.should_continue():
+                break
             func()
+        
+        self.log("=== 每日 Boss 流程結束 ===")
 
 
 if __name__ == "__main__":
