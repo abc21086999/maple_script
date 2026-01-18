@@ -4,15 +4,14 @@
 
 This is a Python-based automation project for the online game *MapleStory*. Its primary purpose is to automate repetitive in-game tasks, such as completing daily quests, fighting bosses, and managing collections.
 
-The architecture is composed of two main parts:
-1.  **A Python control script** running on a **Windows** host computer. It uses computer vision libraries (`PyAutoGUI`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action.
-2.  **A Seeed Studio Xiao ESP32S3 microcontroller** acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It then translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
+The architecture is composed of three main parts:
+1.  **A Graphical User Interface (GUI)**: Built with `PySide6`, acting as the main control center for users. It provides a modern, dark-themed interface to start/stop tasks and view execution logs.
+2.  **A Python control script (Backend)**: Running on a **Windows** host computer. It uses computer vision libraries (`PyAutoGUI`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action.
+3.  **A Seeed Studio Xiao ESP32S3 microcontroller**: Acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
 
-The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities. Computer vision tasks, such as minimap analysis, player detection, and rune recognition, are delegated to `src/utils/maple_vision.py`, which utilizes NumPy and OpenCV for performance. Low-level window management and screen coordinate calculations are handled by `src/utils/windows_object.py`. Specific automation routines, like `src/DailyPrepare.py`, `src/MonsterCollection.py`, `src/MapleGrind.py`, `src/DailyBoss.py`, `src/Storage.py`, and `src/DancingMachine.py` (which contains the `Dancing` class), inherit from the base `MapleScript` class.
+The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities and **thread-safety mechanisms**. Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`) inherit from the base `MapleScript` class.
 
-The project is now **configuration-driven**, with skills, UI elements, and settings defined in `config/config.yaml` and loaded by the `YamlLoader` class in `src/utils/config_loader.py`. The grinding script (`src/MapleGrind.py`) uses minimap analysis to determine the character's position and execute patrol routes defined in `config/grind_routes.yaml`.
-
-All tasks are executed through the main entry point `src/__main__.py`.
+Settings are defined in `config/config.yaml`.
 
 ## Building and Running
 
@@ -20,68 +19,58 @@ All tasks are executed through the main entry point `src/__main__.py`.
 
 - A Seeed Studio Xiao ESP32S3 board is required.
 - Flash the board with the appropriate version of CircuitPython.
-- Load the code from the `XiaoCode/` directory onto the Xiao board. The board must be configured to act as a HID (keyboard/mouse) device.
+- Load the code from the `XiaoCode/` directory onto the Xiao board.
 
 ### 2. Software Dependencies
 
-**Important:** This project is designed for **Windows only** due to its reliance on the `pywin32` library for window management.
+**Important:** This project is designed for **Windows only**.
 
-Install the required Python packages using pip:
+Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
+Key dependencies include `PySide6`, `qdarkstyle`, `pywin32`, `opencv-python`, and `PyAutoGUI`.
 
-### 3. Running the Scripts
+### 3. Running the Application
 
-To execute a specific automation task, run `src/__main__.py` with the desired task as an argument.
+The project supports two modes: **GUI Mode** (recommended) and **CLI Mode** (legacy/debug).
 
-- To run the daily preparation routine (`DailyPrepare` class):
-  ```bash
-  python -m src daily
-  ```
-- To run the monster collection routine (`MonsterCollection` class):
-  ```bash
-  python -m src collection
-  ```
-- To run the grinding routine (`MapleGrind` class):
-  ```bash
-  python -m src grind
-  ```
-- To run the daily boss routine (`DailyBoss` class):
-  ```bash
-  python -m src daily_boss
-  ```
-- To run the storage input routine (`Storage` class):
-  ```bash
-  python -m src storage
-  ```
-- To run the dancing machine routine (`Dancing` class):
-  ```bash
-  python -m src dance
-  ```
+**Option A: GUI Mode (Control Center)**
+To launch the graphical interface:
+```bash
+python main.py
+```
+This will open the "Guai Guai Automation Control Center". You can click buttons to start tasks and use the "STOP" button to interrupt them immediately.
 
-### 4. Testing
+**Option B: CLI Mode**
+To execute a specific automation task directly from the terminal (useful for debugging):
+```bash
+python -m src <task_name>
+```
+Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `dance`.
 
-There is no dedicated testing framework (like `pytest` or `unittest`) apparent in the project. Testing is likely performed by running the scripts directly and visually verifying their behavior in the game.
+## Architecture & Conventions
 
-## Development Conventions
+### Directory Structure
+- `main.py`: **GUI Entry Point**. Initializes the `PySide6` application and hardware connection.
+- `src/__main__.py`: **CLI Entry Point**.
+- `src/ui/`: Contains GUI-related code.
+    - `app_window.py`: The main window layout and signal/slot logic.
+    - `task_manager.py`: Manages background threads for script execution.
+- `src/MapleScript.py`: **Base Class**. Now implements `threading.Event` for interrupt control (`stop()`, `should_continue()`) and a logging callback (`log()`).
 
-- **Class-based Structure:** The project uses an object-oriented approach, with a base `MapleScript` class defining common functionalities and task-specific classes inheriting from it.
+### Threading & UI Safety
+- **Event-Driven:** Scripts run in a separate worker thread, not the main UI thread.
+- **Interruption:** All loops in scripts MUST check `self.should_continue()` regularly.
+- **Sleep:** Use `self.sleep(seconds)` instead of `time.sleep()`. This allows the script to wake up immediately when stopped.
+- **Logging:** Use `self.log("message")` instead of `print()`. This sends the message to the GUI via a thread-safe signal.
+- **UI Updates:** Scripts must NEVER modify UI elements directly. They must use the provided `log_callback`.
 
-- **Configuration-driven Logic:** Most of the dynamic settings are managed in `config/config.yaml`. This is the single source of truth for parameters that might change, making the scripts more flexible and easier to maintain. This includes:
-    - **Skills:** Defining skill names, their assigned keys, and the corresponding image files for cooldown detection.
-    - **Script Parameters:** Adjusting values like the time gap between skill casts for the grinding script.
-    - **Bosses and UI Elements:** Defining image paths for daily bosses, storage UI numbers, and various UI elements for daily routines.
-    - **Activity Settings:** Specific configurations for activities like the Dancing Machine (directions, UI elements) and Monster Collection.
-    - **Example:** To add a new skill, you only need to add an entry to `config/config.yaml` under the `skills` section and place the corresponding cooldown image in the `photos/` directory. No code changes are required.
+### Configuration
+- **Configuration-driven Logic:** Most settings are managed in `config/config.yaml`.
+- **Patrol Routes:** Defined in `config/grind_routes.yaml`.
+- **Secrets:** Managed using a `.env` file (see `example_env.txt`).
 
-- **Patrol Routes:** Complex movement sequences for grinding are defined in `config/grind_routes.yaml`. These routes are loaded by `YamlLoader` and replayed using the `replay_script` method in `MapleScript`.
-
-- **Secrets Management (.env)**: Sensitive information, such as the second password for the storage, is managed using a `.env` file in the project root.
-    - This file is **not** committed to version control and should be listed in `.gitignore`.
-    - The main entry point `src/__main__.py` loads variables from this file using `python-dotenv`.
-    - A template file, `example_env.txt`, is maintained to show required environment variables.
-
-- **Hardware Communication:** All hardware-level keyboard and mouse actions are routed through `src/utils/xiao_controller.py`, which communicates with the Xiao microcontroller.
-
-- **Keystroke Recording:** The project includes a `tools/KeyLogger.py` utility. This tool can be run to record a sequence of keystrokes and their timings, which is useful for creating complex, hardcoded movement or action sequences like the patrol routes found in `config/grind_routes.yaml`.
+### Hardware Communication
+- All hardware actions are routed through `src/utils/xiao_controller.py`.
+- In GUI mode, the controller connection is managed by `main.py` using a context manager (`with` statement) to ensure proper resource release.
