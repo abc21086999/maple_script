@@ -84,9 +84,7 @@ class WindowsObject:
 
         # 在找不到的情況下，代表楓之谷沒開啟，直接結束腳本
         if not hwnds:
-            print("找不到楓之谷的程式")
-            input("輸入任意鍵繼續...")
-            sys.exit()
+            raise RuntimeError("找不到楓之谷的程式 (MapleStoryClassTW)")
 
         # 將找到的視窗都先建立成物件
         all_maple = [cls(h) for h in hwnds]

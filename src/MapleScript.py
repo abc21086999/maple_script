@@ -1,5 +1,6 @@
 import time
 import PIL.Image
+import threading
 from src.utils.xiao_controller import XiaoController
 from pathlib import Path
 from src.utils.config_loader import YamlLoader
@@ -10,23 +11,62 @@ from src.utils.maple_vision import MapleVision
 
 class MapleScript(ABC):
 
-    def __init__(self, controller=None):
+    def __init__(self, controller=None, log_callback=None):
         self.maple = WindowsObject.find_maple("MapleStoryClassTW")
         self.yaml_loader = YamlLoader()
         self.__vision = MapleVision(self.maple)
         self.__keyboard = controller
         self.__mouse = controller
 
+        # 執行緒控制與 Log 回調
+        self.__log_callback = log_callback
+        # 使用 Event 作為停止信號，預設為 False (未停止)
+        # 當 set() 被呼叫變成 True 時，代表要停止了
+        self.__stop_event = threading.Event()
+
+    def stop(self):
+        """
+        發送停止信號，所有正在運行的迴圈應該在檢測到此信號後退出
+        """
+        self.__stop_event.set()
+
+    def should_continue(self) -> bool:
+        """
+        檢查是否應該繼續執行 (沒有收到停止信號)
+        :return: True if running, False if stopped
+        """
+        return not self.__stop_event.is_set()
+
+    def sleep(self, duration: float) -> bool:
+        """
+        可被中斷的睡眠。
+        使用 Event.wait，如果收到停止信號會立刻醒來，不用等到時間結束。
+        :param duration: 睡眠秒數
+        :return: True 如果是被停止信號叫醒的, False 如果是睡飽了自然醒的
+        """
+        # wait 回傳 True 代表 flag 被 set 了 (也就是收到停止信號)
+        # wait 回傳 False 代表 timeout 了 (也就是睡飽了)
+        return self.__stop_event.wait(timeout=duration)
+
+    def log(self, message: str):
+        """
+        統一的 Log 輸出，同時印在 Terminal 並傳送給 GUI (如果有的話)
+        """
+        formatted_msg = f"[{time.strftime('%H:%M:%S')}] {message}"
+        print(formatted_msg)
+        if self.__log_callback:
+            self.__log_callback(formatted_msg)
+
     def invoke_menu(self) -> None:
         """
-        打開總攬界面
+        打開總覽界面
         :return:
         """
         # 打開總攬界面
         self.press_and_wait("esc")
         # 確保有打開
-        while not self.is_on_screen(self.yaml_loader.menu["menu_market_icon"]):
-            time.sleep(0.5)
+        while self.should_continue() and not self.is_on_screen(self.yaml_loader.menu["menu_market_icon"]):
+            self.sleep(0.5)
             self.press_and_wait("esc")
         return None
 
@@ -90,10 +130,10 @@ class MapleScript(ABC):
         match self.__vision.find_image_location(pic_for_search):
             case (dx, dy):
                 self.move((dx, dy))
-                time.sleep(0.2)
+                self.sleep(0.2)
 
                 self.click()
-                time.sleep(0.2)
+                self.sleep(0.2)
             case None:
                 pass
 
@@ -104,63 +144,72 @@ class MapleScript(ABC):
         """
         start_replay_time = time.time()
         for action, key_str, event_time in recorded_events:
+            if not self.should_continue():
+                break
+
             if not self.is_maple_focus():
-                print("楓之谷不在前景，中止重播腳本")
+                self.log("楓之谷不在前景，中止重播腳本")
                 self.__keyboard.release_all()
                 break
 
             target_time = start_replay_time + event_time
             sleep_duration = target_time - time.time()
             if sleep_duration > 0:
-                time.sleep(sleep_duration)
+                if self.sleep(sleep_duration): # 如果被中斷就停止
+                    break
 
             if action == 'press':
                 self.key_down(key_str)
             elif action == 'release':
                 self.key_up(key_str)
 
-        print("腳本重播完畢")
+        self.log("腳本重播完畢")
 
     def press(self, key: str) -> None:
         if self.__keyboard is not None:
             self.__keyboard.press_key(key)
         else:
-            print(f'沒鍵盤')
+            self.log(f'沒鍵盤')
 
     def press_and_wait(self, key: str | list[str], wait_time: float | int = 0.3):
+        if not self.should_continue():
+            return
+
         if isinstance(key, str):
             self.press(key)
-            time.sleep(wait_time)
+            self.sleep(wait_time)
         elif isinstance(key, list):
             for k in key:
+                if not self.should_continue():
+                    break
                 self.press(k)
-                time.sleep(wait_time)
+                self.sleep(wait_time)
 
     def move(self, location: tuple) -> None:
         if self.__mouse is not None:
             self.__mouse.send_mouse_location(location)
         else:
-            print(f'沒滑鼠')
+            self.log(f'沒滑鼠')
 
     def click(self) -> None:
         if self.__mouse is not None:
             self.__mouse.click()
         else:
-            print(f'沒滑鼠')
+            self.log(f'沒滑鼠')
 
     def key_down(self, key: str) -> None:
         if self.__keyboard is not None:
             self.__keyboard.key_down(key)
-            time.sleep(0.1)
+            self.sleep(0.1)
         else:
-            print(f'沒鍵盤')
+            self.log(f'沒鍵盤')
 
     def key_up(self, key: str) -> None:
         if self.__keyboard is not None:
             self.__keyboard.key_up(key)
-            time.sleep(0.1)
+            self.sleep(0.1)
         else:
-            print(f'沒鍵盤')
+            self.log(f'沒鍵盤')
 
     def scroll_up(self) -> None:
         if self.__mouse is not None:

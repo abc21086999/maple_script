@@ -6,8 +6,8 @@ import time
 
 class MapleGrind(MapleScript):
 
-    def __init__(self, controller=None):
-        super().__init__(controller=controller)
+    def __init__(self, controller=None, log_callback=None):
+        super().__init__(controller=controller, log_callback=log_callback)
         self.__skills_list = list()
         self.__gap_time = self.yaml_loader.grind_setting
         self.__skills_dict = self.yaml_loader.skill_dict
@@ -58,8 +58,8 @@ class MapleGrind(MapleScript):
         # 如果list是空的，就跳過所有步驟
         if not self.__skills_list:
             return None
-        # 當list有東西，而且楓之谷在前景
-        while self.__skills_list and self.is_maple_focus():
+        # 當list有東西，而且楓之谷在前景，且沒有收到停止信號
+        while self.__skills_list and self.is_maple_focus() and self.should_continue():
             # 將按鍵一個一個按下
             key = self.__skills_list.pop()
             self.press_and_wait(key, random.uniform(*self.__gap_time))
@@ -74,12 +74,12 @@ class MapleGrind(MapleScript):
         """
         if self.is_maple_focus() and random.random() < 0.3:
             self.press("up")
-            time.sleep(random.uniform(*self.__gap_time))
+            self.sleep(random.uniform(*self.__gap_time))
 
     def move_by_grappling(self) -> None:
         if self.is_maple_focus() and random.random() < 0.1:
             self.press_and_wait("8", 2)
-            time.sleep(random.uniform(*self.__gap_time))
+            self.sleep(random.uniform(*self.__gap_time))
             self.key_down("down")
             self.press("alt")
             self.key_up("down")
@@ -90,21 +90,21 @@ class MapleGrind(MapleScript):
         """
         # 機率小於5％再來跑圖
         if random.random() < 0.05 and self.is_maple_focus():
-            print("開始使用紀錄的腳本")
+            self.log("開始使用紀錄的腳本")
 
             recorded_events = self.__loop_map.get(self.get_character_position())
             self.replay_script(recorded_events)
 
     def start(self) -> None:
         try:
-            while True:
+            while self.should_continue():
                 # 在楓之谷在前景的狀況下，
                 if self.is_maple_focus() :
 
                     # 如果地圖上有符文，那就暫停一下，手動解除符文
                     if self.has_rune():
-                        print("地圖上有符文")
-                        time.sleep(10)
+                        self.log("地圖上有符文")
+                        self.sleep(10)
 
                     # 如果沒有符文而且地圖上沒有其他人，那就開始練功
                     elif not self.has_other_players():
@@ -112,15 +112,17 @@ class MapleGrind(MapleScript):
                         self.press_ready_skills()
                         # self.move_by_pressing_up()
                         self.walk_the_map()
-                        time.sleep(1)
+                        self.sleep(1)
                     else:
-                        print("地圖上有其他人")
-                        time.sleep(1)
+                        self.log("地圖上有其他人")
+                        self.sleep(1)
                 else:
-                    time.sleep(1)
+                    self.sleep(1)
+            
+            self.log("練功腳本已停止")
 
         except KeyboardInterrupt:
-            print(f'腳本中止')
+            self.log(f'腳本中止')
 
 
 if __name__ == "__main__":
