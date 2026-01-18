@@ -108,8 +108,8 @@ storage:
   ui:
     title: 'storage/storage_ui.png'
     confirm: 'storage/storage_confirm.png'
-    icon: 'storage_icon.png'
-    fast_travel: 'fast_travel.png'
+    icon: 'storage/storage_icon.png'
+    inventory: 'storage/inventory.png'
 
 # 活動跳舞機
 dancing:

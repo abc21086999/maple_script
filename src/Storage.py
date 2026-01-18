@@ -25,16 +25,14 @@ class Storage(MapleScript):
         self.log("正在輸入倉庫密碼...")
 
         storage_ui_title = self.__ui_dict['title']
-        fast_travel_icon = self.__ui_dict['fast_travel']
+        storage_icon = self.__ui_dict['icon']
+        inventory = self.__ui_dict['inventory']
 
         # 如果畫面上沒有輸入第二組密碼的UI，那就打開倉庫界面
         if not self.is_on_screen(storage_ui_title):
-            if not self.is_on_screen(fast_travel_icon):
-                self.log("錯誤：找不到快速旅行的圖示")
-                pass
-            else:
-                self.find_and_click_image(fast_travel_icon)
-                self.find_and_click_image(self.__ui_dict['icon'])
+            if not self.is_on_screen(pic = inventory):
+                self.press_and_wait("i", 0.5)
+            self.find_and_click_image(storage_icon)
 
         # 等待界面出現
         while self.should_continue() and not self.is_on_screen(storage_ui_title):

@@ -3,26 +3,21 @@ from dotenv import load_dotenv
 from src.utils.xiao_controller import XiaoController
 from PySide6.QtWidgets import QApplication
 from src.ui.app_window import MainWindow
-
-# 確保可以導入 src 下的模組
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import qdarkstyle
+
 
 def main():
     """
     GUI 應用程式入口
     """
-    load_dotenv()
-
-    # 建立 QApplication
-    app = QApplication(sys.argv)
+    # 隱藏 Windows 下常見的 Qt DPI 警告 (存取被拒)
+    os.environ["QT_LOGGING_RULES"] = "qt.qpa.window=false"
     
-    # 套用主題
-    try:
-        import qdarkstyle
-        app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyside6'))
-    except ImportError:
-        pass
+    load_dotenv()
+    app = QApplication(sys.argv)
+
+    app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyside6'))
 
     # 初始化硬體控制器
     # 使用 with 上下文管理器確保資源自動釋放
