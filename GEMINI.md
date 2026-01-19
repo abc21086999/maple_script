@@ -11,7 +11,7 @@ The architecture is composed of three main parts:
 
 The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities and **thread-safety mechanisms**. Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`) inherit from the base `MapleScript` class.
 
-Settings are defined in `config/config.yaml`.
+Settings are separated into resource paths (`config/config.yaml`) and user preferences (`config/settings.yaml`).
 
 ## Building and Running
 
@@ -57,6 +57,8 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
 - `src/ui/`: Contains GUI-related code.
     - `app_window.py`: The main window layout and signal/slot logic.
     - `task_manager.py`: Manages background threads for script execution.
+    - `settings_manager.py`: Handles reading/writing of user preferences (`settings.yaml`).
+    - `settings_dialog.py`: A generic QDialog for toggling task settings.
 - `src/MapleScript.py`: **Base Class**. Now implements `threading.Event` for interrupt control (`stop()`, `should_continue()`) and a logging callback (`log()`).
 
 ### Threading & UI Safety
@@ -67,7 +69,8 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
 - **UI Updates:** Scripts must NEVER modify UI elements directly. They must use the provided `log_callback`.
 
 ### Configuration
-- **Configuration-driven Logic:** Most settings are managed in `config/config.yaml`.
+- **Resource Configuration (`config/config.yaml`):** Stores read-only data like image paths and UI offsets.
+- **User Settings (`config/settings.yaml`):** Stores user-configurable boolean flags (e.g., enabling/disabling specific daily tasks). Managed by `SettingsManager`.
 - **Patrol Routes:** Defined in `config/grind_routes.yaml`.
 - **Secrets:** Managed using a `.env` file (see `example_env.txt`).
 
