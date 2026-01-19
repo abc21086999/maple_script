@@ -1,0 +1,11 @@
+daily_prepare:
+  daily_mission: true
+  dismantle: false
+  event: true
+  hd_gift: true
+  housing: true
+  market: true
+  master_apprentice: true
+  milestone: true
+  switch_set: true
+  union_coin: true

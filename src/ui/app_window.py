@@ -3,6 +3,8 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PySide6.QtCore import Signal, QObject, Slot, Qt
 from PySide6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
 from src.ui.task_manager import TaskManager
+from src.ui.settings_manager import SettingsManager
+from src.ui.settings_dialog import SettingsDialog
 from src.MapleGrind import MapleGrind
 from src.DailyPrepare import DailyPrepare
 from src.MonsterCollection import MonsterCollection
@@ -54,7 +56,7 @@ class MainWindow(QMainWindow):
         
         # 任務按鈕群
         self._add_task_button(layout, "開始練功 (Grind)", self.start_grind)
-        self._add_task_button(layout, "每日準備 (Daily Prepare)", self.start_daily)
+        self._add_task_button(layout, "每日準備 (Daily Prepare)", self.start_daily, self.open_daily_settings)
         self._add_task_button(layout, "怪物收藏 (Collection)", self.start_collection)
         self._add_task_button(layout, "每日 BOSS (Daily Boss)", self.start_boss)
         self._add_task_button(layout, "輸入倉庫密碼 (Storage)", self.start_storage)
@@ -114,6 +116,9 @@ class MainWindow(QMainWindow):
 
     def _setup_backend(self):
         """初始化 TaskManager 與信號傳遞機制"""
+        # 初始化設定管理器
+        self.settings_manager = SettingsManager()
+
         # 建立跨執行緒傳話筒 (Signal)
         self.log_signal = LogSignal()
         self.log_signal.text_written.connect(self.append_text)
@@ -121,12 +126,26 @@ class MainWindow(QMainWindow):
         # 建立任務管家
         self.manager = TaskManager(log_callback=self.log_signal.text_written.emit)
 
-    def _add_task_button(self, layout, text, slot):
-        """輔助函數：建立並加入按鈕"""
+    def _add_task_button(self, layout, text, slot, settings_slot=None):
+        """輔助函數：建立並加入按鈕，可選配設定按鈕"""
+        row_layout = QHBoxLayout()
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # 主要任務按鈕
         btn = QPushButton(text)
         btn.setMinimumHeight(40)
         btn.clicked.connect(slot)
-        layout.addWidget(btn)
+        row_layout.addWidget(btn, stretch=1) # 讓主按鈕佔據大部分空間
+        
+        # 設定按鈕 (如果有的話)
+        if settings_slot:
+            settings_btn = QPushButton("⚙️")
+            settings_btn.setToolTip("設定")
+            settings_btn.setFixedSize(40, 40)
+            settings_btn.clicked.connect(settings_slot)
+            row_layout.addWidget(settings_btn)
+            
+        layout.addLayout(row_layout)
 
     def _create_emoji_icon(self, emoji: str) -> QIcon:
         """將 Emoji 繪製成 QIcon"""
@@ -156,8 +175,23 @@ class MainWindow(QMainWindow):
     def start_grind(self):
         self.manager.start_task(MapleGrind, self.controller)
 
+    def open_daily_settings(self):
+        """開啟每日任務的設定視窗"""
+        dialog = SettingsDialog(self, self.settings_manager, "daily_prepare", "每日準備設定")
+        if dialog.exec(): # 如果使用者按下確定
+            dialog.save_settings() # 儲存設定
+            self.log_signal.text_written.emit("設定已更新")
+
     def start_daily(self):
-        self.manager.start_task(DailyPrepare, self.controller)
+        # 1. 讀取設定檔中 "daily_prepare" 的所有設定 (Dict)
+        settings = self.settings_manager.get("daily_prepare")
+        
+        # 2. 過濾出值為 True 的 Key，轉換成 List
+        # 這裡會產生例如 ['switch_set', 'union_coin'] 的列表
+        enabled_tasks = [key for key, value in settings.items() if value]
+        
+        # 3. 傳入 task_list 給 DailyPrepare
+        self.manager.start_task(DailyPrepare, self.controller, task_list=enabled_tasks)
 
     def start_collection(self):
         self.manager.start_task(MonsterCollection, self.controller)

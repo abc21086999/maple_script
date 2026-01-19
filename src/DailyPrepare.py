@@ -5,9 +5,10 @@ from src.MapleScript import MapleScript
 
 class DailyPrepare(MapleScript):
 
-    def __init__(self, controller=None, log_callback=None):
+    def __init__(self, controller=None, log_callback=None, task_list=None):
         super().__init__(controller=controller, log_callback=log_callback)
         self.__images = self.yaml_loader.daily_prepare_images
+        self.task_list = task_list
 
     def switch_to_grinding_set(self):
         """
@@ -437,16 +438,40 @@ class DailyPrepare(MapleScript):
         """
         執行所有的每日行程
         """
-        self.switch_to_grinding_set()
-        self.collect_union_coin()
-        self.start_daily_or_weekly_mission()
-        # self.dismantle_armours()
-        self.receive_hd_gift()
-        self.receive_milestones()
-        self.collect_market()
-        self.complete_master_and_apprentice()
-        self.complete_event_related_stuff()
-        self.handle_housing()
+        # 定義任務對照表
+        task_map = {
+            'switch_set': self.switch_to_grinding_set,
+            'union_coin': self.collect_union_coin,
+            'daily_mission': self.start_daily_or_weekly_mission,
+            'dismantle': self.dismantle_armours,
+            'hd_gift': self.receive_hd_gift,
+            'milestone': self.receive_milestones,
+            'market': self.collect_market,
+            'master_apprentice': self.complete_master_and_apprentice,
+            'event': self.complete_event_related_stuff,
+            'housing': self.handle_housing
+        }
+
+        # 決定要執行的任務列表：如果有指定就用指定的，否則執行全部
+        tasks_to_run = self.task_list if self.task_list else list(task_map.keys())
+
+        self.log(f"準備執行任務列表: {tasks_to_run}")
+        
+        for task_name in tasks_to_run:
+            if not self.should_continue():
+                break
+                
+            task_func = task_map.get(task_name)
+            if task_func:
+                try:
+                    # 執行該任務
+                    task_func()
+                except Exception as e:
+                    self.log(f"任務 '{task_name}' 執行時發生錯誤: {e}")
+            else:
+                self.log(f"跳過未知的任務: {task_name}")
+
+        self.log("所有排程任務執行完畢")
 
 
 if __name__ == "__main__":
