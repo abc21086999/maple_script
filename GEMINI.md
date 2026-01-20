@@ -57,8 +57,12 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
 - `src/ui/`: Contains GUI-related code.
     - `app_window.py`: The main window layout and signal/slot logic.
     - `task_manager.py`: Manages background threads for script execution.
-    - `settings_manager.py`: Handles reading/writing of user preferences (`settings.yaml`).
     - `settings_dialog.py`: A generic QDialog for toggling task settings.
+- `src/utils/`: Shared utilities and helpers.
+    - `xiao_controller.py`: Manages serial communication with the ESP32S3 hardware.
+    - `maple_vision.py`: Handles computer vision tasks (OpenCV matching).
+    - `windows_object.py`: Handles low-level Windows API interactions.
+    - `settings_manager.py`: Handles reading/writing of user preferences (`settings.yaml`).
 - `src/MapleScript.py`: **Base Class**. Now implements `threading.Event` for interrupt control (`stop()`, `should_continue()`) and a logging callback (`log()`).
 
 ### Threading & UI Safety
@@ -70,7 +74,7 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
 
 ### Configuration
 - **Resource Configuration (`config/config.yaml`):** Stores read-only data like image paths and UI offsets.
-- **User Settings (`config/settings.yaml`):** Stores user-configurable boolean flags (e.g., enabling/disabling specific daily tasks). Managed by `SettingsManager`.
+- **User Settings (`config/settings.yaml`):** Stores user-configurable boolean flags (e.g., enabling/disabling specific daily tasks). Managed by `src/utils/settings_manager.py`.
 - **Patrol Routes:** Defined in `config/grind_routes.yaml`.
 - **Secrets:** Managed using a `.env` file (see `example_env.txt`).
 

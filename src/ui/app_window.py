@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PySide6.QtCore import Signal, QObject, Slot, Qt
 from PySide6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
 from src.ui.task_manager import TaskManager
-from src.ui.settings_manager import SettingsManager
+from src.utils.settings_manager import SettingsManager
 from src.ui.settings_dialog import SettingsDialog
 from src.MapleGrind import MapleGrind
 from src.DailyPrepare import DailyPrepare
@@ -183,15 +183,8 @@ class MainWindow(QMainWindow):
             self.log_signal.text_written.emit("設定已更新")
 
     def start_daily(self):
-        # 1. 讀取設定檔中 "daily_prepare" 的所有設定 (Dict)
-        settings = self.settings_manager.get("daily_prepare")
-        
-        # 2. 過濾出值為 True 的 Key，轉換成 List
-        # 這裡會產生例如 ['switch_set', 'union_coin'] 的列表
-        enabled_tasks = [key for key, value in settings.items() if value]
-        
-        # 3. 傳入 task_list 給 DailyPrepare
-        self.manager.start_task(DailyPrepare, self.controller, task_list=enabled_tasks)
+        # DailyPrepare 會自動讀取設定檔決定要跑哪些任務
+        self.manager.start_task(DailyPrepare, self.controller)
 
     def start_collection(self):
         self.manager.start_task(MonsterCollection, self.controller)

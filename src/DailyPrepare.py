@@ -1,14 +1,13 @@
-import time
 from src.utils.xiao_controller import XiaoController
+from src.utils.settings_manager import SettingsManager
 from src.MapleScript import MapleScript
 
 
 class DailyPrepare(MapleScript):
 
-    def __init__(self, controller=None, log_callback=None, task_list=None):
+    def __init__(self, controller=None, log_callback=None):
         super().__init__(controller=controller, log_callback=log_callback)
         self.__images = self.yaml_loader.daily_prepare_images
-        self.task_list = task_list
 
     def switch_to_grinding_set(self):
         """
@@ -452,8 +451,11 @@ class DailyPrepare(MapleScript):
             'housing': self.handle_housing
         }
 
-        # 決定要執行的任務列表：如果有指定就用指定的，否則執行全部
-        tasks_to_run = self.task_list if self.task_list else list(task_map.keys())
+        # 讀取設定檔決定要執行哪些任務
+        settings = SettingsManager().get("daily_prepare")
+        # 過濾出值為 True 的 Key，轉換成 List，並依照 task_map 的順序排序（非必要但建議）或是直接依賴 settings 的順序
+        # 這裡我們取交集確保只執行已知的任務
+        tasks_to_run = [task for task in task_map.keys() if settings.get(task, False)]
 
         self.log(f"準備執行任務列表: {tasks_to_run}")
         
