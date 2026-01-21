@@ -10,7 +10,7 @@ class MapleGrind(MapleScript):
         super().__init__(controller=controller, log_callback=log_callback)
         self.__skills_list = list()
         self.__gap_time = self.yaml_loader.grind_setting
-        self.__skills_dict = self.yaml_loader.skill_dict
+        self.__user_skills = self.yaml_loader.user_grind_skills
         
         routes = self.yaml_loader.grind_routes
         self.__left_loop = routes.get('left_loop', [])
@@ -34,9 +34,9 @@ class MapleGrind(MapleScript):
 
         # 先截一次圖，判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個list當中
         screenshot = self.get_skill_area_screenshot()
-        for skill_info in self.__skills_dict.values():
-            skill_image = skill_info.get("image")
-            skill_key = skill_info.get("key")
+        for skill_data in self.__user_skills:
+            skill_image = skill_data.get("image")
+            skill_key = skill_data.get("key")
             if self.is_on_screen(skill_image, screenshot):
                 self.__skills_list.append(skill_key)
 
@@ -110,8 +110,8 @@ class MapleGrind(MapleScript):
                     elif not self.has_other_players():
                         self.find_ready_skill()
                         self.press_ready_skills()
-                        # self.move_by_pressing_up()
-                        self.walk_the_map()
+                        self.move_by_pressing_up()
+                        # self.walk_the_map()
                         self.sleep(1)
                     else:
                         self.log("地圖上有其他人")

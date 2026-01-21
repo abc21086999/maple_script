@@ -5,6 +5,7 @@ from PySide6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
 from src.ui.task_manager import TaskManager
 from src.utils.settings_manager import SettingsManager
 from src.ui.settings_dialog import SettingsDialog
+from src.ui.grind_settings_dialog import GrindSettingsDialog
 from src.MapleGrind import MapleGrind
 from src.DailyPrepare import DailyPrepare
 from src.MonsterCollection import MonsterCollection
@@ -55,7 +56,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(title)
         
         # 任務按鈕群
-        self._add_task_button(layout, "開始練功 (Grind)", self.start_grind)
+        self._add_task_button(layout, "開始練功 (Grind)", self.start_grind, self.open_grind_settings)
         self._add_task_button(layout, "每日準備 (Daily Prepare)", self.start_daily, self.open_daily_settings)
         self._add_task_button(layout, "怪物收藏 (Collection)", self.start_collection)
         self._add_task_button(layout, "每日 BOSS (Daily Boss)", self.start_boss)
@@ -109,6 +110,7 @@ class MainWindow(QMainWindow):
         # 文字區
         self.text_area = QTextEdit()
         self.text_area.setReadOnly(True)
+        self.text_area.document().setMaximumBlockCount(1000)
         self.text_area.setStyleSheet("font-family: Consolas, Monospace;")
         layout.addWidget(self.text_area)
         
@@ -174,6 +176,12 @@ class MainWindow(QMainWindow):
     # --- 任務啟動函數 ---
     def start_grind(self):
         self.manager.start_task(MapleGrind, self.controller)
+
+    def open_grind_settings(self):
+        """開啟練功的設定視窗"""
+        dialog = GrindSettingsDialog(self, self.settings_manager)
+        if dialog.exec():
+            self.log_signal.text_written.emit("練功技能設定已更新")
 
     def open_daily_settings(self):
         """開啟每日任務的設定視窗"""

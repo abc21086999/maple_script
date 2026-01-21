@@ -9,3 +9,40 @@ daily_prepare:
   milestone: true
   switch_set: true
   union_coin: true
+grind_skills:
+- enabled: true
+  image_path: photos/skills/vortex_sphere.png
+  key: pagedown
+- enabled: true
+  image_path: photos/skills/erda_shower.png
+  key: shift
+- enabled: true
+  image_path: photos/skills/merciless_wind.png
+  key: end
+- enabled: true
+  image_path: photos/skills/phalanx_charge.png
+  key: ''''
+- enabled: true
+  image_path: photos/skills/howling_gale.png
+  key: d
+- enabled: true
+  image_path: photos/skills/monsoon.png
+  key: b
+- enabled: true
+  image_path: photos/skills/true_arachnid_reflection.png
+  key: f
+- enabled: true
+  image_path: photos/skills/solar_crest.png
+  key: f5
+- enabled: true
+  image_path: photos/skills/gale_barrier.png
+  key: '6'
+- enabled: true
+  image_path: photos/skills/mu_gong.png
+  key: f2
+- enabled: true
+  image_path: photos/skills/aio.png
+  key: f1
+- enabled: true
+  image_path: photos/skills/anemoi.png
+  key: v
