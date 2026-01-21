@@ -33,7 +33,7 @@ class SkillRow(QWidget):
         keys = (
             [chr(i) for i in range(ord('a'), ord('z')+1)] + 
             [str(i) for i in range(10)] + 
-            ["'", '-', '=', '`'] +
+            ["'", '-', '=', '`', ';', '[', ']', ',', '.', '/', '\\'] +
             [f'f{i}' for i in range(1, 13)] +
             ['shift', 'ctrl', 'alt', 'space', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown']
         )

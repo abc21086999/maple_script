@@ -46,3 +46,6 @@ grind_skills:
 - enabled: true
   image_path: photos/skills/anemoi.png
   key: v
+- enabled: true
+  image_path: photos/skills/元素風暴.png
+  key: f8
