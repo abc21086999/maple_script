@@ -13,6 +13,7 @@ class MapleGrind(MapleScript):
         super().__init__(controller=controller, log_callback=log_callback)
         self.__skills_list = list()
         self.__gap_time = self.yaml_loader.grind_setting
+        self.__settings = self.settings.get("grind_settings")
         
         routes = self.yaml_loader.grind_routes
         self.__loop_map = {"left": routes.get('left_loop', []), "right": routes.get('right_loop', []), "not_found": []}
@@ -134,25 +135,28 @@ class MapleGrind(MapleScript):
             recorded_events = self.__loop_map.get(self.get_character_position())
             self.replay_script(recorded_events)
 
+    @cached_property
+    def stop_on_rune(self):
+        return self.__settings.get("stop_when_rune_appears", False)
+
+    @cached_property
+    def stop_on_people(self):
+        return self.__settings.get("stop_when_people_appears", False)
+
     def start(self) -> None:
         try:
             while self.should_continue():
                 # 在楓之谷在前景的狀況下，
                 if self.is_maple_focus() :
-                    
-                    # 讀取保護設定 (每次迴圈都讀取，以便即時生效)
-                    settings = self.settings.get("grind_settings") or {}
-                    stop_on_rune = settings.get("stop_when_rune_appears", False)
-                    stop_on_people = settings.get("stop_when_people_appears", False)
 
                     # 如果地圖上有符文，且設定開啟，才暫停
-                    if stop_on_rune and self.has_rune():
+                    if self.stop_on_rune and self.has_rune():
                         self.log("地圖上有符文 (暫停中...)")
                         self.sleep(10)
                         continue # 跳過本次迴圈的後續動作
 
                     # 如果地圖上有其他人，且設定開啟，才暫停
-                    if stop_on_people and self.has_other_players():
+                    if self.stop_on_people and self.has_other_players():
                         self.log("地圖上有其他人 (暫停中...)")
                         self.sleep(10)
                         continue # 跳過本次迴圈的後續動作

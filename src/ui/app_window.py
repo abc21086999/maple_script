@@ -59,9 +59,9 @@ class MainWindow(QMainWindow):
         self._add_task_button(layout, "開始練功 (Grind)", self.start_grind, self.open_grind_settings)
         self._add_task_button(layout, "每日準備 (Daily Prepare)", self.start_daily, self.open_daily_settings)
         self._add_task_button(layout, "怪物收藏 (Collection)", self.start_collection)
-        self._add_task_button(layout, "每日 BOSS (Daily Boss)", self.start_boss)
         self._add_task_button(layout, "輸入倉庫密碼 (Storage)", self.start_storage)
-        self._add_task_button(layout, "跳舞機 (Dancing)", self.start_dance)
+        # self._add_task_button(layout, "每日 BOSS (Daily Boss)", self.start_boss)
+        # self._add_task_button(layout, "跳舞機 (Dancing)", self.start_dance)
         
         layout.addStretch()
         

@@ -9,6 +9,9 @@ daily_prepare:
   milestone: true
   switch_set: true
   union_coin: true
+grind_settings:
+  stop_when_people_appears: true
+  stop_when_rune_appears: true
 grind_skills:
 - enabled: true
   image_path: photos/skills/vortex_sphere.png
