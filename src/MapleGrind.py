@@ -139,24 +139,31 @@ class MapleGrind(MapleScript):
             while self.should_continue():
                 # 在楓之谷在前景的狀況下，
                 if self.is_maple_focus() :
+                    
+                    # 讀取保護設定 (每次迴圈都讀取，以便即時生效)
+                    settings = self.settings.get("grind_settings") or {}
+                    stop_on_rune = settings.get("stop_when_rune_appears", False)
+                    stop_on_people = settings.get("stop_when_people_appears", False)
 
-                    # 如果地圖上有符文，那就暫停一下，手動解除符文
-                    if self.has_rune():
-                        self.log("地圖上有符文")
+                    # 如果地圖上有符文，且設定開啟，才暫停
+                    if stop_on_rune and self.has_rune():
+                        self.log("地圖上有符文 (暫停中...)")
                         self.sleep(10)
+                        continue # 跳過本次迴圈的後續動作
 
-                    # 如果地圖上有其他人，那就暫停一下
-                    if self.has_other_players():
-                        self.log("地圖上有其他人")
+                    # 如果地圖上有其他人，且設定開啟，才暫停
+                    if stop_on_people and self.has_other_players():
+                        self.log("地圖上有其他人 (暫停中...)")
                         self.sleep(10)
+                        continue # 跳過本次迴圈的後續動作
 
-                    # 如果沒有符文而且地圖上沒有其他人，那就開始練功
-                    else:
-                        self.find_ready_skill()
-                        self.press_ready_skills()
-                        self.move_by_pressing_up()
-                        # self.walk_the_map()
-                        self.sleep(1)
+                    # 如果沒有觸發暫停條件，那就開始練功
+                    self.find_ready_skill()
+                    self.press_ready_skills()
+                    self.move_by_pressing_up()
+                    # self.walk_the_map()
+                    self.sleep(1)
+
                 else:
                     self.sleep(1)
             

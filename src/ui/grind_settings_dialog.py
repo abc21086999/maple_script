@@ -4,7 +4,8 @@ from pathlib import Path
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QCheckBox,
     QComboBox, QPushButton, QLabel, QScrollArea,
-    QWidget, QFileDialog, QFrame, QDialogButtonBox, QMessageBox
+    QWidget, QFileDialog, QFrame, QDialogButtonBox, QMessageBox,
+    QTabWidget
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
@@ -170,7 +171,7 @@ class SkillRow(QWidget):
 class GrindSettingsDialog(QDialog):
     def __init__(self, parent, settings_manager):
         super().__init__(parent)
-        self.setWindowTitle("練功技能設定 (Grind Skills)")
+        self.setWindowTitle("練功技能設定 (Grind Settings)")
         self.resize(550, 600)
         
         self.settings_manager = settings_manager
@@ -180,7 +181,30 @@ class GrindSettingsDialog(QDialog):
         self._load_settings()
 
     def _setup_ui(self):
-        layout = QVBoxLayout(self)
+        main_layout = QVBoxLayout(self)
+
+        # 建立 Tab Widget
+        self.tabs = QTabWidget()
+        main_layout.addWidget(self.tabs)
+
+        # --- Tab 1: 技能與按鍵 ---
+        self.tab_skills = QWidget()
+        self._setup_skills_tab()
+        self.tabs.addTab(self.tab_skills, "技能與按鍵")
+
+        # --- Tab 2: 保護設定 ---
+        self.tab_protection = QWidget()
+        self._setup_protection_tab()
+        self.tabs.addTab(self.tab_protection, "保護設定")
+
+        # Buttons (OK/Cancel)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.save_settings)
+        buttons.rejected.connect(self.reject)
+        main_layout.addWidget(buttons)
+
+    def _setup_skills_tab(self):
+        layout = QVBoxLayout(self.tab_skills)
 
         header = QLabel("設定自動施放的技能與對應按鍵")
         header.setStyleSheet("font-weight: bold; margin-bottom: 5px;")
@@ -190,7 +214,7 @@ class GrindSettingsDialog(QDialog):
         sub_header.setStyleSheet("color: gray; margin-bottom: 10px;")
         layout.addWidget(sub_header)
 
-        # Scroll Area
+        # Scroll Area for Skills
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         self.scroll_content = QWidget()
@@ -200,23 +224,42 @@ class GrindSettingsDialog(QDialog):
         scroll.setWidget(self.scroll_content)
         layout.addWidget(scroll)
 
-        # Actions
+        # Add Button
         btn_add = QPushButton("➕ 新增技能")
         btn_add.clicked.connect(self.add_row)
         layout.addWidget(btn_add)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.accepted.connect(self.save_settings)
-        buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
+    def _setup_protection_tab(self):
+        layout = QVBoxLayout(self.tab_protection)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        
+        header = QLabel("安全與暫停設定")
+        header.setStyleSheet("font-weight: bold; margin-bottom: 10px; font-size: 14px;")
+        layout.addWidget(header)
+
+        # Checkbox 1: Stop when Rune appears
+        self.chk_stop_rune = QCheckBox("當地圖上有輪時停止動作 (暫停)")
+        self.chk_stop_rune.setToolTip("偵測到輪時，腳本將會暫停操作，直到輪消失")
+        layout.addWidget(self.chk_stop_rune)
+
+        # Checkbox 2: Stop when Other Players appear
+        self.chk_stop_people = QCheckBox("當地圖上有其他人時停止動作 (暫停)")
+        self.chk_stop_people.setToolTip("偵測到紅點(其他玩家)時，腳本將會暫停操作")
+        layout.addWidget(self.chk_stop_people)
 
     def _load_settings(self):
+        # 1. Load Skills
         skills_data = self.settings_manager.get("grind_skills", default=[])
         if not isinstance(skills_data, list):
             skills_data = []
 
         for item in skills_data:
             self.add_row(item)
+
+        # 2. Load Protection Settings
+        protection_data = self.settings_manager.get("grind_settings", default={})
+        self.chk_stop_rune.setChecked(protection_data.get("stop_when_rune_appears", False))
+        self.chk_stop_people.setChecked(protection_data.get("stop_when_people_appears", False))
 
     def add_row(self, data=None):
         if data is None:
@@ -231,14 +274,21 @@ class GrindSettingsDialog(QDialog):
             self.rows.remove(row_obj)
 
     def save_settings(self):
-        new_data = []
+        # 1. Save Skills
+        new_skills_data = []
         for row in self.rows:
             data = row.get_data()
             if not data['image_path']:
-                # 簡單驗證：如果不選圖片就不存這行，或者給個警告？
-                # 這裡選擇略過沒有圖片的行
                 continue
-            new_data.append(data)
+            new_skills_data.append(data)
             
-        self.settings_manager.save("grind_skills", new_data)
+        self.settings_manager.save("grind_skills", new_skills_data)
+
+        # 2. Save Protection Settings
+        protection_data = {
+            "stop_when_rune_appears": self.chk_stop_rune.isChecked(),
+            "stop_when_people_appears": self.chk_stop_people.isChecked()
+        }
+        self.settings_manager.save("grind_settings", protection_data)
+
         self.accept()
