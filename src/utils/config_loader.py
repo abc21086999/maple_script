@@ -10,7 +10,6 @@ class YamlLoader:
         self.__config_path = Path(__file__).resolve().parent.parent.parent / "config" / "config.yaml"
         self.__grind_routes_path = Path(__file__).resolve().parent.parent.parent / "config" / "grind_routes.yaml"
         self.__photo_path = Path(__file__).resolve().parent.parent.parent / 'photos'
-        self.__setting_path = Path(__file__).resolve().parent.parent.parent / "config" / "settings.yaml"
     
     @cached_property
     def __config(self):
@@ -18,14 +17,6 @@ class YamlLoader:
         讀取YAML檔案
         """
         with open(self.__config_path, 'r', encoding='utf-8') as file:
-            return yaml.safe_load(file)
-
-    @cached_property
-    def __settings(self):
-        """
-        讀取使用者設定檔 (settings.yaml)
-        """
-        with open(self.__setting_path, 'r', encoding='utf-8') as file:
             return yaml.safe_load(file)
 
     @cached_property
@@ -42,41 +33,6 @@ class YamlLoader:
         提供練功相關的設定
         """
         return tuple(self.__config['grind_settings']['skill_gap_time'])
-
-    @cached_property
-    def user_grind_skills(self) -> list:
-        """
-        從 settings.yaml 讀取使用者自定義的練功技能，並載入圖片
-        Returns:
-            list[dict]: [{'key': 'a', 'image': PIL.Image}, ...]
-        """
-        raw_skills = self.__settings['grind_skills']
-        if not isinstance(raw_skills, list):
-            return []
-
-        loaded_skills = []
-        for item in raw_skills:
-            # 必須啟用且有圖片路徑
-            if not item.get('enabled', False) or not item.get('image_path'):
-                continue
-
-            path_str = item.get('image_path')
-            img_path = Path(path_str)
-            
-            # 如果是相對路徑，相對於專案根目錄 (不是 photos 資料夾，因為存的時候已經包含 photos/skills 前綴)
-            if not img_path.is_absolute():
-                img_path = Path(__file__).resolve().parent.parent.parent / img_path
-
-            if img_path.exists():
-                try:
-                    loaded_skills.append({
-                        'key': item.get('key'),
-                        'image': PIL.Image.open(img_path)
-                    })
-                except Exception as e:
-                    print(f"Error loading skill image {img_path}: {e}")
-        
-        return loaded_skills
 
     @cached_property
     def boss_dict(self) -> dict:

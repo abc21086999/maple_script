@@ -1,5 +1,8 @@
 from src.utils.xiao_controller import XiaoController
 from src.MapleScript import MapleScript
+from functools import cached_property
+from pathlib import Path
+import PIL.Image
 import random
 import time
 
@@ -10,13 +13,49 @@ class MapleGrind(MapleScript):
         super().__init__(controller=controller, log_callback=log_callback)
         self.__skills_list = list()
         self.__gap_time = self.yaml_loader.grind_setting
-        self.__user_skills = self.yaml_loader.user_grind_skills
         
         routes = self.yaml_loader.grind_routes
-        self.__left_loop = routes.get('left_loop', [])
-        self.__right_loop = routes.get('right_loop', [])
+        self.__loop_map = {"left": routes.get('left_loop', []), "right": routes.get('right_loop', []), "not_found": []}
+
+    @cached_property
+    def user_skills(self) -> list:
+        """
+        從 settings.yaml 讀取使用者自定義的練功技能，並載入圖片。
+        使用 cached_property 確保只載入一次。
+        Returns:
+            list[dict]: [{'key': 'a', 'image': PIL.Image}, ...]
+        """
+        # 1. 取得純資料
+        raw_skills = self.settings.get('grind_skills', default=[])
         
-        self.__loop_map = {"left": self.__left_loop, "right": self.__right_loop, "not_found": []}
+        if not isinstance(raw_skills, list):
+            return []
+
+        loaded_skills = []
+        project_root = Path(__file__).resolve().parent.parent
+
+        for item in raw_skills:
+            # 必須啟用且有圖片路徑
+            if not item.get('enabled', False) or not item.get('image_path'):
+                continue
+
+            path_str = item.get('image_path')
+            img_path = Path(path_str)
+            
+            # 如果是相對路徑，相對於專案根目錄
+            if not img_path.is_absolute():
+                img_path = project_root / img_path
+
+            if img_path.exists():
+                try:
+                    loaded_skills.append({
+                        'key': item.get('key'),
+                        'image': PIL.Image.open(img_path)
+                    })
+                except Exception as e:
+                    self.log(f"Error loading skill image {img_path}: {e}")
+        
+        return loaded_skills
 
     def find_ready_skill(self) -> None:
         """
@@ -34,7 +73,7 @@ class MapleGrind(MapleScript):
 
         # 先截一次圖，判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個list當中
         screenshot = self.get_skill_area_screenshot()
-        for skill_data in self.__user_skills:
+        for skill_data in self.user_skills:
             skill_image = skill_data.get("image")
             skill_key = skill_data.get("key")
             if self.is_on_screen(skill_image, screenshot):
@@ -106,15 +145,17 @@ class MapleGrind(MapleScript):
                         self.log("地圖上有符文")
                         self.sleep(10)
 
+                    # 如果地圖上有其他人，那就暫停一下
+                    if self.has_other_players():
+                        self.log("地圖上有其他人")
+                        self.sleep(10)
+
                     # 如果沒有符文而且地圖上沒有其他人，那就開始練功
-                    elif not self.has_other_players():
+                    else:
                         self.find_ready_skill()
                         self.press_ready_skills()
                         self.move_by_pressing_up()
                         # self.walk_the_map()
-                        self.sleep(1)
-                    else:
-                        self.log("地圖上有其他人")
                         self.sleep(1)
                 else:
                     self.sleep(1)

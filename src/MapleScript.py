@@ -4,6 +4,7 @@ import threading
 from src.utils.xiao_controller import XiaoController
 from pathlib import Path
 from src.utils.config_loader import YamlLoader
+from src.utils.settings_manager import SettingsManager
 from src.utils.windows_object import WindowsObject
 from abc import ABC, abstractmethod
 from src.utils.maple_vision import MapleVision
@@ -14,6 +15,7 @@ class MapleScript(ABC):
     def __init__(self, controller=None, log_callback=None):
         self.maple = WindowsObject.find_maple("MapleStoryClassTW")
         self.yaml_loader = YamlLoader()
+        self.settings = SettingsManager()
         self.__vision = MapleVision(self.maple)
         self.__keyboard = controller
         self.__mouse = controller
