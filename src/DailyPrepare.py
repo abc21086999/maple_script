@@ -1,5 +1,4 @@
 from src.utils.xiao_controller import XiaoController
-from src.utils.settings_manager import SettingsManager
 from src.MapleScript import MapleScript
 
 
@@ -452,7 +451,7 @@ class DailyPrepare(MapleScript):
         }
 
         # 讀取設定檔決定要執行哪些任務
-        settings = SettingsManager().get("daily_prepare")
+        settings = self.settings.get("daily_prepare")
         # 過濾出值為 True 的 Key，轉換成 List，並依照 task_map 的順序排序（非必要但建議）或是直接依賴 settings 的順序
         # 這裡我們取交集確保只執行已知的任務
         tasks_to_run = [task for task in task_map.keys() if settings.get(task, False)]
