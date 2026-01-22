@@ -58,12 +58,13 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
     - `app_window.py`: The main window layout and signal/slot logic.
     - `task_manager.py`: Manages background threads for script execution.
     - `settings_dialog.py`: A generic QDialog for toggling task settings.
+    - `grind_settings_dialog.py`: Specialized dialog for configuring grind skills and protection settings.
 - `src/utils/`: Shared utilities and helpers.
     - `xiao_controller.py`: Manages serial communication with the ESP32S3 hardware.
     - `maple_vision.py`: Handles computer vision tasks (OpenCV matching).
     - `windows_object.py`: Handles low-level Windows API interactions.
     - `settings_manager.py`: Handles reading/writing of user preferences (`settings.yaml`).
-- `src/MapleScript.py`: **Base Class**. Now implements `threading.Event` for interrupt control (`stop()`, `should_continue()`) and a logging callback (`log()`).
+- `src/MapleScript.py`: **Base Class**. Now implements `threading.Event` for interrupt control (`stop()`, `should_continue()`), a logging callback (`log()`), and integrates `SettingsManager` for direct access to user preferences.
 
 ### Threading & UI Safety
 - **Event-Driven:** Scripts run in a separate worker thread, not the main UI thread.
@@ -74,7 +75,7 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
 
 ### Configuration
 - **Resource Configuration (`config/config.yaml`):** Stores read-only data like image paths and UI offsets.
-- **User Settings (`config/settings.yaml`):** Stores user-configurable boolean flags (e.g., enabling/disabling specific daily tasks). Managed by `src/utils/settings_manager.py`.
+- **User Settings (`config/settings.yaml`):** Stores user-configurable boolean flags (e.g., enabling/disabling specific daily tasks) and Grind protection settings (pause on Rune/Player detection). Managed by `src/utils/settings_manager.py`.
 - **Patrol Routes:** Defined in `config/grind_routes.yaml`.
 - **Secrets:** Managed using a `.env` file (see `example_env.txt`).
 
