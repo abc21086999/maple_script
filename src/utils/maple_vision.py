@@ -212,7 +212,7 @@ class MapleVision:
             img = self.get_full_screen_screenshot()
 
         try:
-            skill_location = next(pyautogui.locateAll(pic, img), None)
+            skill_location = next(pyautogui.locateAll(pic, img, confidence=0.99), None)
             return bool(skill_location)
         except pyscreeze.ImageNotFoundException:
             return False
@@ -243,7 +243,7 @@ class MapleVision:
             # 辨識遊戲截圖內有沒有我們要的東西
             # 改用截圖後 locate 避免 allScreens 參數錯誤
             screenshot = self.get_full_screen_screenshot()
-            box = pyautogui.locate(pic, screenshot)
+            box = pyautogui.locate(pic, screenshot, confidence=0.99)
 
             # 如果有辨識到東西
             if box is not None:

@@ -1,14 +1,14 @@
 daily_prepare:
-  daily_mission: true
-  dismantle: false
+  daily_mission: false
+  dismantle: true
   event: true
-  hd_gift: true
-  housing: true
-  market: true
-  master_apprentice: true
-  milestone: true
-  switch_set: true
-  union_coin: true
+  hd_gift: false
+  housing: false
+  market: false
+  master_apprentice: false
+  milestone: false
+  switch_set: false
+  union_coin: false
 grind_settings:
   stop_when_people_appears: true
   stop_when_rune_appears: true
