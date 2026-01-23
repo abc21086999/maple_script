@@ -10,8 +10,11 @@ daily_prepare:
   switch_set: false
   union_coin: false
 grind_settings:
-  stop_when_people_appears: true
-  stop_when_rune_appears: true
+  enable_loop_interval: false
+  enable_loop_route: true
+  loop_route_interval: 5
+  stop_when_people_appears: false
+  stop_when_rune_appears: false
 grind_skills:
 - enabled: true
   image_path: photos/skills/vortex_sphere.png

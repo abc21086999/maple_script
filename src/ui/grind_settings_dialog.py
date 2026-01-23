@@ -5,10 +5,11 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QCheckBox,
     QComboBox, QPushButton, QLabel, QScrollArea,
     QWidget, QFileDialog, QFrame, QDialogButtonBox, QMessageBox,
-    QTabWidget
+    QTabWidget, QApplication
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
+from src.RouteRecorder import RouteRecorder
 
 class SkillRow(QWidget):
     def __init__(self, parent_dialog, data=None):
@@ -169,12 +170,14 @@ class SkillRow(QWidget):
 
 
 class GrindSettingsDialog(QDialog):
-    def __init__(self, parent, settings_manager):
+    def __init__(self, parent, settings_manager, task_manager=None, controller=None):
         super().__init__(parent)
         self.setWindowTitle("練功技能設定 (Grind Settings)")
-        self.resize(550, 600)
+        self.resize(600, 650)
         
         self.settings_manager = settings_manager
+        self.task_manager = task_manager
+        self.controller = controller
         self.rows = []
         
         self._setup_ui()
@@ -197,11 +200,152 @@ class GrindSettingsDialog(QDialog):
         self._setup_protection_tab()
         self.tabs.addTab(self.tab_protection, "保護設定")
 
+        # --- Tab 3: 路徑錄製 ---
+        if self.task_manager and self.controller:
+            self.tab_recorder = QWidget()
+            self._setup_recorder_tab()
+            self.tabs.addTab(self.tab_recorder, "路徑錄製")
+
         # Buttons (OK/Cancel)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.save_settings)
         buttons.rejected.connect(self.reject)
         main_layout.addWidget(buttons)
+
+    def _setup_recorder_tab(self):
+        layout = QVBoxLayout(self.tab_recorder)
+        
+        # --- 1. 執行設定 (原本在下面，現在移到上面) ---
+        setting_header = QLabel("腳本執行設定")
+        setting_header.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 5px;")
+        layout.addWidget(setting_header)
+
+        # Checkbox 1: 啟用錄製的腳本
+        self.chk_enable_route = QCheckBox("啟用錄製的腳本")
+        self.chk_enable_route.setToolTip("勾選後，將會在練功時自動執行錄製的路徑")
+        self.chk_enable_route.toggled.connect(self.update_loop_ui_state)
+        layout.addWidget(self.chk_enable_route)
+
+        # 循環間隔設定 (Horizontal Layout)
+        loop_layout = QHBoxLayout()
+        loop_layout.setContentsMargins(20, 0, 0, 0) # 縮排
+
+        # Checkbox 2: 啟用間隔
+        self.chk_enable_interval = QCheckBox("啟用循環冷卻：每")
+        self.chk_enable_interval.toggled.connect(self.update_loop_ui_state)
+        loop_layout.addWidget(self.chk_enable_interval)
+
+        # ComboBox: 秒數選擇
+        self.combo_loop_interval = QComboBox()
+        # 產生 5, 10, ..., 60 的選項
+        intervals = [str(i) for i in range(5, 65, 5)]
+        self.combo_loop_interval.addItems(intervals)
+        self.combo_loop_interval.setFixedWidth(60)
+        loop_layout.addWidget(self.combo_loop_interval)
+
+        # Label: 單位
+        loop_layout.addWidget(QLabel("秒重複一次"))
+        loop_layout.addStretch() # 靠左對齊
+        layout.addLayout(loop_layout)
+
+        # 分隔線
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("margin: 10px 0;")
+        layout.addWidget(line)
+
+        # --- 2. 錄製控制項 (原本在上面，現在移到下面) ---
+        header = QLabel("錄製新路徑")
+        header.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(header)
+        
+        # 說明
+        desc = QLabel(
+            "功能說明：\n"
+            "1. 點擊「開始錄製」後，程式會等待您操作。\n"
+            "2. 請切換至遊戲視窗，輸入您的練功迴圈 (移動、跳躍、技能)。\n"
+            "3. 完成後，切換回此視窗並點擊「停止錄製」。"
+        )
+        desc.setStyleSheet("color: gray; margin-bottom: 10px;")
+        desc.setWordWrap(True)
+        layout.addWidget(desc)
+
+        # 控制按鈕區
+        btn_layout = QHBoxLayout()
+        
+        self.btn_start_record = QPushButton("🔴 開始錄製")
+        self.btn_start_record.setMinimumHeight(40)
+        self.btn_start_record.clicked.connect(self.start_recording)
+        btn_layout.addWidget(self.btn_start_record)
+
+        self.btn_stop_record = QPushButton("⏹ 停止錄製")
+        self.btn_stop_record.setMinimumHeight(40)
+        self.btn_stop_record.clicked.connect(self.stop_recording)
+        self.btn_stop_record.setEnabled(False) # 初始為停用
+        btn_layout.addWidget(self.btn_stop_record)
+        layout.addLayout(btn_layout)
+
+        # 狀態顯示
+        self.lbl_status = QLabel("狀態: 閒置中")
+        self.lbl_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_status.setStyleSheet("font-weight: bold; margin: 10px; color: #4facfe;")
+        layout.addWidget(self.lbl_status)
+
+        layout.addStretch() # 將內容推到頂部
+
+    def update_loop_ui_state(self):
+        """根據 Checkbox 狀態啟用/停用 UI"""
+        route_enabled = self.chk_enable_route.isChecked()
+        self.chk_enable_interval.setEnabled(route_enabled)
+        
+        interval_enabled = self.chk_enable_interval.isChecked()
+        self.combo_loop_interval.setEnabled(route_enabled and interval_enabled)
+
+    def start_recording(self):
+        import ctypes
+        import sys
+
+        # 檢查管理員權限 (錄製鍵盤需要)
+        try:
+            is_admin = ctypes.windll.shell32.IsUserAnAdmin()
+        except:
+            is_admin = False
+
+        if not is_admin:
+            # 請求以管理員身分重啟程式
+            ctypes.windll.shell32.ShellExecuteW(
+                None, "runas", sys.executable, " ".join(sys.argv), None, 1
+            )
+            # 關閉目前程式
+            QApplication.instance().quit()
+            return
+
+        if not self.task_manager or not self.controller:
+            return
+
+        self.btn_start_record.setEnabled(False)
+        self.btn_stop_record.setEnabled(True)
+        self.lbl_status.setText("狀態: 正在錄製中...")
+        self.lbl_status.setStyleSheet("font-weight: bold; margin: 10px; color: #ff6b6b;")
+
+        # 啟動錄製任務
+        self.task_manager.start_task(
+            RouteRecorder, 
+            self.controller
+        )
+
+    def stop_recording(self):
+        if self.task_manager:
+            self.task_manager.stop_task()
+            self.lbl_status.setText("狀態: 正在停止...")
+            self.reset_recorder_ui()
+
+    def reset_recorder_ui(self):
+        self.btn_start_record.setEnabled(True)
+        self.btn_stop_record.setEnabled(False)
+        self.lbl_status.setText("狀態: 錄製完成")
+        self.lbl_status.setStyleSheet("font-weight: bold; margin: 10px; color: #4facfe;")
 
     def _setup_skills_tab(self):
         layout = QVBoxLayout(self.tab_skills)
@@ -256,10 +400,22 @@ class GrindSettingsDialog(QDialog):
         for item in skills_data:
             self.add_row(item)
 
-        # 2. Load Protection Settings
+        # 2. Load Protection Settings & Loop Settings
         protection_data = self.settings_manager.get("grind_settings", default={})
         self.chk_stop_rune.setChecked(protection_data.get("stop_when_rune_appears", False))
         self.chk_stop_people.setChecked(protection_data.get("stop_when_people_appears", False))
+
+        # Loop Settings
+        if hasattr(self, 'chk_enable_route'): # 確保元件已建立
+            self.chk_enable_route.setChecked(protection_data.get("enable_loop_route", False))
+            self.chk_enable_interval.setChecked(protection_data.get("enable_loop_interval", False))
+            
+            interval = str(protection_data.get("loop_route_interval", 5))
+            index = self.combo_loop_interval.findText(interval)
+            if index >= 0:
+                self.combo_loop_interval.setCurrentIndex(index)
+            
+            self.update_loop_ui_state()
 
     def add_row(self, data=None):
         if data is None:
@@ -284,10 +440,14 @@ class GrindSettingsDialog(QDialog):
             
         self.settings_manager.save("grind_skills", new_skills_data)
 
-        # 2. Save Protection Settings
+        # 2. Save Protection & Loop Settings
         protection_data = {
             "stop_when_rune_appears": self.chk_stop_rune.isChecked(),
-            "stop_when_people_appears": self.chk_stop_people.isChecked()
+            "stop_when_people_appears": self.chk_stop_people.isChecked(),
+            # Loop Settings
+            "enable_loop_route": self.chk_enable_route.isChecked() if hasattr(self, 'chk_enable_route') else False,
+            "enable_loop_interval": self.chk_enable_interval.isChecked() if hasattr(self, 'chk_enable_interval') else False,
+            "loop_route_interval": int(self.combo_loop_interval.currentText()) if hasattr(self, 'combo_loop_interval') else 5
         }
         self.settings_manager.save("grind_settings", protection_data)
 

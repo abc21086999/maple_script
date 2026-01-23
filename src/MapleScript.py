@@ -139,14 +139,15 @@ class MapleScript(ABC):
             case None:
                 pass
 
-    def replay_script(self, recorded_events: list[list | tuple]):
+    def replay_script(self, recorded_events: list[dict]):
         """
         重播已經錄製的腳本
-        :param recorded_events: 腳本list，元素可以是 tuple 或 list (e.g. [action, key, time])
+        :param recorded_events: 腳本list，元素是字典 (e.g. {'action': 'key_down', 'key': 'a', 'time': 0.1})
         """
         start_replay_time = time.time()
-        for action, key_str, event_time in recorded_events:
+        for event in recorded_events:
             if not self.should_continue():
+                self.__keyboard.release_all()
                 break
 
             if not self.is_maple_focus():
@@ -154,15 +155,19 @@ class MapleScript(ABC):
                 self.__keyboard.release_all()
                 break
 
+            action = event.get('action')
+            key_str = event.get('key')
+            event_time = event.get('time')
+
             target_time = start_replay_time + event_time
             sleep_duration = target_time - time.time()
             if sleep_duration > 0:
                 if self.sleep(sleep_duration): # 如果被中斷就停止
                     break
 
-            if action == 'press':
+            if action == 'key_down':
                 self.key_down(key_str)
-            elif action == 'release':
+            elif action == 'key_up':
                 self.key_up(key_str)
 
         self.log("腳本重播完畢")

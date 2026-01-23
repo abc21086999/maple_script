@@ -179,7 +179,8 @@ class MainWindow(QMainWindow):
 
     def open_grind_settings(self):
         """開啟練功的設定視窗"""
-        dialog = GrindSettingsDialog(self, self.settings_manager)
+        # 傳入 manager 和 controller 以供錄製功能使用
+        dialog = GrindSettingsDialog(self, self.settings_manager, self.manager, self.controller)
         if dialog.exec():
             self.log_signal.text_written.emit("練功技能設定已更新")
 

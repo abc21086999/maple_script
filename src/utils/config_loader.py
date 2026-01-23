@@ -9,6 +9,7 @@ class YamlLoader:
     def __init__(self):
         self.__config_path = Path(__file__).resolve().parent.parent.parent / "config" / "config.yaml"
         self.__grind_routes_path = Path(__file__).resolve().parent.parent.parent / "config" / "grind_routes.yaml"
+        self.__recorded_route_path = Path(__file__).resolve().parent.parent.parent / "config" / "recorded_route.yaml"
         self.__photo_path = Path(__file__).resolve().parent.parent.parent / 'photos'
     
     @cached_property
@@ -26,6 +27,17 @@ class YamlLoader:
         """
         with open(self.__grind_routes_path, 'r', encoding='utf-8') as file:
             return yaml.safe_load(file)
+
+    @cached_property
+    def recorded_route(self):
+        """
+        讀取錄製好的練功路徑
+        """
+        if not self.__recorded_route_path.exists():
+            return []
+            
+        with open(self.__recorded_route_path, 'r', encoding='utf-8') as file:
+            return yaml.safe_load(file) or []
 
     @cached_property
     def grind_setting(self):

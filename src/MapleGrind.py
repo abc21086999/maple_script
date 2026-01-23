@@ -128,12 +128,34 @@ class MapleGrind(MapleScript):
         """
         根據錄製的腳本來重播操作
         """
-        # 機率小於5％再來跑圖
-        if random.random() < 0.05 and self.is_maple_focus():
-            self.log("開始使用紀錄的腳本")
+        if self.is_maple_focus():
+            recorded_events = self.yaml_loader.recorded_route
+            
+            if recorded_events:
+                self.log("開始執行錄製的腳本")
+                self.replay_script(recorded_events)
+            else:
+                self.log("警告: 未錄製任何路徑 (config/recorded_route.yaml 缺失或為空)")
 
-            recorded_events = self.__loop_map.get(self.get_character_position())
-            self.replay_script(recorded_events)
+            # 如果有設定間隔，就休息一下；否則直接進行下一輪
+            if self.is_loop_interval_enabled:
+                self.log(f"腳本執行完畢，等待 {self.route_interval_seconds} 秒...")
+                self.sleep(self.route_interval_seconds)
+
+    @cached_property
+    def is_route_enabled(self) -> bool:
+        """是否啟用錄製的路徑"""
+        return self.__settings.get("enable_loop_route", False)
+
+    @cached_property
+    def is_loop_interval_enabled(self) -> bool:
+        """是否啟用循環間隔 (CD時間)"""
+        return self.__settings.get("enable_loop_interval", False)
+
+    @cached_property
+    def route_interval_seconds(self) -> int:
+        """循環間隔秒數"""
+        return int(self.__settings.get("loop_route_interval", 5))
 
     @cached_property
     def stop_on_rune(self):
@@ -162,11 +184,16 @@ class MapleGrind(MapleScript):
                         continue # 跳過本次迴圈的後續動作
 
                     # 如果沒有觸發暫停條件，那就開始練功
-                    self.find_ready_skill()
-                    self.press_ready_skills()
-                    self.move_by_pressing_up()
-                    # self.walk_the_map()
-                    self.sleep(1)
+                    # self.find_ready_skill()
+                    # self.press_ready_skills()
+                    # self.move_by_pressing_up()
+                    
+                    if self.is_route_enabled:
+                        self.walk_the_map()
+
+                    else:
+                        # 沒開路徑也沒開技能時，避免空轉
+                        self.sleep(1)
 
                 else:
                     self.sleep(1)
