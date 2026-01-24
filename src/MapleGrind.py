@@ -202,6 +202,7 @@ class MapleGrind(MapleScript):
                         self.sleep(1)
 
                 else:
+                    self.log("楓之谷不在前景，暫停中")
                     self.sleep(1)
             
             self.log("練功腳本已停止")

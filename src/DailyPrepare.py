@@ -382,6 +382,7 @@ class DailyPrepare(MapleScript):
         self.find_and_click_image(imgs['talk_with_caretaker'])
 
         # 如果有可以對話（這段還有改善空間但是先這樣寫ㄅ）
+        self.sleep(0.3)
         if self.is_on_screen(imgs['caretaker_talkable']):
             for i in range(6):
                 self.press_and_wait("y")
