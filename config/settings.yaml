@@ -11,8 +11,9 @@ daily_prepare:
   union_coin: false
 grind_settings:
   enable_loop_interval: false
-  enable_loop_route: true
+  enable_loop_route: false
   loop_route_interval: 5
+  stationary_mode: true
   stop_when_people_appears: false
   stop_when_rune_appears: false
 grind_skills:

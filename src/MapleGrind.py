@@ -143,6 +143,11 @@ class MapleGrind(MapleScript):
                 self.sleep(self.route_interval_seconds)
 
     @cached_property
+    def is_stationary(self) -> bool:
+        """是否為定點練功模式"""
+        return self.__settings.get("stationary_mode", False)
+
+    @cached_property
     def is_route_enabled(self) -> bool:
         """是否啟用錄製的路徑"""
         return self.__settings.get("enable_loop_route", False)
@@ -184,9 +189,10 @@ class MapleGrind(MapleScript):
                         continue # 跳過本次迴圈的後續動作
 
                     # 如果沒有觸發暫停條件，那就開始練功
-                    # self.find_ready_skill()
-                    # self.press_ready_skills()
-                    # self.move_by_pressing_up()
+                    if self.is_stationary:
+                        self.find_ready_skill()
+                        self.press_ready_skills()
+                        self.move_by_pressing_up()
                     
                     if self.is_route_enabled:
                         self.walk_the_map()

@@ -17,7 +17,19 @@ def main():
     load_dotenv()
     app = QApplication(sys.argv)
 
-    app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyside6'))
+    # 套用深色主題並疊加自定義樣式 (加大 Checkbox)
+    dark_stylesheet = qdarkstyle.load_stylesheet(qt_api='pyside6')
+    custom_stylesheet = """
+        QCheckBox {
+            spacing: 8px;
+            font-size: 14px;
+        }
+        QCheckBox::indicator {
+            width: 22px;
+            height: 22px;
+        }
+    """
+    app.setStyleSheet(dark_stylesheet + custom_stylesheet)
 
     # 初始化硬體控制器
     # 使用 with 上下文管理器確保資源自動釋放

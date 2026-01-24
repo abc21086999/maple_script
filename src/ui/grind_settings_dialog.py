@@ -195,16 +195,16 @@ class GrindSettingsDialog(QDialog):
         self._setup_skills_tab()
         self.tabs.addTab(self.tab_skills, "技能與按鍵")
 
-        # --- Tab 2: 保護設定 ---
-        self.tab_protection = QWidget()
-        self._setup_protection_tab()
-        self.tabs.addTab(self.tab_protection, "保護設定")
-
-        # --- Tab 3: 路徑錄製 ---
+        # --- Tab 2: 路徑錄製 ---
         if self.task_manager and self.controller:
             self.tab_recorder = QWidget()
             self._setup_recorder_tab()
             self.tabs.addTab(self.tab_recorder, "路徑錄製")
+
+        # --- Tab 3: 保護設定 ---
+        self.tab_protection = QWidget()
+        self._setup_protection_tab()
+        self.tabs.addTab(self.tab_protection, "保護設定")
 
         # Buttons (OK/Cancel)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -263,9 +263,9 @@ class GrindSettingsDialog(QDialog):
         # 說明
         desc = QLabel(
             "功能說明：\n"
-            "1. 點擊「開始錄製」後，程式會等待您操作。\n"
-            "2. 請切換至遊戲視窗，輸入您的練功迴圈 (移動、跳躍、技能)。\n"
-            "3. 完成後，切換回此視窗並點擊「停止錄製」。"
+            "1. 點擊「開始錄製」後，程式會切換至遊戲視窗。\n"
+            "2. 請輸入您的練功迴圈 (移動、跳躍、技能)。\n"
+            "3. 完成後，用滑鼠切換回此視窗並點擊「停止錄製」。"
         )
         desc.setStyleSheet("color: gray; margin-bottom: 10px;")
         desc.setWordWrap(True)
@@ -354,6 +354,14 @@ class GrindSettingsDialog(QDialog):
         header.setStyleSheet("font-weight: bold; margin-bottom: 5px;")
         layout.addWidget(header)
         
+        # 啟用定點練功
+        self.chk_stationary = QCheckBox("啟用定點練功")
+        layout.addWidget(self.chk_stationary)
+        
+        stationary_desc = QLabel("勾選後，腳本將不定時按下『上』，以透過地圖上的傳點進行移動")
+        stationary_desc.setStyleSheet("color: gray;")
+        layout.addWidget(stationary_desc)
+
         sub_header = QLabel("圖片將自動儲存至 photos/skills 資料夾")
         sub_header.setStyleSheet("color: gray; margin-bottom: 10px;")
         layout.addWidget(sub_header)
@@ -404,6 +412,7 @@ class GrindSettingsDialog(QDialog):
         protection_data = self.settings_manager.get("grind_settings", default={})
         self.chk_stop_rune.setChecked(protection_data.get("stop_when_rune_appears", False))
         self.chk_stop_people.setChecked(protection_data.get("stop_when_people_appears", False))
+        self.chk_stationary.setChecked(protection_data.get("stationary_mode", False))
 
         # Loop Settings
         if hasattr(self, 'chk_enable_route'): # 確保元件已建立
@@ -444,6 +453,7 @@ class GrindSettingsDialog(QDialog):
         protection_data = {
             "stop_when_rune_appears": self.chk_stop_rune.isChecked(),
             "stop_when_people_appears": self.chk_stop_people.isChecked(),
+            "stationary_mode": self.chk_stationary.isChecked(),
             # Loop Settings
             "enable_loop_route": self.chk_enable_route.isChecked() if hasattr(self, 'chk_enable_route') else False,
             "enable_loop_interval": self.chk_enable_interval.isChecked() if hasattr(self, 'chk_enable_interval') else False,
