@@ -142,19 +142,6 @@ class DailyPrepare(MapleScript):
         imgs = self.__images['dismantle']
 
         if self.is_maple_focus():
-            # 點下快速移動的界面
-            self.find_and_click_image(imgs['fast_travel'])
-
-            # 點下技術村的圖案
-            self.find_and_click_image(imgs['village_icon'])
-
-            # 點下『是』，去到技術村
-            self.press_and_wait("right")
-            self.press_and_wait("enter")
-
-            # 移動中
-            while self.should_continue() and not self.is_on_screen(imgs['village_map_check']):
-                self.sleep(0.5)
 
             # 打開裝備欄
             self.press_and_wait("i")
