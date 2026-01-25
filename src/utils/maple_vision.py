@@ -194,6 +194,48 @@ class MapleVision:
         # 5. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的輪的色塊
         return cv2.countNonZero(eroded_mask) > 0
 
+    def get_player_pos(self) -> tuple[int, int] | None:
+        """
+        獲取玩家在小地圖上的座標 (x, y)
+        """
+        minimap_img = self.get_mini_map_area_screenshot()
+        img_np = np.array(minimap_img)
+        target_color = np.array(self.my_character_color)
+        
+        diff_matrix = np.sum(np.abs(img_np - target_color), axis=2)
+        mask = (diff_matrix < 30).astype(np.uint8) * 255
+        
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if contours:
+            c = max(contours, key=cv2.contourArea)
+            M = cv2.moments(c)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                return cX, cY
+        return None
+
+    def get_rune_pos(self) -> tuple[int, int] | None:
+        """
+        獲取符文在小地圖上的座標 (x, y)
+        """
+        minimap_img = self.get_mini_map_area_screenshot()
+        img_np = np.array(minimap_img)
+        target_color = np.array(self.rune_color)
+        
+        diff_matrix = np.sum(np.abs(img_np - target_color), axis=2)
+        mask = (diff_matrix < 30).astype(np.uint8) * 255
+        
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if contours:
+            c = max(contours, key=cv2.contourArea)
+            M = cv2.moments(c)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                return cX, cY
+        return None
+
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img) -> bool:
         """
         辨識想要找的東西在不在畫面上

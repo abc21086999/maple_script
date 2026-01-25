@@ -107,12 +107,74 @@ class MapleScript(ABC):
 
     def has_rune(self, color_tolerance=10) -> bool:
         """
-        偵測小地圖上有沒有倫。
+        偵測小地圖上有有沒有倫。
         使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
         :param color_tolerance: int, 顏色容忍度
         :return: bool
         """
         return self.__vision.has_rune(color_tolerance)
+
+    def get_player_pos(self) -> tuple[int, int] | None:
+        """
+        獲取玩家在小地圖上的精確座標 (x, y)
+        """
+        return self.__vision.get_player_pos()
+
+    def get_rune_pos(self) -> tuple[int, int] | None:
+        """
+        獲取符文在小地圖上的精確座標 (x, y)
+        """
+        return self.__vision.get_rune_pos()
+
+    def move_to_point(self, target_x: int, target_y: int, threshold: int = 3):
+        """
+        導航至小地圖上的特定座標
+        """
+        self.log(f"開始導航至目標座標: ({target_x}, {target_y})")
+        
+        while self.should_continue() and self.is_maple_focus():
+            curr = self.get_player_pos()
+            if not curr:
+                self.log("找不到玩家位置，等待中...")
+                self.sleep(0.5)
+                continue
+            
+            cx, cy = curr
+            dx = target_x - cx
+            dy = target_y - cy
+            
+            # 如果已經抵達範圍內就停止
+            if abs(dx) <= threshold and abs(dy) <= threshold:
+                self.log("已抵達目標點")
+                break
+                
+            # 先處理水平移動
+            if dx > threshold:
+                self.key_down("right")
+                self.sleep(0.1)
+                new_curr = self.get_player_pos()
+                if new_curr and new_curr[0] >= target_x - threshold:
+                    self.key_up("right")
+            elif dx < -threshold:
+                self.key_down("left")
+                self.sleep(0.1)
+                new_curr = self.get_player_pos()
+                if new_curr and new_curr[0] <= target_x + threshold:
+                    self.key_up("left")
+            else:
+                self.key_up("left")
+                self.key_up("right")
+            
+            # 處理垂直移動
+            if abs(dx) <= threshold * 3: # 接近目標 X 座標時才處理 Y
+                if dy < -threshold: # 目標在上方
+                    self.up_jump()
+                elif dy > threshold: # 目標在下方
+                    self.key_down("down")
+                    self.press("alt")
+                    self.sleep(0.1)
+                    self.key_up("down")
+                    self.sleep(0.5)
 
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
         """
