@@ -13,6 +13,7 @@ grind_settings:
   enable_loop_interval: false
   enable_loop_route: false
   loop_route_interval: 5
+  random_up_movement: true
   stationary_mode: true
   stop_when_people_appears: false
   stop_when_rune_appears: false

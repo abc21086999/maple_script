@@ -358,9 +358,9 @@ class GrindSettingsDialog(QDialog):
         self.chk_stationary = QCheckBox("啟用定點練功")
         layout.addWidget(self.chk_stationary)
         
-        stationary_desc = QLabel("勾選後，腳本將不定時按下『上』，以透過地圖上的傳點進行移動")
-        stationary_desc.setStyleSheet("color: gray;")
-        layout.addWidget(stationary_desc)
+        # 不定時按下『上』來透過地圖上的傳點移動
+        self.chk_random_up = QCheckBox("不定時按下『上』來透過地圖上的傳點移動")
+        layout.addWidget(self.chk_random_up)
 
         sub_header = QLabel("圖片將自動儲存至 photos/skills 資料夾")
         sub_header.setStyleSheet("color: gray; margin-bottom: 10px;")
@@ -413,6 +413,7 @@ class GrindSettingsDialog(QDialog):
         self.chk_stop_rune.setChecked(protection_data.get("stop_when_rune_appears", False))
         self.chk_stop_people.setChecked(protection_data.get("stop_when_people_appears", False))
         self.chk_stationary.setChecked(protection_data.get("stationary_mode", False))
+        self.chk_random_up.setChecked(protection_data.get("random_up_movement", False))
 
         # Loop Settings
         if hasattr(self, 'chk_enable_route'): # 確保元件已建立
@@ -454,6 +455,7 @@ class GrindSettingsDialog(QDialog):
             "stop_when_rune_appears": self.chk_stop_rune.isChecked(),
             "stop_when_people_appears": self.chk_stop_people.isChecked(),
             "stationary_mode": self.chk_stationary.isChecked(),
+            "random_up_movement": self.chk_random_up.isChecked(),
             # Loop Settings
             "enable_loop_route": self.chk_enable_route.isChecked() if hasattr(self, 'chk_enable_route') else False,
             "enable_loop_interval": self.chk_enable_interval.isChecked() if hasattr(self, 'chk_enable_interval') else False,

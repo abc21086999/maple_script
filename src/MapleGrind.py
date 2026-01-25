@@ -148,6 +148,10 @@ class MapleGrind(MapleScript):
         return self.__settings.get("stationary_mode", False)
 
     @cached_property
+    def is_random_up_enabled(self) -> bool:
+        return self.__settings.get("random_up_movement", False)
+
+    @cached_property
     def is_route_enabled(self) -> bool:
         """是否啟用錄製的路徑"""
         return self.__settings.get("enable_loop_route", False)
@@ -192,7 +196,8 @@ class MapleGrind(MapleScript):
                     if self.is_stationary:
                         self.find_ready_skill()
                         self.press_ready_skills()
-                        self.move_by_pressing_up()
+                        if self.is_random_up_enabled:
+                            self.move_by_pressing_up()
                     
                     if self.is_route_enabled:
                         self.walk_the_map()
