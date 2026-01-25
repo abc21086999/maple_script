@@ -23,15 +23,21 @@ class SkillRow(QWidget):
     def _init_ui(self):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 5, 0, 5)
+        
+        # 套用方法 B：在所有元件之間與兩端都加入彈簧
+        # layout.addStretch(1)
 
         # 1. 啟用開關
         self.checkbox = QCheckBox()
+        self.checkbox.setFixedWidth(30)
         self.checkbox.setToolTip("啟用此技能")
         layout.addWidget(self.checkbox)
+        
+        layout.addStretch(1)
 
         # 2. 按鍵選擇
         self.key_combo = QComboBox()
-        self.key_combo.setMinimumWidth(80)
+        self.key_combo.setMinimumWidth(120)
         keys = (
             [chr(i) for i in range(ord('a'), ord('z')+1)] + 
             [str(i) for i in range(10)] + 
@@ -41,6 +47,8 @@ class SkillRow(QWidget):
         )
         self.key_combo.addItems(keys)
         layout.addWidget(self.key_combo)
+        
+        layout.addStretch(1)
 
         # 3. 圖片預覽區域
         self.image_label = QLabel()
@@ -48,6 +56,8 @@ class SkillRow(QWidget):
         self.image_label.setStyleSheet("border: 1px solid gray; background-color: #333;")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.image_label)
+        
+        layout.addStretch(1)
 
         # 4. 選擇圖片按鈕
         self.btn_load = QPushButton("📂")
@@ -55,6 +65,8 @@ class SkillRow(QWidget):
         self.btn_load.setToolTip("選擇技能圖片")
         self.btn_load.clicked.connect(self.select_image)
         layout.addWidget(self.btn_load)
+        
+        layout.addStretch(1)
 
         # 5. 刪除按鈕
         self.btn_delete = QPushButton("🗑️")
@@ -62,6 +74,8 @@ class SkillRow(QWidget):
         self.btn_delete.setStyleSheet("QPushButton { color: #ff6b6b; font-weight: bold; }")
         self.btn_delete.clicked.connect(self.delete_row)
         layout.addWidget(self.btn_delete)
+
+        layout.addStretch(1)
 
     def _load_data(self, data):
         self.checkbox.setChecked(data.get('enabled', True))
@@ -173,7 +187,7 @@ class GrindSettingsDialog(QDialog):
     def __init__(self, parent, settings_manager, task_manager=None, controller=None):
         super().__init__(parent)
         self.setWindowTitle("練功技能設定 (Grind Settings)")
-        self.resize(600, 650)
+        self.resize(450, 650)
         
         self.settings_manager = settings_manager
         self.task_manager = task_manager
@@ -265,7 +279,8 @@ class GrindSettingsDialog(QDialog):
             "功能說明：\n"
             "1. 點擊「開始錄製」後，程式會切換至遊戲視窗。\n"
             "2. 請輸入您的練功迴圈 (移動、跳躍、技能)。\n"
-            "3. 完成後，用滑鼠切換回此視窗並點擊「停止錄製」。"
+            "3. 完成後，用滑鼠切換回此視窗並點擊「停止錄製」。\n"
+            "4. 錄製需要系統管理員權限，程式會在按下「開始錄製」後嘗試取得權限"
         )
         desc.setStyleSheet("color: gray; margin-bottom: 10px;")
         desc.setWordWrap(True)
@@ -347,6 +362,11 @@ class GrindSettingsDialog(QDialog):
         self.lbl_status.setText("狀態: 錄製完成")
         self.lbl_status.setStyleSheet("font-weight: bold; margin: 10px; color: #4facfe;")
 
+    def update_stationary_ui_state(self):
+        """根據定點練功 Checkbox 狀態啟用/停用『按下上』"""
+        stationary_enabled = self.chk_stationary.isChecked()
+        self.chk_random_up.setEnabled(stationary_enabled)
+
     def _setup_skills_tab(self):
         layout = QVBoxLayout(self.tab_skills)
 
@@ -356,11 +376,15 @@ class GrindSettingsDialog(QDialog):
         
         # 啟用定點練功
         self.chk_stationary = QCheckBox("啟用定點練功")
+        self.chk_stationary.toggled.connect(self.update_stationary_ui_state)
         layout.addWidget(self.chk_stationary)
         
         # 不定時按下『上』來透過地圖上的傳點移動
+        hbox_up = QHBoxLayout()
+        hbox_up.setContentsMargins(20, 0, 0, 0)
         self.chk_random_up = QCheckBox("不定時按下『上』來透過地圖上的傳點移動")
-        layout.addWidget(self.chk_random_up)
+        hbox_up.addWidget(self.chk_random_up)
+        layout.addLayout(hbox_up)
 
         sub_header = QLabel("圖片將自動儲存至 photos/skills 資料夾")
         sub_header.setStyleSheet("color: gray; margin-bottom: 10px;")
@@ -414,6 +438,8 @@ class GrindSettingsDialog(QDialog):
         self.chk_stop_people.setChecked(protection_data.get("stop_when_people_appears", False))
         self.chk_stationary.setChecked(protection_data.get("stationary_mode", False))
         self.chk_random_up.setChecked(protection_data.get("random_up_movement", False))
+
+        self.update_stationary_ui_state()
 
         # Loop Settings
         if hasattr(self, 'chk_enable_route'): # 確保元件已建立
