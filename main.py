@@ -16,6 +16,8 @@ def main():
     
     load_dotenv()
     app = QApplication(sys.argv)
+    app.setOrganizationName("MapleScriptTeam")
+    app.setApplicationName("MapleScript")
 
     # 套用深色主題並疊加自定義樣式 (加大 Checkbox)
     dark_stylesheet = qdarkstyle.load_stylesheet(qt_api='pyside6')

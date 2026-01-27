@@ -12,9 +12,10 @@ from PySide6.QtGui import QPixmap
 from src.RouteRecorder import RouteRecorder
 
 class SkillRow(QWidget):
-    def __init__(self, parent_dialog, data=None):
+    def __init__(self, parent_dialog, base_data_path, data=None):
         super().__init__()
         self.parent_dialog = parent_dialog
+        self.base_data_path = base_data_path
         self.image_path = None # 絕對路徑或相對路徑
         self._init_ui()
         if data:
@@ -102,13 +103,12 @@ class SkillRow(QWidget):
     def process_selected_image(self, original_path_str):
         """
         處理使用者選擇的圖片：
-        1. 檢查是否已經在 photos/skills 下
-        2. 如果不在，複製過去
-        3. 更新 UI 顯示與內部路徑紀錄
+        1. 將圖片複製到 AppData/skills 下
+        2. 更新 UI 顯示與內部路徑紀錄
         """
         original_path = Path(original_path_str)
-        project_root = Path(os.getcwd())
-        target_dir = project_root / 'photos' / 'skills'
+        # 目標資料夾：AppData/skills
+        target_dir = self.base_data_path / 'skills'
         target_dir.mkdir(parents=True, exist_ok=True)
         
         # 目標檔案路徑 (保留原檔名)
@@ -122,7 +122,7 @@ class SkillRow(QWidget):
                     reply = QMessageBox.question(
                         self, 
                         '覆蓋確認', 
-                        f'檔案 "{original_path.name}" 已存在於 photos/skills 資料夾中。\n是否要覆蓋它？',
+                        f'檔案 "{original_path.name}" 已存在於 AppData/skills 資料夾中。\n是否要覆蓋它？',
                         QMessageBox.Yes | QMessageBox.No, 
                         QMessageBox.No
                     )
@@ -132,13 +132,11 @@ class SkillRow(QWidget):
                 
                 shutil.copy2(original_path, target_path)
             
-            # 使用相對路徑更新 (photos/skills/xxx.png)
-            relative_path = target_path.relative_to(project_root)
-            self.set_image_path(str(relative_path))
+            # 使用絕對路徑更新
+            self.set_image_path(str(target_path))
             
         except Exception as e:
             print(f"Error copying image: {e}")
-            # 如果複製失敗，就用原本的路徑，至少讓功能可用
             self.set_image_path(original_path_str)
 
     def set_image_path(self, path_str):
@@ -159,16 +157,10 @@ class SkillRow(QWidget):
             self.image_path = path_str # 雖然遺失還是存著
 
     def get_data(self):
-        # 嘗試回傳相對路徑
-        saved_path = ""
-        if self.image_path:
-            try:
-                full_path = Path(self.image_path)
-                saved_path = str(full_path.relative_to(os.getcwd()))
-            except ValueError:
-                saved_path = self.image_path
+        # 直接使用儲存的路徑 (通常是 AppData 的絕對路徑)
+        saved_path = self.image_path if self.image_path else ""
         
-        # 統一使用 / 作為分隔符，避免 yaml 在不同 OS 出問題 (雖說這邊是 Windows)
+        # 統一使用 / 作為分隔符
         saved_path = saved_path.replace('\\', '/')
 
         return {
@@ -386,7 +378,7 @@ class GrindSettingsDialog(QDialog):
         hbox_up.addWidget(self.chk_random_up)
         layout.addLayout(hbox_up)
 
-        sub_header = QLabel("圖片將自動儲存至 photos/skills 資料夾")
+        sub_header = QLabel("圖片將自動儲存至系統 AppData 資料夾")
         sub_header.setStyleSheet("color: gray; margin-bottom: 10px;")
         layout.addWidget(sub_header)
 
@@ -457,7 +449,7 @@ class GrindSettingsDialog(QDialog):
         if data is None:
             data = {'enabled': True, 'key': 'a', 'image_path': ''}
         
-        row = SkillRow(self, data)
+        row = SkillRow(self, self.settings_manager.base_data_path, data)
         self.scroll_layout.addWidget(row)
         self.rows.append(row)
 
