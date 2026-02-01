@@ -1,7 +1,7 @@
-import os
 import time
 from src.MapleScript import MapleScript
 from src.utils.xiao_controller import XiaoController
+from src.utils.secret_manager import SecretManager
 
 
 class Storage(MapleScript):
@@ -9,7 +9,7 @@ class Storage(MapleScript):
     def __init__(self, controller=None, log_callback=None):
         super().__init__(controller=controller, log_callback=log_callback)
         self.__number_dict, self.__ui_dict = self.yaml_loader.storage_resources
-        self.__second_password = os.getenv("SECOND_PASSWORD")
+        self.__second_password = SecretManager.get_storage_password()
 
     def __fill_in_the_password(self):
         """
@@ -18,7 +18,7 @@ class Storage(MapleScript):
         """
         # 如果沒有第二組密碼，那就提前中止
         if self.__second_password is None:
-            self.log("錯誤：未設定第二組密碼 (SECOND_PASSWORD)")
+            self.log("錯誤：未設定第二組密碼。請點擊主畫面 '輸入倉庫密碼' 旁的設定按鈕進行設定。")
             return
             
         if not self.should_continue(): return

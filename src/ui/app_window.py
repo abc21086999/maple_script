@@ -6,6 +6,7 @@ from src.ui.task_manager import TaskManager
 from src.utils.settings_manager import SettingsManager
 from src.ui.settings_dialog import SettingsDialog
 from src.ui.grind_settings_dialog import GrindSettingsDialog
+from src.ui.storage_settings_dialog import StorageSettingsDialog
 from src.MapleGrind import MapleGrind
 from src.DailyPrepare import DailyPrepare
 from src.MonsterCollection import MonsterCollection
@@ -59,7 +60,7 @@ class MainWindow(QMainWindow):
         self._add_task_button(layout, "開始練功 (Grind)", self.start_grind, self.open_grind_settings)
         self._add_task_button(layout, "每日準備 (Daily Prepare)", self.start_daily, self.open_daily_settings)
         self._add_task_button(layout, "怪物收藏 (Collection)", self.start_collection)
-        self._add_task_button(layout, "輸入倉庫密碼 (Storage)", self.start_storage)
+        self._add_task_button(layout, "輸入倉庫密碼 (Storage)", self.start_storage, self.open_storage_settings)
         # self._add_task_button(layout, "每日 BOSS (Daily Boss)", self.start_boss)
         # self._add_task_button(layout, "跳舞機 (Dancing)", self.start_dance)
         
@@ -200,6 +201,11 @@ class MainWindow(QMainWindow):
 
     def start_boss(self):
         self.manager.start_task(DailyBoss, self.controller)
+
+    def open_storage_settings(self):
+        """開啟倉庫密碼的設定視窗"""
+        dialog = StorageSettingsDialog(self)
+        dialog.exec()
 
     def start_storage(self):
         self.manager.start_task(Storage, self.controller)
