@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                               QPushButton, QTextEdit, QLabel, QFrame)
+                               QPushButton, QTextEdit, QLabel, QFrame, QMessageBox)
 from PySide6.QtCore import Signal, QObject, Slot, Qt
 from PySide6.QtGui import QIcon, QPixmap, QPainter, QFont, QColor
 from src.ui.task_manager import TaskManager
@@ -7,6 +7,7 @@ from src.utils.settings_manager import SettingsManager
 from src.ui.settings_dialog import SettingsDialog
 from src.ui.grind_settings_dialog import GrindSettingsDialog
 from src.ui.storage_settings_dialog import StorageSettingsDialog
+from src.ui.hardware_setup_dialog import HardwareSetupDialog
 from src.MapleGrind import MapleGrind
 from src.DailyPrepare import DailyPrepare
 from src.MonsterCollection import MonsterCollection
@@ -63,8 +64,14 @@ class MainWindow(QMainWindow):
         self._add_task_button(layout, "輸入倉庫密碼 (Storage)", self.start_storage, self.open_storage_settings)
         # self._add_task_button(layout, "每日 BOSS (Daily Boss)", self.start_boss)
         # self._add_task_button(layout, "跳舞機 (Dancing)", self.start_dance)
-        
+
         layout.addStretch()
+
+        # 硬體設定按鈕
+        self.btn_hardware = QPushButton("🔌 硬體連線設定")
+        self.btn_hardware.setMinimumHeight(40)
+        self.btn_hardware.clicked.connect(self.open_hardware_settings)
+        layout.addWidget(self.btn_hardware)
         
         # 停止按鈕 (具備 Hover 與 Pressed 效果)
         self.btn_stop = QPushButton("🔴 緊急停止 (STOP)")
@@ -212,6 +219,12 @@ class MainWindow(QMainWindow):
 
     def start_dance(self):
         self.manager.start_task(Dancing, self.controller)
+
+    def open_hardware_settings(self):
+        """開啟硬體設定視窗"""
+        dialog = HardwareSetupDialog(self.settings_manager, self)
+        if dialog.exec() == HardwareSetupDialog.Accepted:
+            QMessageBox.information(self, "設定已儲存", "硬體設定已更新！\n由於硬體連線在啟動時建立，請重啟程式以套用新設定。")
 
     def stop_script(self):
         """停止當前腳本"""

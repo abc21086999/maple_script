@@ -1,9 +1,23 @@
-import time
-
 import serial.tools.list_ports
 import threading
 from serial import Serial
-import os
+from src.utils.settings_manager import SettingsManager
+
+
+# 定義已知廠商的 VID 對照表
+VID_MAPPING = {
+    0x2886: "Seeed Studio",
+    0x239A: "Adafruit",
+    0x2E8A: "Raspberry Pi",
+    0x2341: "Arduino SA",
+    0x303A: "Espressif Systems",
+    0x0483: "STMicroelectronics",
+    0x04D8: "Microchip Technology Inc.",
+    0x1915: "Nordic Semiconductor",
+    0x10C4: "Silicon Labs",
+    0x0D28: "micro:bit / community",
+    0x1A86: "QinHeng Electronics",
+}
 
 
 class DeviceNotFoundException(Exception):
@@ -17,19 +31,44 @@ class XiaoController:
 
     def __init__(self, baudrate=115200, timeout=0.001):
         self.__port = None
-        self.__connection= None
+        self.__connection = None
         self.__baudrate = baudrate
         self.__timeout = timeout
-        self.__serial_number = os.getenv("SERIAL_NUMBER")
         self.__stop_event = threading.Event()
 
-    def _get_xiao_ports(self):
+    @staticmethod
+    def list_available_ports():
+        """
+        列出系統中所有可用的 COM Ports，並回傳詳細資訊列表。
+        """
+        results = []
         ports = serial.tools.list_ports.comports()
-        if self.__serial_number is not None:
-            for port in ports:
-                if port.serial_number == self.__serial_number:
-                    return port.name
-        raise DeviceNotFoundException("找不到xiao")
+        for port in ports:
+            vendor = VID_MAPPING.get(port.vid, "Unknown")
+            info = {
+                "port": port.device,
+                "description": port.description,
+                "vendor": vendor,
+                "serial_number": port.serial_number
+            }
+            results.append(info)
+        return results
+
+    def _get_xiao_ports(self):
+        """
+        根據設定檔中的序號尋找對應的 COM Port
+        """
+        serial_number = SettingsManager().get("hardware", "serial_number")
+
+        if not serial_number:
+            raise DeviceNotFoundException("尚未設定硬體序號")
+
+        ports = serial.tools.list_ports.comports()
+        for port in ports:
+            if port.serial_number == serial_number:
+                return port.name
+        
+        raise DeviceNotFoundException(f"找不到序號為 {serial_number} 的裝置")
 
     def __enter__(self):
         self.__port = self._get_xiao_ports()
@@ -137,9 +176,12 @@ class XiaoController:
     def _read_from_port(self):
         while not self.__stop_event.is_set():
             if self.__connection is not None and self.__connection.is_open:
-                data = self.__connection.readline()
-                if data:
-                    print("Xiao:", data.decode().strip())
+                try:
+                    data = self.__connection.readline()
+                    if data:
+                        print("Xiao:", data.decode().strip())
+                except Exception:
+                    break
             else:
                 break
 

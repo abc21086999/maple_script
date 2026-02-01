@@ -10,7 +10,6 @@ dxcam
 pynput
 pywin32
 PyYAML
-python-dotenv
 PySide6
 qdarkstyle
 keyring
