@@ -200,8 +200,9 @@ daily_prepare:
     leave: 'leave_market.png'
 
   master_apprentice:
-    title: 'master_and_apprentice_title.png'
-    complete_button: 'master_and_apprentice_complete_button.png'
+    title: 'daily/master_apprentice/master_and_apprentice_title.png'
+    complete_button: 'daily/master_apprentice/master_and_apprentice_complete_button.png'
+    additional_complete_button: 'daily/master_apprentice/master_and_apprentice_additional_complete_button.png'
 
   housing:
     house_map_check: 'querencia.png'

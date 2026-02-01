@@ -37,11 +37,45 @@ class DailyPrepare(MapleScript):
             # 最後不管怎麼樣，都要用Esc將界面關閉
             self.press_and_wait("esc")
 
-            # 檢查開關技能有沒有開啟
-            if not (self.is_on_screen(imgs['buff_storm']) or
-                    self.is_on_screen(imgs['buff_trifling']) or
-                    self.is_on_screen(imgs['buff_guided_arrow'])):
-                self.press_and_wait("=", 1)
+    def turn_on_toggle_skills(self):
+        """
+        開啟開關型技能 (Toggle Skills)
+        讀取設定中的技能列表，如果畫面上沒有該技能的圖示，就按下對應的按鍵。
+        """
+        if not self.should_continue(): return
+        self.log("正在檢查並開啟開關型技能...")
+        
+        # 讀取設定
+        skills = self.settings.get("toggle_skills", default=[])
+        
+        if not skills:
+            self.log("未設定任何開關技能")
+            return
+
+        # 確保在遊戲視窗內
+        if self.is_maple_focus():
+            for skill in skills:
+                if not self.should_continue(): 
+                    break
+                
+                # 檢查是否啟用
+                if not skill.get('enabled', True):
+                    continue
+                    
+                image_path = skill.get('image_path')
+                key = skill.get('key')
+                
+                if not image_path or not key:
+                    continue
+                
+                # 檢查畫面上是否已經有該技能的狀態圖示 (通常出現在右上角)
+                # 如果沒有找到，代表技能未開啟，需要按鍵開啟
+                if not self.is_on_screen(image_path):
+                    self.log(f"開啟技能 (按鍵: {key})")
+                    self.press_and_wait(key, 1.5) # 按完等待一下讓狀態出現
+                else:
+                    # self.log(f"技能已開啟 (按鍵: {key})")
+                    pass
 
 
     def collect_union_coin(self):
@@ -331,6 +365,11 @@ class DailyPrepare(MapleScript):
                 self.find_and_click_image(imgs['complete_button'])
                 self.press_and_wait("enter")
 
+            # 或是當界面上還有追加完成出現的時候，就一個一個按下去
+            while self.should_continue() and self.is_on_screen(imgs['additional_complete_button']):
+                self.find_and_click_image(imgs['additional_complete_button'])
+                self.press_and_wait("enter")
+
             # 最後按下Esc來離開師徒界面
             self.sleep(0.3)
             self.press_and_wait("esc")
@@ -428,6 +467,7 @@ class DailyPrepare(MapleScript):
         task_map = {
             'switch_set': self.switch_to_grinding_set,
             'union_coin': self.collect_union_coin,
+            'toggle_skills': self.turn_on_toggle_skills,
             'daily_mission': self.start_daily_or_weekly_mission,
             'dismantle': self.dismantle_armours,
             'hd_gift': self.receive_hd_gift,
