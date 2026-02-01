@@ -11,14 +11,17 @@ The architecture is composed of three main parts:
 
 The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities and **thread-safety mechanisms**. Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`) inherit from the base `MapleScript` class.
 
-Settings are separated into resource paths (`config/config.yaml`) and user preferences (`config/settings.yaml`).
+Settings are managed by a **hybrid storage system**:
+- **Simple Toggles & Flags**: Stored in the Windows Registry via `QSettings`.
+- **Complex Structures (e.g., Skills)**: Stored as JSON files in `AppData/Local`.
+- **Sensitive Data (e.g., Passwords)**: Securely managed using Windows Credential Manager via `SecretManager`.
+- **Resource Paths**: Managed by `YamlLoader` for `config/config.yaml`.
 
 ## Building and Running
 
 ### 1. Hardware Setup
 
-- A Seeed Studio Xiao ESP32S3 board is required.
-- Flash the board with the appropriate version of CircuitPython.
+- A board with the appropriate version of CircuitPython is required.
 - Load the code from the `XiaoCode/` directory onto the Xiao board.
 
 ### 2. Software Dependencies
@@ -58,13 +61,17 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
     - `app_window.py`: The main window layout and signal/slot logic.
     - `task_manager.py`: Manages background threads for script execution.
     - `settings_dialog.py`: A generic QDialog for toggling task settings.
-    - `grind_settings_dialog.py`: Specialized dialog for configuring grind skills and protection settings.
+    - `grind_settings_dialog.py`: Specialized dialog for configuring grind skills, protection, and route recording.
+    - `hardware_setup_dialog.py`: Handles hardware connection setup and serial number diagnostics.
+    - `storage_settings_dialog.py`: Handles secure storage password input.
 - `src/utils/`: Shared utilities and helpers.
-    - `xiao_controller.py`: Manages serial communication with the ESP32S3 hardware.
-    - `maple_vision.py`: Handles computer vision tasks (OpenCV matching).
+    - `xiao_controller.py`: Manages serial communication with the hardware using serial number matching.
+    - `maple_vision.py`: Handles computer vision tasks (OpenCV matching, minimap analysis).
     - `windows_object.py`: Handles low-level Windows API interactions.
-    - `settings_manager.py`: Handles reading/writing of user preferences (`settings.yaml`).
-- `src/MapleScript.py`: **Base Class**. Now implements `threading.Event` for interrupt control (`stop()`, `should_continue()`), a logging callback (`log()`), and integrates `SettingsManager` for direct access to user preferences.
+    - `settings_manager.py`: Implements the hybrid storage system with path virtualization (`$APP_DATA$`).
+    - `config_loader.py`: (`YamlLoader`) Unified loader for YAML configurations.
+    - `secret_manager.py`: Securely manages credentials using Windows keyring.
+- `src/MapleScript.py`: **Base Class**. Implements `threading.Event` for interrupt control, a logging callback (`log()`), and provides high-level utilities like `invoke_menu()`, `move_to_point()` (minimap navigation), and `replay_script()`.
 
 ### Threading & UI Safety
 - **Event-Driven:** Scripts run in a separate worker thread, not the main UI thread.
@@ -75,10 +82,14 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
 
 ### Configuration
 - **Resource Configuration (`config/config.yaml`):** Stores read-only data like image paths and UI offsets.
-- **User Settings (`config/settings.yaml`):** Stores user-configurable boolean flags (e.g., enabling/disabling specific daily tasks) and Grind protection settings (pause on Rune/Player detection). Managed by `src/utils/settings_manager.py`.
-- **Patrol Routes:** Defined in `config/grind_routes.yaml`.
-- **Secrets:** Managed using a `.env` file (see `example_env.txt`).
+- **User Preferences (Registry & AppData):** 
+    - Boolean flags (e.g., enabling specific daily tasks) are stored in the Windows Registry.
+    - Complex data like `grind_skills` are stored in JSON files within the user's AppLocalData directory.
+    - **Path Virtualization**: Uses the `$APP_DATA prefix in JSON files to ensure absolute image paths are correctly resolved across different computers.
+- **Secrets**: Managed by `SecretManager` via Windows Credential Manager (keyring).
+- **Patrol Routes**: Defined in `config/grind_routes.yaml` or recorded into `config/recorded_route.yaml`.
 
 ### Hardware Communication
 - All hardware actions are routed through `src/utils/xiao_controller.py`.
-- In GUI mode, the controller connection is managed by `main.py` using a context manager (`with` statement) to ensure proper resource release.
+- **Automatic Connection**: The controller identifies the correct COM port by matching the **Serial Number** stored in user settings, ensuring stability even if the COM port changes.
+- In GUI mode, the controller connection is managed by `main.py` using a context manager. If connection fails, a `HardwareSetupDialog` is automatically triggered.
