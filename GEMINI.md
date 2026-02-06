@@ -12,8 +12,7 @@ The architecture is composed of three main parts:
 The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities and **thread-safety mechanisms**. Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`) inherit from the base `MapleScript` class.
 
 Settings are managed by a **hybrid storage system**:
-- **Simple Toggles & Flags**: Stored in the Windows Registry via `QSettings`.
-- **Complex Structures (e.g., Skills)**: Stored as JSON files in `AppData/Local`.
+- **General Preferences & Complex Structures**: Stored as JSON files in `AppData/Local`.
 - **Sensitive Data (e.g., Passwords)**: Securely managed using Windows Credential Manager via `SecretManager`.
 - **Resource Paths**: Managed by `YamlLoader` for `config/config.yaml`.
 
@@ -82,10 +81,9 @@ Available task names: `grind`, `collection`, `daily`, `daily_boss`, `storage`, `
 
 ### Configuration
 - **Resource Configuration (`config/config.yaml`):** Stores read-only data like image paths and UI offsets.
-- **User Preferences (Registry & AppData):** 
-    - Boolean flags (e.g., enabling specific daily tasks) are stored in the Windows Registry.
-    - Complex data like `grind_skills` are stored in JSON files within the user's AppLocalData directory.
-    - **Path Virtualization**: Uses the `$APP_DATA prefix in JSON files to ensure absolute image paths are correctly resolved across different computers.
+- **User Preferences (AppData):** 
+    - All user settings (toggles, skill configurations, hardware serial numbers) are stored as JSON files within the user's AppLocalData directory.
+    - **Path Virtualization**: Uses the `$APP_DATA$ prefix in JSON files to ensure absolute image paths are correctly resolved across different computers.
 - **Secrets**: Managed by `SecretManager` via Windows Credential Manager (keyring).
 - **Patrol Routes**: Defined in `config/grind_routes.yaml` or recorded into `config/recorded_route.yaml`.
 

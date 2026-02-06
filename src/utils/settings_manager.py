@@ -1,15 +1,14 @@
 import json
 import os
 from pathlib import Path
-import yaml
-from PySide6.QtCore import QSettings, QStandardPaths
+from PySide6.QtCore import QStandardPaths
 
 
 class SettingsManager:
     """
     分流儲存管理器：
-    - 簡單的開關與設定存入 Windows Registry (QSettings)。
-    - 複雜的結構 (如 grind_skills) 存入 AppData 中的 JSON 檔案。
+    - 所有設定均存入 AppData 中的 JSON 檔案。
+    - 支援路徑虛擬化 ($APP_DATA$) 以確保跨裝置相容性。
     """
 
     # 定義哪些區塊應該儲存為檔案，以及它們在 AppData 內的檔案路徑
@@ -17,21 +16,15 @@ class SettingsManager:
     STORAGE_ROUTING = {
         "grind_skills": "skills/skills.json",
         "toggle_skills": "toggle/toggle_skills.json",
-        "recorded_route": "routes/recorded_route.json"
+        "recorded_route": "routes/recorded_route.json",
+        "daily_prepare": "tasks/daily_prepare.json",
+        "grind_settings": "tasks/grind_settings.json",
+        "hardware": "system/hardware.json"
     }
 
     def __init__(self):
         # 取得 AppData/Local 路徑 (由 main.py 的 metadata 決定)
         self.base_data_path = Path(QStandardPaths.writableLocation(QStandardPaths.AppLocalDataLocation))
-        
-        # 初始化 QSettings (Registry)
-        self.settings = QSettings()
-
-        # 舊的設定檔路徑 (用於遷移)
-        self.old_settings_path = Path(__file__).resolve().parent.parent.parent / 'config' / 'settings.yaml'
-
-        # 執行遷移 (如果舊檔案存在)
-        self._migrate_if_needed()
 
     def _get_file_path(self, section: str) -> Path:
         """根據映射表取得檔案的絕對路徑"""
@@ -46,25 +39,33 @@ class SettingsManager:
 
     def get(self, section, key=None, default=None):
         """
-        取得設定。自動判定從檔案讀取或從 Registry 讀取。
+        取得設定。僅支援已定義在 STORAGE_ROUTING 中的項目。
         """
-        # 1. 判斷是否為檔案型資料
         file_path = self._get_file_path(section)
-        if file_path:
-            return self._load_from_file(file_path, key, default)
         
-        # 2. 否則從 Registry 讀取
-        return self._load_from_registry(section, key, default)
+        if not file_path:
+            return default if key is not None else {}
+            
+        return self._load_from_file(file_path, key, default)
 
-    def save(self, section, data_to_update):
+    def save(self, section, data_to_update, file_name=None):
         """
-        儲存設定。自動判定寫入檔案或 Registry。
+        儲存設定。僅支援已定義在 STORAGE_ROUTING 中的項目，或明確指定 file_name。
         """
-        file_path = self._get_file_path(section)
-        if file_path:
-            self._save_to_file(file_path, data_to_update)
+        file_path = None
+        
+        if file_name:
+            file_path = self.base_data_path / file_name
         else:
-            self._save_to_registry(section, data_to_update)
+            file_path = self._get_file_path(section)
+        
+        if not file_path:
+             print(f"Error: Cannot save to undefined section '{section}' without a file_name.")
+             return
+
+        # 確保父資料夾存在
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        self._save_to_file(file_path, data_to_update)
 
     def _load_from_file(self, path: Path, key, default):
         """從 JSON 檔案讀取資料"""
@@ -143,59 +144,3 @@ class SettingsManager:
             return new_dict
         
         return data
-
-    def _load_from_registry(self, section, key, default):
-        """從 QSettings 讀取"""
-        if key:
-            val = self.settings.value(f"{section}/{key}", default)
-            return self._convert_type(val)
-        else:
-            # 取得整個 section (群組)
-            self.settings.beginGroup(section)
-            data = {k: self._convert_type(self.settings.value(k)) for k in self.settings.childKeys()}
-            self.settings.endGroup()
-            return data if data else default
-
-    def _save_to_registry(self, section, data):
-        """將資料寫入 QSettings"""
-        if not isinstance(data, dict):
-            return
-
-        self.settings.beginGroup(section)
-        for k, v in data.items():
-            self.settings.setValue(k, v)
-        self.settings.endGroup()
-
-    def _convert_type(self, val):
-        """輔助函式：處理 QSettings 讀出的型別轉換問題 (特別是 bool)"""
-        if isinstance(val, str):
-            if val.lower() == 'true': return True
-            if val.lower() == 'false': return False
-            try:
-                if '.' in val: return float(val)
-                return int(val)
-            except ValueError:
-                return val
-        return val
-
-    def _migrate_if_needed(self):
-        """一次性遷移：從 settings.yaml 搬移到新架構"""
-        if not self.old_settings_path.exists():
-            return
-
-        print(f"偵測到舊設定檔，開始遷移至 AppData: {self.old_settings_path}")
-        try:
-            with open(self.old_settings_path, 'r', encoding='utf-8') as f:
-                old_data = yaml.safe_load(f)
-                if not old_data:
-                    return
-
-                for section, content in old_data.items():
-                    self.save(section, content)
-            
-            # 遷移完成後重新命名舊檔案
-            backup_path = self.old_settings_path.with_suffix('.yaml.bak')
-            self.old_settings_path.rename(backup_path)
-            print(f"遷移完成，舊檔案已更名為: {backup_path}")
-        except Exception as e:
-            print(f"遷移過程發生錯誤: {e}")
