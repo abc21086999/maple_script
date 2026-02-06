@@ -129,13 +129,13 @@ class MapleGrind(MapleScript):
         根據錄製的腳本來重播操作
         """
         if self.is_maple_focus():
-            recorded_events = self.yaml_loader.recorded_route
+            recorded_events = self.settings.get('recorded_route', default=[])
             
             if recorded_events:
                 self.log("開始執行錄製的腳本")
                 self.replay_script(recorded_events)
             else:
-                self.log("警告: 未錄製任何路徑 (config/recorded_route.yaml 缺失或為空)")
+                self.log("警告: 未錄製任何路徑 (或路徑為空)")
 
             # 如果有設定間隔，就休息一下；否則直接進行下一輪
             if self.is_loop_interval_enabled:

@@ -16,7 +16,8 @@ class SettingsManager:
     # 格式為 { "區塊名稱": "子路徑" }
     STORAGE_ROUTING = {
         "grind_skills": "skills/skills.json",
-        "toggle_skills": "toggle/toggle_skills.json"
+        "toggle_skills": "toggle/toggle_skills.json",
+        "recorded_route": "routes/recorded_route.json"
     }
 
     def __init__(self):

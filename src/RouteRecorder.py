@@ -1,8 +1,5 @@
 import time
-import yaml
-from pathlib import Path
 from pynput import keyboard
-from PySide6.QtCore import QStandardPaths
 from src.MapleScript import MapleScript
 
 class RouteRecorder(MapleScript):
@@ -10,11 +7,6 @@ class RouteRecorder(MapleScript):
         super().__init__(controller, log_callback)
         self.events = []
         self.start_time = None
-        
-        # 使用 AppData 標準路徑
-        base_path = Path(QStandardPaths.writableLocation(QStandardPaths.AppLocalDataLocation))
-        self.output_dir = base_path / "routes"
-        self.output_path = self.output_dir / "recorded_route.yaml"
 
     def start(self):
         """
@@ -103,14 +95,9 @@ class RouteRecorder(MapleScript):
             self.log("警告：沒有錄製到任何動作，不進行儲存。")
             return
 
-        # 確保 AppData 中的目錄存在
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-
         try:
-            with open(self.output_path, 'w', encoding='utf-8') as f:
-                # 直接儲存 events list，不再包含 route_name
-                yaml.dump(self.events, f, allow_unicode=True, sort_keys=False)
+            # 改用 SettingsManager 儲存 (會自動存為 JSON 並處理路徑)
+            self.settings.save("recorded_route", self.events)
             self.log(f"成功錄製 {len(self.events)} 個動作。")
-            self.log(f"檔案儲存於: {self.output_path}")
         except Exception as e:
             self.log(f"儲存路徑檔案時發生錯誤: {e}")

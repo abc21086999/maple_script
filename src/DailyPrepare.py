@@ -382,7 +382,7 @@ class DailyPrepare(MapleScript):
         """
         if not self.should_continue(): return
         self.log("正在處理小屋...")
-        imgs = self.__images['housing']
+        imgs = self.__images['home']
 
         # 打開總攬界面
         self.invoke_menu()
@@ -400,6 +400,10 @@ class DailyPrepare(MapleScript):
         # 等待到達小屋
         while self.should_continue() and not self.is_on_screen(imgs['house_map_check']):
             self.sleep(0.5)
+
+        # 艾咪、艾爾文和珍妮會有預設的對話框
+        if self.is_on_screen(imgs['amy']) or self.is_on_screen(imgs['alvin']) or self.is_on_screen(imgs['jenny']):
+            self.press_and_wait("y", 0.5)
 
         # 點擊管理人圖案
         self.find_and_click_image(imgs['caretaker'])

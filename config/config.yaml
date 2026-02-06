@@ -204,12 +204,15 @@ daily_prepare:
     complete_button: 'daily/master_apprentice/master_and_apprentice_complete_button.png'
     additional_complete_button: 'daily/master_apprentice/master_and_apprentice_additional_complete_button.png'
 
-  housing:
-    house_map_check: 'querencia.png'
-    caretaker:  'caretaker.png'
-    talk_with_caretaker: 'talk_with_caretaker.png'
-    caretaker_talkable: 'caretaker_talkable.png'
-    stop_conversation: 'stop_conversation.png'
+  home:
+    house_map_check: 'daily/home/querencia.png'
+    caretaker:  'daily/home/caretaker.png'
+    talk_with_caretaker: 'daily/home/talk_with_caretaker.png'
+    caretaker_talkable: 'daily/home/caretaker_talkable.png'
+    stop_conversation: 'daily/home/stop_conversation.png'
+    amy: 'daily/home/amy.png'
+    alvin: 'daily/home/alvin.png'
+    jenny: 'daily/home/jenny.png'
 
   event:
     event_daily_checkin_tab: 'event/event_daily_checkin_tab.png'
