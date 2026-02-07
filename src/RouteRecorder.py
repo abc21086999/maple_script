@@ -44,7 +44,7 @@ class RouteRecorder(MapleScript):
         
         # 特殊功能鍵 (space, ctrl, shift...)
         if hasattr(key, 'name'):
-            # pynput 的 name 與 XiaoCode 的指令可能有差異，這裡做轉換
+            # pynput 的 name 與 code 的指令可能有差異，這裡做轉換
             key_mapping = {
                 'page_up': 'pageup',
                 'page_down': 'pagedown',
