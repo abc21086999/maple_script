@@ -14,6 +14,7 @@ from src.MonsterCollection import MonsterCollection
 from src.DailyBoss import DailyBoss
 from src.Storage import Storage
 from src.DancingMachine import Dancing
+from pathlib import Path
 
 class LogSignal(QObject):
     """
@@ -29,7 +30,8 @@ class MainWindow(QMainWindow):
         # 1. 基礎視窗設定
         self.setWindowTitle("Automation Control Center")
         self.resize(900, 600)
-        self.setWindowIcon(self._create_emoji_icon("🤖"))
+        icon_path = Path(__file__).parent.parent.parent / "icon.ico"
+        self.setWindowIcon(QIcon(str(icon_path)))
         
         # 2. 初始化 UI 排版
         self._setup_ui()
@@ -156,19 +158,6 @@ class MainWindow(QMainWindow):
             row_layout.addWidget(settings_btn)
             
         layout.addLayout(row_layout)
-
-    def _create_emoji_icon(self, emoji: str) -> QIcon:
-        """將 Emoji 繪製成 QIcon"""
-        size = 64
-        pixmap = QPixmap(size, size)
-        pixmap.fill(QColor("transparent"))
-        painter = QPainter(pixmap)
-        font = QFont("Segoe UI Emoji", int(size * 0.8))
-        font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
-        painter.setFont(font)
-        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, emoji)
-        painter.end()
-        return QIcon(pixmap)
 
     def text_area_clear(self):
         """清除日誌區域"""
