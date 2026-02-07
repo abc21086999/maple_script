@@ -244,7 +244,7 @@ class GrindSettingsDialog(QDialog):
         # ComboBox: 秒數選擇
         self.combo_loop_interval = QComboBox()
         # 產生 5, 10, ..., 60 的選項
-        intervals = [str(i) for i in range(5, 65, 5)]
+        intervals = [str(i) for i in range(5, 360, 5)]
         self.combo_loop_interval.addItems(intervals)
         self.combo_loop_interval.setFixedWidth(60)
         loop_layout.addWidget(self.combo_loop_interval)

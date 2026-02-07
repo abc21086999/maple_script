@@ -137,10 +137,22 @@ class MapleGrind(MapleScript):
             else:
                 self.log("警告: 未錄製任何路徑 (或路徑為空)")
 
-            # 如果有設定間隔，就休息一下；否則直接進行下一輪
+            # 如果有設定間隔，就休息一下，進入原地練功；否則直接進行下一輪
             if self.is_loop_interval_enabled:
+                end_time = time.time() + self.route_interval_seconds
                 self.log(f"腳本執行完畢，等待 {self.route_interval_seconds} 秒...")
-                self.sleep(self.route_interval_seconds)
+                while time.time() < end_time and self.should_continue() and self.is_maple_focus():
+                    self.grind_mode()
+
+    def grind_mode(self):
+        """
+        原地練功模式的封裝
+        :return:
+        """
+        self.find_ready_skill()
+        self.press_ready_skills()
+        if self.is_random_up_enabled:
+            self.move_by_pressing_up()
 
     @cached_property
     def is_stationary(self) -> bool:
@@ -194,10 +206,7 @@ class MapleGrind(MapleScript):
 
                     # 如果沒有觸發暫停條件，那就開始練功
                     if self.is_stationary:
-                        self.find_ready_skill()
-                        self.press_ready_skills()
-                        if self.is_random_up_enabled:
-                            self.move_by_pressing_up()
+                        self.grind_mode()
                     
                     if self.is_route_enabled:
                         self.walk_the_map()
