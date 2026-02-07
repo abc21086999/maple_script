@@ -8,7 +8,7 @@ class Storage(MapleScript):
 
     def __init__(self, controller=None, log_callback=None):
         super().__init__(controller=controller, log_callback=log_callback)
-        self.__number_dict, self.__ui_dict = self.yaml_loader.storage_resources
+        self.__icon_dict, self.__ui_dict = self.yaml_loader.storage_resources
         self.__second_password = SecretManager.get_storage_password()
 
     def __fill_in_the_password(self):
@@ -27,6 +27,7 @@ class Storage(MapleScript):
         storage_ui_title = self.__ui_dict['title']
         storage_icon = self.__ui_dict['icon']
         inventory = self.__ui_dict['inventory']
+        upper_case = self.__ui_dict['upper_case_button']
 
         # 如果畫面上沒有輸入第二組密碼的UI，那就打開倉庫界面
         if not self.is_on_screen(storage_ui_title):
@@ -44,14 +45,22 @@ class Storage(MapleScript):
                 self.log("密碼輸入已中斷")
                 return
                 
-            password_char_pic = self.__number_dict.get(password_char)
+            password_char_pic = self.__icon_dict.get(password_char)
             if not self.is_on_screen(password_char_pic):
-                self.find_and_click_image(storage_ui_title)
+                # 沒在畫面上有兩種狀況：第一種擋到，第二種是大寫
+                if password_char.isupper():
+                    self.find_and_click_image(upper_case)
+                else:
+                    self.find_and_click_image(storage_ui_title)
             self.find_and_click_image(password_char_pic)
+            if password_char.isupper():
+                self.find_and_click_image(upper_case)
+                self.find_and_click_image(storage_ui_title)
+            # time.sleep(0.3)
 
         # 點擊確認
         if self.should_continue():
-            self.find_and_click_image(self.__ui_dict['confirm'])
+            # self.find_and_click_image(self.__ui_dict['confirm'])
             self.log("密碼輸入完成")
 
     def start(self):

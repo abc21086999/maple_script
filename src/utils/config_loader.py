@@ -53,23 +53,28 @@ class YamlLoader:
         """
         建立並回傳倉庫UI的號碼和圖片
         Returns:
-            tuple[dict, dict]: (numbers_dict, ui_dict)
+            tuple[dict, dict]: (icon_dict, ui_dict)
         """
         storage_config = self.__config["storage"]
-        numbers_dict = {}
+        icon_dict = {}
         ui_dict = {}
 
         # 處理數字圖片 (預設在 storage 資料夾下)
         for number, num_pic in storage_config.get('numbers', {}).items():
             img_path = self.__photo_path / "storage" / num_pic
-            numbers_dict[number] = PIL.Image.open(img_path)
+            icon_dict[number] = PIL.Image.open(img_path)
+
+        # 處理英文圖片
+        for alphabet, alphabet_pic in storage_config.get('alphabet', {}).items():
+            img_path = self.__photo_path / "storage" / alphabet_pic
+            icon_dict[alphabet] = PIL.Image.open(img_path)
 
         # 處理 UI 圖片 (依照設定檔路徑)
         for name, pic_path in storage_config.get('ui', {}).items():
             img_path = self.__photo_path / pic_path
             ui_dict[name] = PIL.Image.open(img_path)
 
-        return numbers_dict, ui_dict
+        return icon_dict, ui_dict
 
     @cached_property
     def dancing_config(self) -> tuple[dict, dict]:
