@@ -1,4 +1,3 @@
-import time
 from src.MapleScript import MapleScript
 from src.utils.xiao_controller import XiaoController
 from src.utils.secret_manager import SecretManager
@@ -10,6 +9,19 @@ class Storage(MapleScript):
         super().__init__(controller=controller, log_callback=log_callback)
         self.__icon_dict, self.__ui_dict = self.yaml_loader.storage_resources
         self.__second_password = SecretManager.get_storage_password()
+        self.__storage_ui_title = self.__ui_dict['title']
+        self.__storage_icon = self.__ui_dict['icon']
+        self.__inventory = self.__ui_dict['inventory']
+        self.__upper_case = self.__ui_dict['upper_case_button']
+        self.__isupper = False
+
+    def __click_button(self, char: str):
+        char_pic = self.__icon_dict.get(char)
+        # 如果不在畫面上...大膽假設就是被我們的滑鼠擋住了
+        if not self.is_on_screen(char_pic):
+            self.click()
+        else:
+            self.find_and_click_image(char_pic)
 
     def __fill_in_the_password(self):
         """
@@ -24,43 +36,36 @@ class Storage(MapleScript):
         if not self.should_continue(): return
         self.log("正在輸入倉庫密碼...")
 
-        storage_ui_title = self.__ui_dict['title']
-        storage_icon = self.__ui_dict['icon']
-        inventory = self.__ui_dict['inventory']
-        upper_case = self.__ui_dict['upper_case_button']
-
         # 如果畫面上沒有輸入第二組密碼的UI，那就打開倉庫界面
-        if not self.is_on_screen(storage_ui_title):
-            if not self.is_on_screen(pic = inventory):
-                self.press_and_wait("i", 0.5)
-            self.find_and_click_image(storage_icon)
+        if not self.is_on_screen(self.__storage_ui_title):
+            if not self.is_on_screen(pic = self.__inventory):
+                self.invoke_menu()
+                self.press_and_wait(["tab", "right", "down", "down", "enter"])
+        self.find_and_click_image(self.__storage_icon)
 
         # 等待界面出現
-        while self.should_continue() and not self.is_on_screen(storage_ui_title):
+        while self.should_continue() and not self.is_on_screen(self.__storage_ui_title):
             self.sleep(0.3)
 
         # 將密碼一個一個輸入
         for password_char in self.__second_password:
-            if not self.should_continue():
-                self.log("密碼輸入已中斷")
-                return
-                
-            password_char_pic = self.__icon_dict.get(password_char)
-            if not self.is_on_screen(password_char_pic):
-                # 沒在畫面上有兩種狀況：第一種擋到，第二種是大寫
-                if password_char.isupper():
-                    self.find_and_click_image(upper_case)
-                else:
-                    self.find_and_click_image(storage_ui_title)
-            self.find_and_click_image(password_char_pic)
-            if password_char.isupper():
-                self.find_and_click_image(upper_case)
-                self.find_and_click_image(storage_ui_title)
-            # time.sleep(0.3)
+            # 如果這個字是大寫，但是大寫沒開，那就打開，然後輸入
+            if password_char.isupper() and not self.__isupper:
+                self.find_and_click_image(self.__upper_case)
+                self.__isupper = True
+                self.__click_button(password_char)
+            # 如果這個字不是大寫，但是大寫卻開了，那就關掉，然後輸入
+            elif password_char.islower() and self.__isupper:
+                self.find_and_click_image(self.__upper_case)
+                self.__isupper = False
+                self.__click_button(password_char)
+            # 剩下包括：大寫且大寫開了、小寫大寫也沒開、數字，都直接輸入
+            else:
+                self.__click_button(password_char)
 
         # 點擊確認
         if self.should_continue():
-            # self.find_and_click_image(self.__ui_dict['confirm'])
+            self.find_and_click_image(self.__ui_dict['confirm'])
             self.log("密碼輸入完成")
 
     def start(self):
