@@ -1,4 +1,3 @@
-pydirectinput
 PyAutoGUI
 opencv-python
 pillow
@@ -6,10 +5,11 @@ PyScreeze
 numpy
 pyserial
 adafruit_board_toolkit
-dxcam
 pynput
 pywin32
 PyYAML
 PySide6
 qdarkstyle
 keyring
+zstandard
+nuitka

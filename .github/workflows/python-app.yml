@@ -33,7 +33,7 @@ jobs:
 
       - name: Build with Nuitka (Windows)
         run: |
-          nuitka --standalone --onefile --windows-console-mode=disable --enable-plugin=pyside6 --nofollow-import-to=PySide6.QtMultimedia,PySide6.QtMultimediaWidgets,PySide6.QtWebEngineCore,PySide6.QtWebEngineWidgets --windows-icon-from-ico=icon.ico --include-data-files=icon.ico=icon.ico --include-data-dir=config=config --include-data-dir=photos=photos --output-dir=build --output-filename=main.exe main.py
+          nuitka --standalone --onefile --windows-console-mode=disable --enable-plugin=pyside6 --nofollow-import-to=PySide6.QtMultimedia,PySide6.QtMultimediaWidgets,PySide6.QtWebEngineCore,PySide6.QtWebEngineWidgets --windows-icon-from-ico=icon.ico --include-data-files=icon.ico=icon.ico --include-data-dir=config=config --include-data-dir=photos=photos --output-dir=build --assume-yes-for-downloads --output-filename=main.exe main.py
         shell: cmd
 
       - name: Create Release and Upload
