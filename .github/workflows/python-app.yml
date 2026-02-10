@@ -33,8 +33,14 @@ jobs:
 
       - name: Build with Nuitka (Windows)
         run: |
-          nuitka --standalone --onefile --windows-console-mode=disable --enable-plugin=pyside6 --nofollow-import-to=PySide6.QtMultimedia,PySide6.QtMultimediaWidgets,PySide6.QtWebEngineCore,PySide6.QtWebEngineWidgets --windows-icon-from-ico=icon.ico --include-data-files=icon.ico=icon.ico --include-data-dir=config=config --include-data-dir=photos=photos --assume-yes-for-downloads main.py
+          nuitka --standalone --windows-console-mode=disable --enable-plugin=pyside6 --nofollow-import-to=PySide6.QtMultimedia,PySide6.QtMultimediaWidgets,PySide6.QtWebEngineCore,PySide6.QtWebEngineWidgets --windows-icon-from-ico=icon.ico --include-data-files=icon.ico=icon.ico --include-data-dir=config=config --include-data-dir=photos=photos --assume-yes-for-downloads --output-dir=build main.py
         shell: cmd
+
+      - name: Zip Dist Folder (PowerShell)
+        run: |
+          # 進入 build/main.dist 內部，將所有檔案壓縮至根目錄的 main.zip
+          # 注意 Path 使用 "build\main.dist\*" 是為了只壓內容，不壓資料夾外殼
+          Compress-Archive -Path "build\main.dist\*" -DestinationPath "main.zip" -Force
 
       - name: Create Release and Upload
         uses: softprops/action-gh-release@v2
@@ -42,6 +48,6 @@ jobs:
           tag_name: ${{ github.event.inputs.tag_name }}
           name: Release ${{ github.event.inputs.tag_name }}
           files: |
-            main.exe
+            main.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
