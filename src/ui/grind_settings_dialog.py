@@ -10,6 +10,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from src.RouteRecorder import RouteRecorder
+import ctypes
+import sys
+import subprocess
 
 class SkillRow(QWidget):
     def __init__(self, parent_dialog, base_data_path, data=None):
@@ -310,9 +313,6 @@ class GrindSettingsDialog(QDialog):
         self.combo_loop_interval.setEnabled(route_enabled and interval_enabled)
 
     def start_recording(self):
-        import ctypes
-        import sys
-
         # 檢查管理員權限 (錄製鍵盤需要)
         try:
             is_admin = ctypes.windll.shell32.IsUserAnAdmin()
@@ -321,8 +321,19 @@ class GrindSettingsDialog(QDialog):
 
         if not is_admin:
             # 請求以管理員身分重啟程式
+            # 判斷是否為打包後的執行檔 (Nuitka/PyInstaller 會設定 sys.frozen)
+            if getattr(sys, 'frozen', False):
+                # 打包環境：sys.executable 是程式本體，sys.argv[0] 也是程式路徑
+                # 我們不需要把程式路徑當作參數傳給自己，所以取 sys.argv[1:]
+                # 如果沒有其他參數，這會是空列表，這是正確的
+                params = subprocess.list2cmdline(sys.argv[1:])
+            else:
+                # 開發環境：sys.executable 是 python.exe，sys.argv[0] 是腳本路徑 (main.py)
+                # 我們需要保留腳本路徑作為參數傳給 python.exe
+                params = subprocess.list2cmdline(sys.argv)
+
             ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", sys.executable, " ".join(sys.argv), None, 1
+                None, "runas", sys.executable, params, None, 1
             )
             # 關閉目前程式
             QApplication.instance().quit()

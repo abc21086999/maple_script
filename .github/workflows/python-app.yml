@@ -33,7 +33,7 @@ jobs:
 
       - name: Build with Nuitka (Windows)
         run: |
-          nuitka --standalone --windows-console-mode=disable --enable-plugin=pyside6 --nofollow-import-to=PySide6.QtMultimedia,PySide6.QtMultimediaWidgets,PySide6.QtWebEngineCore,PySide6.QtWebEngineWidgets --windows-icon-from-ico=icon.ico --include-data-files=icon.ico=icon.ico --include-data-dir=config=config --include-data-dir=photos=photos --assume-yes-for-downloads --output-dir=build main.py
+          nuitka --standalone --windows-console-mode=disable --enable-plugin=pyside6 --nofollow-import-to=PySide6.QtWebEngine,PySide6.QtWebEngineCore,PySide6.QtWebEngineWidgets,PySide6.QtQml,PySide6.QtQuick,PySide6.QtQuickWidgets,PySide6.QtQuickControls2,PySide6.QtMultimedia,PySide6.QtMultimediaWidgets,PySide6.QtNetwork,PySide6.QtWebSockets,PySide6.QtWebChannel,PySide6.QtSql,PySide6.QtSerialPort,PySide6.QtBluetooth,PySide6.QtNfc,PySide6.QtSensors,PySide6.QtPositioning,PySide6.QtLocation,PySide6.QtCharts,PySide6.QtDataVisualization,PySide6.Qt3DCore,PySide6.Qt3DInput,PySide6.Qt3DLogic,PySide6.Qt3DRender,PySide6.QtDesigner,PySide6.QtHelp,PySide6.QtTest,PySide6.QtXml,PySide6.QtRemoteObjects,PySide6.QtScxml,PySide6.QtStateMachine,PySide6.QtPrintSupport,PySide6.QtSvg --windows-icon-from-ico=icon.ico --include-data-files=icon.ico=icon.ico --include-data-dir=config=config --include-data-dir=photos=photos --assume-yes-for-downloads --output-dir=build main.py
         shell: cmd
 
       - name: Zip Dist Folder (PowerShell)
