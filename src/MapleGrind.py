@@ -124,6 +124,52 @@ class MapleGrind(MapleScript):
             self.press("alt")
             self.key_up("down")
 
+    def check_safety_status(self) -> bool:
+        """
+        一個統一的檢查機制
+        :return: bool
+        """
+        if not self.is_maple_focus():
+            self.log("楓之谷不在前景，暫停中")
+            self.sleep(1)
+            return False
+
+        # 如果地圖上有符文，且設定開啟，才暫停
+        if self.stop_on_rune and self.has_rune():
+            self.log("地圖上有符文 (暫停中...)")
+            self.sleep(20)
+            return False
+
+        # 如果地圖上有其他人，且設定開啟，才暫停
+        if self.stop_on_people and self.has_other_players():
+            self.log("地圖上有其他人 (暫停中...)")
+            self.sleep(20)
+            return False
+        return True
+
+    def monitor_and_grind(self, duration: float = 0):
+        """
+        在指定時間內進行檢查與原地練功
+        :param duration: 持續的時間，如果是0那就只做一次
+        """
+        end_time = time.time() + duration
+        while self.should_continue():
+            # 如果有什麼狀況的話，那麼就讓狀況卡在這邊
+            if not self.check_safety_status():
+                continue
+
+            # 不然就練功
+            if self.is_stationary:
+                self.grind_mode()
+
+            # 如果時間到了那就離開迴圈
+            if duration > 0:
+                if time.time() >= end_time:
+                    break
+                self.sleep(0.1)
+            else:
+                break
+
     def walk_the_map(self) -> None:
         """
         根據錄製的腳本來重播操作
@@ -139,10 +185,8 @@ class MapleGrind(MapleScript):
 
             # 如果有設定間隔，就休息一下，進入原地練功；否則直接進行下一輪
             if self.is_loop_interval_enabled:
-                end_time = time.time() + self.route_interval_seconds
                 self.log(f"腳本執行完畢，等待 {self.route_interval_seconds} 秒...")
-                while time.time() < end_time and self.should_continue() and self.is_maple_focus():
-                    self.grind_mode()
+                self.monitor_and_grind(self.route_interval_seconds)
 
     def grind_mode(self):
         """
@@ -190,35 +234,13 @@ class MapleGrind(MapleScript):
         try:
             while self.should_continue():
                 # 在楓之谷在前景的狀況下，
-                if self.is_maple_focus() :
-
-                    # 如果地圖上有符文，且設定開啟，才暫停
-                    if self.stop_on_rune and self.has_rune():
-                        self.log("地圖上有符文 (暫停中...)")
-                        self.sleep(10)
-                        continue # 跳過本次迴圈的後續動作
-
-                    # 如果地圖上有其他人，且設定開啟，才暫停
-                    if self.stop_on_people and self.has_other_players():
-                        self.log("地圖上有其他人 (暫停中...)")
-                        self.sleep(10)
-                        continue # 跳過本次迴圈的後續動作
-
-                    # 如果沒有觸發暫停條件，那就開始練功
-                    if self.is_stationary:
-                        self.grind_mode()
-                    
+                if self.is_maple_focus():
+                    self.monitor_and_grind(1)
                     if self.is_route_enabled:
                         self.walk_the_map()
-
-                    else:
-                        # 沒開路徑也沒開技能時，避免空轉
-                        self.sleep(1)
-
                 else:
                     self.log("楓之谷不在前景，暫停中")
                     self.sleep(1)
-            
             self.log("練功腳本已停止")
 
         except KeyboardInterrupt:
