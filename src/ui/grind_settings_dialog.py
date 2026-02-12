@@ -320,23 +320,47 @@ class GrindSettingsDialog(QDialog):
             is_admin = False
 
         if not is_admin:
-            # 請求以管理員身分重啟程式
-            # 判斷是否為打包後的執行檔 (Nuitka/PyInstaller 會設定 sys.frozen)
+            # 1. 增加彈窗說明，建立使用者信任感並防止閃退誤解
+            reply = QMessageBox.information(
+                self,
+                "權限提升確認",
+                "路徑錄製功能需要監聽鍵盤與滑鼠操作。\n\n"
+                "如果您的遊戲是以管理員權限執行的，則此程式也必須以管理員權限重啟才能正常錄製。\n"
+                "點擊「確定」後，程式將會請求提升權限並自動重啟。",
+                QMessageBox.Ok | QMessageBox.Cancel,
+                QMessageBox.Ok
+            )
+            
+            if reply == QMessageBox.Cancel:
+                return
+
+            # 2. 準備重啟參數
+            current_dir = os.path.abspath(os.getcwd())
             if getattr(sys, 'frozen', False):
-                # 打包環境：sys.executable 是程式本體，sys.argv[0] 也是程式路徑
-                # 我們不需要把程式路徑當作參數傳給自己，所以取 sys.argv[1:]
-                # 如果沒有其他參數，這會是空列表，這是正確的
+                # 打包環境：sys.executable 就是 main.exe
+                executable = sys.executable
+                # Nuitka 打包後，sys.argv[0] 是 exe 路徑，剩下的才是參數
                 params = subprocess.list2cmdline(sys.argv[1:])
             else:
-                # 開發環境：sys.executable 是 python.exe，sys.argv[0] 是腳本路徑 (main.py)
-                # 我們需要保留腳本路徑作為參數傳給 python.exe
+                # 開發環境：sys.executable 是 python.exe，sys.argv 是 ['main.py', ...]
+                executable = sys.executable
                 params = subprocess.list2cmdline(sys.argv)
 
-            ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", sys.executable, params, None, 1
+            # 3. 執行權限提升重啟
+            # 重要：指定 lpDirectory (第 5 個參數) 為目前的絕對路徑，防止重啟後工作目錄變為 System32
+            ret = ctypes.windll.shell32.ShellExecuteW(
+                None, "runas", executable, params, current_dir, 1
             )
-            # 關閉目前程式
-            QApplication.instance().quit()
+            
+            # ShellExecuteW 傳回值大於 32 代表成功啟動新程序
+            if int(ret) > 32:
+                QApplication.instance().quit()
+            else:
+                QMessageBox.critical(
+                    self, 
+                    "啟動失敗", 
+                    f"無法取得管理員權限 (錯誤代碼: {ret})。\n請嘗試手動右鍵點擊程式，選擇「以系統管理員身份執行」。"
+                )
             return
 
         if not self.task_manager or not self.controller:
