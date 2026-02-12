@@ -124,59 +124,61 @@ class MapleGrind(MapleScript):
             self.press("alt")
             self.key_up("down")
 
-    def check_safety_status(self) -> bool:
+    def wait_until_safe(self) -> bool:
         """
-        一個統一的檢查機制
-        :return: bool
+        持續檢查直到環境安全 (焦點、符文、其他玩家)。
+        :return: bool 如果回傳 False 代表收到了停止信號
         """
-        if not self.is_maple_focus():
-            self.log("楓之谷不在前景，暫停中")
-            self.sleep(1)
-            return False
-
-        # 如果地圖上有符文，且設定開啟，才暫停
-        if self.stop_on_rune and self.has_rune():
-            self.log("地圖上有符文 (暫停中...)")
-            self.sleep(20)
-            return False
-
-        # 如果地圖上有其他人，且設定開啟，才暫停
-        if self.stop_on_people and self.has_other_players():
-            self.log("地圖上有其他人 (暫停中...)")
-            self.sleep(20)
-            return False
-        return True
-
-    def monitor_and_grind(self, duration: float = 0):
-        """
-        在指定時間內進行檢查與原地練功
-        :param duration: 持續的時間，如果是0那就只做一次
-        """
-        end_time = time.time() + duration
         while self.should_continue():
-            # 如果有什麼狀況的話，那麼就讓狀況卡在這邊
-            if not self.check_safety_status():
+            if not self.is_maple_focus():
+                self.log("楓之谷不在前景，暫停中")
+                self.sleep(1)
                 continue
 
-            # 不然就練功
+            if self.stop_on_rune and self.has_rune():
+                self.log("地圖上有符文 (暫停中...)")
+                self.sleep(10)
+                continue
+
+            if self.stop_on_people and self.has_other_players():
+                self.log("地圖上有其他人 (暫停中...)")
+                self.sleep(10)
+                continue
+
+            # 通過所有檢查
+            return True
+        return False
+
+    def monitor_and_grind(self, seconds: float = 0):
+        """
+        在指定時間內監控安全並執行原地練功。
+        :param seconds: 持續秒數。如果是 0，則只執行一輪檢查與練功。
+        """
+        end_time = time.time() + seconds
+
+        while self.should_continue():
+            # 1. 確保環境安全
+            if not self.wait_until_safe():
+                break
+
+            # 2. 執行原地練功 (如果有開啟的話)
             if self.is_stationary:
                 self.grind_mode()
 
-            # 如果時間到了那就離開迴圈
-            if duration > 0:
-                if time.time() >= end_time:
-                    break
-                self.sleep(0.1)
-            else:
+            # 3. 判斷是否達成時間要求
+            if seconds <= 0 or time.time() >= end_time:
                 break
+
+            # 4. 避免過於頻繁的循環
+            self.sleep(1)
 
     def walk_the_map(self) -> None:
         """
         根據錄製的腳本來重播操作
         """
-        if self.is_maple_focus():
+        if self.is_route_enabled:
             recorded_events = self.settings.get('recorded_route', default=[])
-            
+
             if recorded_events:
                 self.log("開始執行錄製的腳本")
                 self.replay_script(recorded_events)
@@ -185,7 +187,7 @@ class MapleGrind(MapleScript):
 
             # 如果有設定間隔，就休息一下，進入原地練功；否則直接進行下一輪
             if self.is_loop_interval_enabled:
-                self.log(f"腳本執行完畢，等待 {self.route_interval_seconds} 秒...")
+                self.log(f"腳本執行完畢，等待下一次循環: {self.route_interval_seconds} 秒")
                 self.monitor_and_grind(self.route_interval_seconds)
 
     def grind_mode(self):
@@ -232,15 +234,20 @@ class MapleGrind(MapleScript):
 
     def start(self) -> None:
         try:
-            while self.should_continue():
-                # 在楓之谷在前景的狀況下，
-                if self.is_maple_focus():
-                    self.monitor_and_grind(1)
-                    if self.is_route_enabled:
-                        self.walk_the_map()
-                else:
-                    self.log("楓之谷不在前景，暫停中")
-                    self.sleep(1)
+            while self.should_continue() and (self.is_stationary or self.is_route_enabled):
+                # 1. 等待直到環境安全
+                if not self.wait_until_safe():
+                    break
+                
+                # 2. 執行原地練功 (如果是 0，代表只做一輪基本的安全檢查與清理)
+                self.monitor_and_grind(0)
+
+                # 3. 執行路徑
+                self.walk_the_map()
+
+                # 一個短暫的等待以避免空轉
+                self.sleep(1)
+
             self.log("練功腳本已停止")
 
         except KeyboardInterrupt:
