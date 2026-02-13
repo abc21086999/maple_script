@@ -1,11 +1,27 @@
 import sys
 import os
 import qdarkstyle
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox
 from src.utils.xiao_controller import XiaoController
 from src.utils.settings_manager import SettingsManager
 from src.ui.app_window import MainWindow
 from src.ui.hardware_setup_dialog import HardwareSetupDialog
+
+class ControllerMocker:
+
+    pass
+
+
+def show_no_hardware_warning():
+    """
+    彈出警告視窗，告知用戶未偵測到硬體。
+    """
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setWindowTitle("硬體連線提示")
+    msg.setText("由於目前未設置硬體輸入，因此將無法操控遊戲角色，請參考README設置CircuitPython設備")
+    msg.setStandardButtons(QMessageBox.Ok)
+    msg.exec()
 
 
 def main():
@@ -51,13 +67,18 @@ def main():
             # 否則就是連線失敗（找不到序號、或序號對應不到 Port）
             print(f"硬體連線失敗: {e}")
             
-            # 彈出硬體設定視窗讓使用者選擇
-            setup_dialog = HardwareSetupDialog(settings_manager)
-            if setup_dialog.exec() == HardwareSetupDialog.Rejected:
-                # 使用者取消設定，直接退出程式
-                break
+            # 顯示警告彈窗
+            show_no_hardware_warning()
             
-            # 如果使用者點擊確定並儲存了新序號，迴圈會繼續並嘗試重新連線
+            # 彈出硬體設定視窗讓使用者選擇
+            mocker = ControllerMocker()
+            window = MainWindow(controller=mocker)
+            window.show()
+
+            # 開始事件迴圈，直到視窗關閉
+            exit_code = app.exec()
+            sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()
