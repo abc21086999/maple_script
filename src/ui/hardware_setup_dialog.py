@@ -85,3 +85,15 @@ class HardwareSetupDialog(QDialog):
         # 儲存序號
         self.settings_manager.save("hardware", {"serial_number": selected_serial})
         self.accept()
+
+
+def show_no_hardware_warning():
+    """
+    彈出警告視窗，告知用戶未偵測到硬體。
+    """
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setWindowTitle("硬體連線提示")
+    msg.setText("由於目前未設置硬體輸入，因此將無法操控遊戲角色，請參考README設置CircuitPython設備")
+    msg.setStandardButtons(QMessageBox.Ok)
+    msg.exec()

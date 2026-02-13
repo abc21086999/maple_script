@@ -185,6 +185,12 @@ class XiaoController:
             else:
                 break
 
+class ControllerMocker:
+    """
+    硬體控制器的 Mock 類別，用於在沒有硬體時維持程式運行。
+    """
+    pass
+
 
 if __name__ == "__main__":
     with XiaoController() as controller:
