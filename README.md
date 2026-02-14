@@ -130,3 +130,7 @@ step8 ==> step7 ==> step11
 step9 ==> step10
 end
 ```
+
+## 📄 License & Disclaimer
+
+本專案採用 [GNU General Public License v3.0](LICENSE.txt) 授權。使用本軟體前，請務必閱讀並同意 `LICENSE.txt` 檔案中所列之**免責聲明**。
