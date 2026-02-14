@@ -97,3 +97,14 @@ def show_no_hardware_warning():
     msg.setText("由於目前未設置硬體輸入，因此將無法操控遊戲角色，請參考README設置CircuitPython設備")
     msg.setStandardButtons(QMessageBox.Ok)
     msg.exec()
+
+def show_hardware_permission_error_warning():
+    """
+    彈出警告視窗，告知用戶連線已經被佔用。
+    """
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setWindowTitle("硬體連線提示")
+    msg.setText("硬體輸入設備連線已經被佔用！你是否已經開啟程式？")
+    msg.setStandardButtons(QMessageBox.Ok)
+    msg.exec()

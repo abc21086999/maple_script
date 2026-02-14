@@ -81,12 +81,16 @@ class XiaoController:
             return self
         except serial.SerialException as e:
             print(f'無法建立連線：{e}')
-            raise
+            raise e
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._close()
         if exc_type:
-            print(f"因異常退出: {exc_type.__name__}: {exc_val}")
+            if issubclass(exc_type, SystemExit) and (exc_val.code == 0 or exc_val.code is None):
+                # 程式正常退出就不打印錯誤
+                pass
+            else:
+                print(f"因異常退出: {exc_type.__name__}: {exc_val}")
         return False
 
     def _close(self):

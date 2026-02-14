@@ -2,9 +2,10 @@ import sys
 import os
 import qdarkstyle
 from PySide6.QtWidgets import QApplication
-from src.utils.xiao_controller import XiaoController, ControllerMocker
+from src.utils.xiao_controller import XiaoController, ControllerMocker, DeviceNotFoundException
+from serial.serialutil import SerialException
 from src.ui.app_window import MainWindow
-from src.ui.hardware_setup_dialog import show_no_hardware_warning
+from src.ui.hardware_setup_dialog import show_no_hardware_warning, show_hardware_permission_error_warning
 
 
 def init_qapp():
@@ -46,11 +47,17 @@ def main():
             # 開始事件迴圈，直到視窗關閉
             sys.exit(app.exec())
             
-    except (Exception, SystemExit) as e:
+    except SystemExit as e:
         # 如果是 SystemExit (sys.exit 拋出的)，代表是正常關閉程式
         if isinstance(e, SystemExit):
             return
-            
+
+    except SerialException as e:
+        # 如果是SerialException，通常代表連線已經被佔用了，也就是有另外一個程式已經開啟
+        show_hardware_permission_error_warning()
+        return
+
+    except DeviceNotFoundException as e:
         # 否則就是連線失敗（找不到序號、或序號對應不到 Port）
         print(f"硬體連線失敗: {e}")
         
