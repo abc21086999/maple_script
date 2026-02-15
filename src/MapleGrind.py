@@ -14,9 +14,6 @@ class MapleGrind(MapleScript):
         self.__skills_list = list()
         self.__gap_time = self.yaml_loader.grind_setting
         self.__settings = self.settings.get("grind_settings")
-        
-        routes = self.yaml_loader.grind_routes
-        self.__loop_map = {"left": routes.get('left_loop', []), "right": routes.get('right_loop', []), "not_found": []}
 
     @cached_property
     def user_skills(self) -> list:
