@@ -30,7 +30,6 @@ class MapleGrind(MapleScript):
             return []
 
         loaded_skills = []
-        project_root = Path(__file__).resolve().parent.parent
 
         for item in raw_skills:
             # 必須啟用且有圖片路徑
@@ -39,10 +38,6 @@ class MapleGrind(MapleScript):
 
             path_str = item.get('image_path')
             img_path = Path(path_str)
-            
-            # 如果是相對路徑，相對於專案根目錄
-            if not img_path.is_absolute():
-                img_path = project_root / img_path
 
             if img_path.exists():
                 try:
