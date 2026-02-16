@@ -4,7 +4,6 @@ import numpy as np
 import PIL.Image
 from pathlib import Path
 import win32api
-import time
 
 
 class MapleVision:
@@ -14,15 +13,10 @@ class MapleVision:
         self.sct = mss.mss()
         
         # 定義顏色 (BGR 格式)
-        # 注意: 原本是 RGB [R, G, B]，現在改為 BGR [B, G, R]
-        # Pink Bean Red: RGB(253, 45, 118) -> BGR(118, 45, 253)
-        self.other_player_color = np.array([118, 45, 253])
-        # Character Yellow: RGB(239, 240, 12) -> BGR(12, 240, 239)
-        self.my_character_color = np.array([12, 240, 239])
-        # Rune Purple: RGB(221, 102, 255) -> BGR(255, 102, 221)
-        self.rune_color = np.array([255, 102, 221])
-        # Minimap Border Gray: RGB(228, 228, 228) -> BGR(228, 228, 228)
-        self.mini_map_rectangle_color = np.array([228, 228, 228])
+        self.other_player_color = np.array([118, 45, 253])       # Pink Bean Red
+        self.my_character_color = np.array([12, 240, 239])       # Character Yellow
+        self.rune_color = np.array([255, 102, 221])              # Rune Purple
+        self.mini_map_rectangle_color = np.array([228, 228, 228]) # Minimap Border Gray
 
         self.mini_map_area = None
 
@@ -56,7 +50,7 @@ class MapleVision:
 
     def _capture(self, region):
         """
-        使用 mss 截取指定區域
+        使用 mss 截取指定區域並回傳 BGR 格式影像
         :param region: tuple (left, top, width, height)
         :return: BGR NumPy Array
         """
@@ -116,9 +110,13 @@ class MapleVision:
             best_rect = None
 
             for cnt in contours:
+                # 取得外接矩形
                 x, y, w, h = cv2.boundingRect(cnt)
+                
+                # 過濾太小的雜訊
                 if w < 50 or h < 50:
                     continue
+                
                 area = w * h
                 if area > max_area:
                     max_area = area
@@ -130,23 +128,30 @@ class MapleVision:
                 self.mini_map_area = rect_x, rect_y, rect_w, rect_h
                 return self.mini_map_area
         
-        # 若找不到，回傳預設值避免錯誤 (或者可以 raise Exception)
         return 0, 0, 0, 0
 
     def get_character_position(self, color_tolerance=30):
         """
-        分析小地圖，回傳角色位置。 (NumPy BGR 版)
+        分析小地圖，回傳角色位置在左邊或右邊。
+        :param color_tolerance: int, 顏色容忍度
+        :return: "left", "right", or "not_found"
         """
+        # 1. 擷取小地圖畫面
         img_np = self.get_mini_map_area_screenshot()
         
-        # 計算色差
+        # 2. 計算整張圖每個像素與目標顏色的差異
         diff_matrix = np.sum(np.abs(img_np - self.my_character_color), axis=2)
+        
+        # 3. 篩選符合容忍度的像素 (Boolean Mask)
         mask = diff_matrix < (color_tolerance * 3)
+        
+        # 4. 找出所有符合條件的座標 (y, x)
         _, x_coords = np.where(mask)
 
         if x_coords.size == 0:
             return "not_found"
 
+        # 5. 計算平均 X 座標並判斷位置
         avg_x = np.mean(x_coords)
         width = img_np.shape[1]
         
@@ -157,30 +162,44 @@ class MapleVision:
 
     def has_other_players(self, color_tolerance=10) -> bool:
         """
-        偵測紅點。
+        偵測小地圖上有沒有其他玩家（紅點）。
+        使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
+        :param color_tolerance: int, 顏色容忍度
+        :return: bool
         """
+        # 1. 擷取小地圖畫面
         img_np = self.get_mini_map_area_screenshot()
         
+        # 2. 計算色差並建立遮罩
         diff_matrix = np.sum(np.abs(img_np - self.other_player_color), axis=2)
         mask = (diff_matrix < (color_tolerance * 3)).astype(np.uint8) * 255
 
+        # 3. 使用 3x3 Kernel 進行腐蝕 (Erosion)
         kernel = np.ones((3, 3), np.uint8)
         eroded_mask = cv2.erode(mask, kernel, iterations=1)
 
+        # 4. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的紅點
         return cv2.countNonZero(eroded_mask) > 0
 
     def has_rune(self, color_tolerance=10) -> bool:
         """
-        偵測輪。
+        偵測小地圖上有沒有輪（符文）。
+        使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
+        :param color_tolerance: int, 顏色容忍度
+        :return: bool
         """
+        # 1. 擷取小地圖畫面
         img_np = self.get_mini_map_area_screenshot()
         
+        # 2. 計算色差並建立遮罩
         diff_matrix = np.sum(np.abs(img_np - self.rune_color), axis=2)
         mask = (diff_matrix < (color_tolerance * 3)).astype(np.uint8) * 255
 
+        # 3. 使用 3x3 Kernel 進行腐蝕 (Erosion)
         kernel = np.ones((3, 3), np.uint8)
         eroded_mask = cv2.erode(mask, kernel, iterations=1)
 
+        # 4. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的輪的色塊
         return cv2.countNonZero(eroded_mask) > 0
 
     def get_player_pos(self) -> tuple[int, int] | None:
@@ -224,6 +243,10 @@ class MapleVision:
     def _match_template(self, scene_img, template, threshold=0.9):
         """
         OpenCV 模板匹配助手
+        :param scene_img: 被搜尋的圖片 (BGR NumPy Array)
+        :param template: 模板圖片 (Path, PIL Image, or NumPy Array)
+        :param threshold: 信心門檻值
+        :return: (found: bool, rect: tuple(x, y, w, h) or None)
         """
         if scene_img is None:
             return False, None
@@ -232,7 +255,6 @@ class MapleVision:
         if isinstance(template, (str, Path)):
             template_img = cv2.imread(str(template))
         elif isinstance(template, PIL.Image.Image):
-            # PIL (RGB) -> NumPy (RGB) -> OpenCV (BGR)
             template_img = cv2.cvtColor(np.array(template), cv2.COLOR_RGB2BGR)
         elif isinstance(template, np.ndarray):
             template_img = template
@@ -260,6 +282,9 @@ class MapleVision:
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
         """
         辨識想要找的東西在不在畫面上
+        :param pic: 想要辨識的圖片
+        :param img: 一張截圖，沒有傳入就會自動擷取一張
+        :return: bool
         """
         if img is None:
             img = self.get_full_screen_screenshot()
@@ -270,12 +295,14 @@ class MapleVision:
     def find_image_location(self, pic_for_search: str | PIL.Image.Image | Path) -> tuple[int, int] | None:
         """
         用於辨識按鈕之後移動
+        :param pic_for_search: 要辨識的圖片
+        :return: tuple (dx, dy)
         """
         try:
-            # 使用 win32api 獲取滑鼠位置 (比 pyautogui 快)
+            # 使用 win32api 獲取滑鼠位置
             current_mouse_x, current_mouse_y = win32api.GetCursorPos()
 
-            # 校正滑鼠座標
+            # 校正滑鼠座標至虛擬螢幕座標系
             offset_x, offset_y = self.maple.screen_offset
             current_mouse_x -= offset_x
             current_mouse_y -= offset_y
