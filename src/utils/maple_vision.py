@@ -289,7 +289,7 @@ class MapleVision:
         if img is None:
             img = self.get_full_screen_screenshot()
 
-        found, _ = self._match_template(img, pic, threshold=0.9)
+        found, _ = self._match_template(img, pic, threshold=0.99)
         return found
 
     def find_image_location(self, pic_for_search: str | PIL.Image.Image | Path) -> tuple[int, int] | None:
@@ -308,7 +308,7 @@ class MapleVision:
             current_mouse_y -= offset_y
 
             screenshot = self.get_full_screen_screenshot()
-            found, rect = self._match_template(screenshot, pic_for_search, threshold=0.9)
+            found, rect = self._match_template(screenshot, pic_for_search, threshold=0.99)
 
             if found and rect:
                 box_left, box_top, box_width, box_height = rect
