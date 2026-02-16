@@ -1,7 +1,5 @@
-PyAutoGUI
 opencv-python
 pillow
-PyScreeze
 numpy
 pyserial
 adafruit_board_toolkit
