@@ -13,3 +13,4 @@ qdarkstyle
 keyring
 zstandard
 nuitka
+mss
