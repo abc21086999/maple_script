@@ -6,7 +6,7 @@ This is a Python-based automation project for the online game *MapleStory*. Its 
 
 The architecture is composed of three main parts:
 1.  **A Graphical User Interface (GUI)**: Built with `PySide6`, acting as the main control center for users. It provides a modern, dark-themed interface to start/stop tasks and view execution logs.
-2.  **A Python control script (Backend)**: Running on a **Windows** host computer. It uses computer vision libraries (`PyAutoGUI`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action.
+2.  **A Python control script (Backend)**: Running on a **Windows** host computer. It uses computer vision libraries (`mss`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action.
 3.  **A Seeed Studio Xiao ESP32S3 microcontroller**: Acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
 
 The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities and **thread-safety mechanisms**. Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`, `RouteRecorder`) inherit from the base `MapleScript` class.
@@ -31,7 +31,7 @@ Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
-Key dependencies include `PySide6`, `qdarkstyle`, `pywin32`, `opencv-python`, `PyAutoGUI`, `pynput`, `pyserial`, and `keyring`.
+Key dependencies include `PySide6`, `qdarkstyle`, `pywin32`, `opencv-python`, `mss`, `pynput`, `pyserial`, and `keyring`.
 
 ### 3. Running the Application
 
