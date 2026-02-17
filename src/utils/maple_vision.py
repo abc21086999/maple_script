@@ -20,6 +20,14 @@ class MapleVision:
 
         self.mini_map_area = None
 
+    def __del__(self):
+        self.release()
+
+    def release(self):
+        if hasattr(self, 'sct'):
+            self.sct.close()
+            del self.sct
+
     @property
     def maple_full_screen_area(self):
         """

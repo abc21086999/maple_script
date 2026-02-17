@@ -32,6 +32,13 @@ class MapleScript(ABC):
         """
         self.__stop_event.set()
 
+    def cleanup(self):
+        """
+        清理資源，例如關閉視覺辨識物件
+        """
+        if hasattr(self, '_MapleScript__vision'):
+            self._MapleScript__vision.release()
+
     def should_continue(self) -> bool:
         """
         檢查是否應該繼續執行 (沒有收到停止信號)

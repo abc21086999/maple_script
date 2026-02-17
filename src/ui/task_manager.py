@@ -50,6 +50,8 @@ class TaskManager:
                 traceback.print_exc()
         finally:
             self.log_callback("任務結束")
+            if self.current_script:
+                self.current_script.cleanup()
             self.current_script = None
             self.current_thread = None
 
