@@ -16,25 +16,14 @@ class WindowsObject:
         return l, t, r, b
 
     @property
-    def screen_offset(self) -> tuple[int, int]:
-        """
-        回傳虛擬螢幕的左上角座標偏移量 (x, y)
-        """
-        screen_x = win32api.GetSystemMetrics(win32con.SM_XVIRTUALSCREEN)
-        screen_y = win32api.GetSystemMetrics(win32con.SM_YVIRTUALSCREEN)
-        return screen_x, screen_y
-
-    @property
     def left(self):
         l, _, _, _ = self._rect()
-        offset_x, _ = self.screen_offset
-        return l - offset_x
+        return l
 
     @property
     def top(self):
         _, t, _, _ = self._rect()
-        _, offset_y = self.screen_offset
-        return t - offset_y
+        return t
 
     @property
     def width(self):

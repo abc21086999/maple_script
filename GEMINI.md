@@ -62,6 +62,11 @@ This will open the "Guai Guai Automation Control Center". You can click buttons 
 - `photos/`: Image templates for computer vision matching.
 - `tools/`: Supplementary tools like `KeyLogger.py`.
 
+### Coordinate Systems & Multi-Monitor Support
+- **Primary-Monitor Relative**: The project uses the standard Windows coordinate system where the **top-left of the primary monitor is (0,0)**.
+- **Unified Logic**: Both `mss` (for screen capture) and `win32api` (for mouse/window positioning) operate in this same virtual screen coordinate space. 
+- **No Manual Offsets**: Do not apply manual offsets like `screen_offset` or virtual screen normalization. The raw coordinates returned by `win32gui.GetWindowRect` are passed directly to `mss` to ensure precise capture regardless of which monitor the game window is on.
+
 ### Threading & UI Safety
 - **Event-Driven:** Scripts run in a separate worker thread (`TaskManager`), not the main UI thread.
 - **Interruption:** All loops in scripts MUST check `self.should_continue()` regularly.

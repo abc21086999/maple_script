@@ -306,11 +306,6 @@ class MapleVision:
             # 使用 win32api 獲取滑鼠位置
             current_mouse_x, current_mouse_y = win32api.GetCursorPos()
 
-            # 校正滑鼠座標至虛擬螢幕座標系
-            offset_x, offset_y = self.maple.screen_offset
-            current_mouse_x -= offset_x
-            current_mouse_y -= offset_y
-
             screenshot = self.get_full_screen_screenshot()
             found, rect = self._match_template(screenshot, pic_for_search, threshold=0.99)
 
