@@ -1,4 +1,5 @@
 # MapleScript
+![程式預覽](screenshot.png)
 一個基於視覺辨識、Seeed Studio Xiao ESP32S3、CircuitPython、GUI 的自動化腳本程式，提供直覺的操作、路徑錄製功能。
 
 主要目的是打造**有耳朵的鍵盤、滑鼠**，能夠一邊聽（辨識畫面），一邊按下按鍵或是一邊移動滑鼠。
