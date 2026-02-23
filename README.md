@@ -135,3 +135,7 @@ end
 ## 📄 License & Disclaimer
 
 本專案採用 [GNU General Public License v3.0](LICENSE.txt) 授權。使用本軟體前，請務必閱讀並同意 `LICENSE.txt` 檔案中所列之**免責聲明**。
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=abc21086999/maple_script&type=date&legend=top-left)](https://www.star-history.com/#abc21086999/maple_script&type=date&legend=top-left)
