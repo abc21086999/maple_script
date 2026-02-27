@@ -197,5 +197,13 @@ class ControllerMocker:
 
 
 if __name__ == "__main__":
+    from PySide6.QtCore import QCoreApplication
+
+    # 由於序號的位置需要公司名稱和軟體名稱
+    # 所以在這個檔案執行的時候要先初始化Qt框架然後做設定
+    app = QCoreApplication([])
+    app.setOrganizationName("MapleScriptTeam")
+    app.setApplicationName("MapleScript")
+
     with XiaoController() as controller:
         controller.press_key("a")
