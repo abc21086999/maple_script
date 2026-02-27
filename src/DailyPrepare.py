@@ -398,7 +398,7 @@ class DailyPrepare(MapleScript):
             self.press_and_wait("enter", 0.7)
 
         # 等待到達小屋
-        while self.should_continue() and not self.is_on_screen(imgs['house_map_check']):
+        while self.should_continue() and not self.is_on_screen(imgs['caretaker']):
             self.sleep(0.5)
 
         # 艾咪、艾爾文和珍妮會有預設的對話框

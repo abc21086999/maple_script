@@ -260,7 +260,6 @@ daily_prepare:
     additional_complete_button: 'daily/master_apprentice/master_and_apprentice_additional_complete_button.png'
 
   home:
-    house_map_check: 'daily/home/querencia.png'
     caretaker:  'daily/home/caretaker.png'
     talk_with_caretaker: 'daily/home/talk_with_caretaker.png'
     caretaker_talkable: 'daily/home/caretaker_talkable.png'
