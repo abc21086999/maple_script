@@ -1,5 +1,5 @@
 import threading
-import time
+from src.utils.xiao_controller import ControllerMocker
 
 class TaskManager:
     def __init__(self, log_callback):
@@ -13,6 +13,11 @@ class TaskManager:
         :param task_class: 要執行的類別 (例如 MapleGrind)
         :param controller: 硬體控制器
         """
+        # 0. 如果沒有硬體，那就不要讓使用者去執行任何事情
+        if isinstance(controller, ControllerMocker):
+            self.log_callback("⚠️ 尚未連接硬體，無法執行任務")
+            return
+
         # 1. 如果已經有任務在跑，就不要再啟動新的
         if self.is_running():
             self.log_callback("錯誤：已有任務正在執行中！")
@@ -62,6 +67,8 @@ class TaskManager:
         if self.current_script:
             self.log_callback("正在嘗試停止任務...")
             self.current_script.stop()
+            if self.current_thread:
+                self.current_thread.join(timeout=3)
         else:
             self.log_callback("目前沒有正在執行的任務")
 

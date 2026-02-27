@@ -33,7 +33,7 @@ class StorageSettingsDialog(QDialog):
         """嘗試讀取現有密碼並預填 (方便修改)"""
         current_pw = SecretManager.get_storage_password()
         if current_pw:
-            self.password_input.setText(current_pw)
+            self.password_input.setPlaceholderText("已設定密碼，輸入新密碼以覆蓋")
 
     def save_password(self):
         password = self.password_input.text()

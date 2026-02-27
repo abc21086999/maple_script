@@ -217,7 +217,7 @@ class GrindSettingsDialog(QDialog):
 
         # Buttons (OK/Cancel)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.accepted.connect(self.save_settings)
+        buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         main_layout.addWidget(buttons)
 
@@ -481,4 +481,6 @@ class GrindSettingsDialog(QDialog):
         }
         self.settings_manager.save("grind_settings", protection_data)
 
-        self.accept()
+    def accept(self):
+        self.save_settings()
+        super().accept()

@@ -355,3 +355,7 @@ class SettingsDialog(QDialog):
                     continue
                 new_skills_data.append(data)
             self.settings_manager.save("toggle_skills", new_skills_data)
+
+    def accept(self):
+        self.save_settings()
+        super().accept()

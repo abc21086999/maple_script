@@ -185,7 +185,6 @@ class MainWindow(QMainWindow):
         """開啟每日任務的設定視窗"""
         dialog = SettingsDialog(self, self.settings_manager, "daily_prepare", "每日準備設定")
         if dialog.exec(): # 如果使用者按下確定
-            dialog.save_settings() # 儲存設定
             self.log_signal.text_written.emit("設定已更新")
 
     def start_daily(self):

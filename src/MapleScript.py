@@ -36,8 +36,7 @@ class MapleScript(ABC):
         """
         清理資源，例如關閉視覺辨識物件
         """
-        if hasattr(self, '_MapleScript__vision'):
-            self._MapleScript__vision.release()
+        self.__vision.release()
 
     def should_continue(self) -> bool:
         """
