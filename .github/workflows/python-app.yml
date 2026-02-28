@@ -16,31 +16,95 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Validate Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ("${{ github.event.inputs.tag_name }}" -notmatch "^v\d+\.\d+\.\d+$") {
+            Write-Error "版本號格式錯誤，請使用 v1.0.0 的格式"
+            exit 1
+          }
+
+          $response = gh release view ${{ github.event.inputs.tag_name }} 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            Write-Error "版本號 ${{ github.event.inputs.tag_name }} 已經存在！"
+            exit 1
+          }
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install nuitka
-          if exist requirements.txt pip install -r requirements.txt
-        shell: cmd
+          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
 
       - name: Build with Nuitka (Windows)
-        run: |
-          nuitka --standalone --windows-console-mode=disable --enable-plugin=pyside6 --nofollow-import-to=PySide6.QtWebEngine,PySide6.QtWebEngineCore,PySide6.QtWebEngineWidgets,PySide6.QtQml,PySide6.QtQuick,PySide6.QtQuickWidgets,PySide6.QtQuickControls2,PySide6.QtMultimedia,PySide6.QtMultimediaWidgets,PySide6.QtNetwork,PySide6.QtWebSockets,PySide6.QtWebChannel,PySide6.QtSql,PySide6.QtSerialPort,PySide6.QtBluetooth,PySide6.QtNfc,PySide6.QtSensors,PySide6.QtPositioning,PySide6.QtLocation,PySide6.QtCharts,PySide6.QtDataVisualization,PySide6.Qt3DCore,PySide6.Qt3DInput,PySide6.Qt3DLogic,PySide6.Qt3DRender,PySide6.QtDesigner,PySide6.QtHelp,PySide6.QtTest,PySide6.QtXml,PySide6.QtRemoteObjects,PySide6.QtScxml,PySide6.QtStateMachine,PySide6.QtPrintSupport,PySide6.QtSvg --windows-icon-from-ico=icon.ico --include-data-files=icon.ico=icon.ico --include-data-dir=config=config --include-data-dir=photos=photos --assume-yes-for-downloads --output-dir=build main.py
-        shell: cmd
+        run: >
+          nuitka 
+          --standalone 
+          --windows-console-mode=disable 
+          --enable-plugin=pyside6 
+          --nofollow-import-to=PySide6.QtWebEngine
+          --nofollow-import-to=PySide6.QtWebEngineCore
+          --nofollow-import-to=PySide6.QtWebEngineWidgets
+          --nofollow-import-to=PySide6.QtQml
+          --nofollow-import-to=PySide6.QtQuick
+          --nofollow-import-to=PySide6.QtQuickWidgets
+          --nofollow-import-to=PySide6.QtQuickControls2
+          --nofollow-import-to=PySide6.QtMultimedia
+          --nofollow-import-to=PySide6.QtMultimediaWidgets
+          --nofollow-import-to=PySide6.QtNetwork
+          --nofollow-import-to=PySide6.QtWebSockets
+          --nofollow-import-to=PySide6.QtWebChannel
+          --nofollow-import-to=PySide6.QtSql
+          --nofollow-import-to=PySide6.QtSerialPort
+          --nofollow-import-to=PySide6.QtBluetooth
+          --nofollow-import-to=PySide6.QtNfc
+          --nofollow-import-to=PySide6.QtSensors
+          --nofollow-import-to=PySide6.QtPositioning
+          --nofollow-import-to=PySide6.QtLocation
+          --nofollow-import-to=PySide6.QtCharts
+          --nofollow-import-to=PySide6.QtDataVisualization
+          --nofollow-import-to=PySide6.Qt3DCore
+          --nofollow-import-to=PySide6.Qt3DInput
+          --nofollow-import-to=PySide6.Qt3DLogic
+          --nofollow-import-to=PySide6.Qt3DRender
+          --nofollow-import-to=PySide6.QtDesigner
+          --nofollow-import-to=PySide6.QtHelp
+          --nofollow-import-to=PySide6.QtTest
+          --nofollow-import-to=PySide6.QtXml
+          --nofollow-import-to=PySide6.QtRemoteObjects
+          --nofollow-import-to=PySide6.QtScxml
+          --nofollow-import-to=PySide6.QtStateMachine
+          --nofollow-import-to=PySide6.QtPrintSupport
+          --nofollow-import-to=PySide6.QtSvg
+          --nofollow-import-to=PySide6.QtConcurrent
+          --nofollow-import-to=PySide6.QtOpenGL
+          --nofollow-import-to=PySide6.QtOpenGLWidgets
+          --nofollow-import-to=PySide6.QtShaderTools
+          --windows-icon-from-ico=icon.ico 
+          --include-data-files=icon.ico=icon.ico 
+          --include-data-dir=config=config 
+          --include-data-dir=photos=photos 
+          --assume-yes-for-downloads 
+          --output-dir=build 
+          main.py
 
       - name: Zip Dist Folder (PowerShell)
         run: |
-          # 進入 build/main.dist 內部，將所有檔案壓縮至根目錄的 main.zip
-          # 注意 Path 使用 "build\main.dist\*" 是為了只壓內容，不壓資料夾外殼
-          Compress-Archive -Path "build\main.dist\*" -DestinationPath "main.zip" -Force
+          7z a -tzip -mx=9 main.zip "build\main.dist\*"
 
       - name: Create Release and Upload
         uses: softprops/action-gh-release@v2
