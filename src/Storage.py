@@ -36,12 +36,16 @@ class Storage(MapleScript):
         if not self.should_continue(): return
         self.log("正在輸入倉庫密碼...")
 
-        # 如果畫面上沒有輸入第二組密碼的UI，那就打開倉庫界面
+        # 如果畫面上沒有輸入第二組密碼的UI
         if not self.is_on_screen(self.__storage_ui_title):
-            if not self.is_on_screen(pic = self.__inventory):
+            # 如果畫面上有物品欄位，那就直接按下按鈕去開
+            if self.is_on_screen(pic = self.__inventory):
+                self.find_and_click_image(self.__storage_icon)
+            # 不然的話就從總覽界面去開
+            else:
                 self.invoke_menu()
-                self.press_and_wait(["tab", "right", "down", "down", "enter"])
-        self.find_and_click_image(self.__storage_icon)
+                self.press_and_wait(["tab", "right", "up", "enter"])
+
 
         # 等待界面出現
         while self.should_continue() and not self.is_on_screen(self.__storage_ui_title):

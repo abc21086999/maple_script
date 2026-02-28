@@ -178,9 +178,10 @@ class DailyPrepare(MapleScript):
         if self.is_maple_focus():
 
             # 打開裝備欄
-            self.press_and_wait("i")
+            self.invoke_menu()
+            self.press_and_wait(["tab", "right", "down", "down", "enter"])
             while self.should_continue() and not self.is_on_screen(imgs['panel_button']):
-                self.sleep(0.1)
+                self.sleep(0.3)
 
             # 點下分解裝備的按鈕
             self.find_and_click_image(imgs['panel_button'])
@@ -231,6 +232,10 @@ class DailyPrepare(MapleScript):
 
             # 進入HD界面
             self.press_and_wait(["tab", "left", "left", "down", "enter"])
+
+            # 等待開啟HD界面
+            while not self.is_on_screen(imgs["hd_title"]):
+                self.sleep(0.5)
 
             # 如果這個月都已經領完了，那就離開
             if self.is_on_screen(imgs['all_received']):
@@ -462,11 +467,7 @@ class DailyPrepare(MapleScript):
             self.press_and_wait("esc")
         self.press_and_wait(["esc", "esc"])
 
-
-    def start(self):
-        """
-        執行所有的每日行程
-        """
+    def task_collector(self):
         # 定義任務對照表
         task_map = {
             'switch_set': self.switch_to_grinding_set,
@@ -479,22 +480,26 @@ class DailyPrepare(MapleScript):
             'market': self.collect_market,
             'master_apprentice': self.complete_master_and_apprentice,
             'event': self.complete_event_related_stuff,
-            'housing': self.handle_housing
+            'housing': self.handle_housing,
         }
 
         # 讀取設定檔決定要執行哪些任務
         settings = self.settings.get("daily_prepare")
-        # 過濾出值為 True 的 Key，轉換成 List，並依照 task_map 的順序排序（非必要但建議）或是直接依賴 settings 的順序
+        # 過濾出值為 True 的 Key，轉換成 Dict，並依照 task_map 的順序排序（非必要但建議）或是直接依賴 settings 的順序
         # 這裡我們取交集確保只執行已知的任務
-        tasks_to_run = [task for task in task_map.keys() if settings.get(task, False)]
+        return {task_name: task_func for task_name, task_func in task_map.items() if settings.get(task_name, False)}
 
-        self.log(f"準備執行任務列表: {tasks_to_run}")
-        
-        for task_name in tasks_to_run:
+    def start(self):
+        """
+        執行所有的每日行程
+        """
+        # 先拿到所有要執行的任務
+        tasks_to_run = self.task_collector()
+        # 一個一個執行
+        for task_name, task_func in tasks_to_run.items():
             if not self.should_continue():
                 break
-                
-            task_func = task_map.get(task_name)
+
             if task_func:
                 try:
                     # 執行該任務

@@ -190,7 +190,7 @@ ui_offsets:
 
 # 一個獨立的市場icon，用於打開總覽視窗時辨識用
 menu:
-  menu_market_icon: 'market.png'
+  menu_market_icon: 'adventure_tab.png'
 
 daily_prepare:
   common:
@@ -200,59 +200,54 @@ daily_prepare:
     item_others_tab: 'item_others_tab.png'
 
   settings:
-    daily_set: 'daily_set.png'
-    daily_apply: 'daily_apply.png'
-    confirm_popup: 'confirm_daily_pop_up.png'
-    buff_storm: 'storm_elemental.png'
-    buff_trifling: 'trifling_wind.png'
-    buff_guided_arrow: 'guided_arrow.png'
+    daily_set: 'daily/settings/daily_set.png'
+    daily_apply: 'daily/settings/daily_apply.png'
+    confirm_popup: 'daily/settings/confirm_daily_pop_up.png'
 
   union:
-    get_coin: 'get_coin.png'
-    artifact_tab: 'union_artifact_tab.png'
-    extend_button: 'extend_union_artifact_button.png'
-    extend_error: 'extend_union_artifact_error_message.png'
-    extend_confirm: 'extend_union_artifact_confirm_button.png'
+    get_coin: 'daily/union/get_coin.png'
+    artifact_tab: 'daily/union/union_artifact_tab.png'
+    extend_button: 'daily/union/extend_union_artifact_button.png'
+    extend_error: 'daily/union/extend_union_artifact_error_message.png'
+    extend_confirm: 'daily/union/extend_union_artifact_confirm_button.png'
 
   mission:
-    daily_start: 'schedule_daily_all_start.png'
-    daily_complete: 'schedule_daily_all_complete.png'
-    panel_confirm: 'schedule_panel_confirm.png'
-    daily_bonus: 'daily_bonus.png'
-    weekly_start: 'weekly_mission_start_button.png'
-    weekly_complete: 'complete_weekly_mission_button.png'
+    daily_start: 'daily/mission/schedule_daily_all_start.png'
+    daily_complete: 'daily/mission/schedule_daily_all_complete.png'
+    panel_confirm: 'daily/mission/schedule_panel_confirm.png'
+    daily_bonus: 'daily/mission/daily_bonus.png'
+    weekly_start: 'daily/mission/weekly_mission_start_button.png'
+    weekly_complete: 'daily/mission/complete_weekly_mission_button.png'
 
   dismantle:
-    fast_travel: 'fast_travel.png'
-    village_icon: 'ardentmill_village_icon.png'
-    village_map_check: 'ardentmill.png'
-    panel_button: 'disassemble_panel.png'
-    put_armor: 'put_all_armor_on_table.png'
-    empty_table: 'empty_disassembly_table.png'
-    disassemble_button: 'disassemble.png'
-    complete_popup: 'dismantle_complete.png'
+    panel_button: 'daily/dismantle/disassemble_panel.png'
+    put_armor: 'daily/dismantle/put_all_armor_on_table.png'
+    empty_table: 'daily/dismantle/empty_disassembly_table.png'
+    disassemble_button: 'daily/dismantle/disassemble.png'
+    complete_popup: 'daily/dismantle/dismantle_complete.png'
 
   hd:
-    receive_button: 'receive_hd_gift.png'
-    all_received: 'all_hd_gifts_received.png'
-    has_gift: 'hd_has_gift.png'
-    take_coin: 'take_hd_coin.png'
+    hd_title: 'daily/happyday/hd_ui_header.png'
+    receive_button: 'daily/happyday/receive_hd_gift.png'
+    all_received: 'daily/happyday/all_hd_gifts_received.png'
+    has_gift: 'daily/happyday/hd_has_gift.png'
+    take_coin: 'daily/happyday/take_hd_coin.png'
 
   milestone:
-    has_collectable: 'has_collectable_milestones.png'
-    confirm: 'milestone_confirm_button.png'
-    no_milestone: 'no_milestone.png'
+    has_collectable: 'daily/milestone/has_collectable_milestones.png'
+    confirm: 'daily/milestone/milestone_confirm_button.png'
+    no_milestone: 'daily/milestone/no_milestone.png'
 
   market:
-    title: 'market_title.png'
-    collectable_tab: 'market_collectable_tab.png'
-    restock_all: 're_stock_all.png'
-    restock_finish: 're_stock_finish.png'
-    no_vacancy: 'no_vacancy_in_market.png'
-    collect_money: 'collect_money.png'
-    all_collectable: 'all_collectable.png'
-    all_collected: 'all_collected.png'
-    leave: 'leave_market.png'
+    title: 'daily/market/market_title.png'
+    collectable_tab: 'daily/market/market_collectable_tab.png'
+    restock_all: 'daily/market/re_stock_all.png'
+    restock_finish: 'daily/market/re_stock_finish.png'
+    no_vacancy: 'daily/market/no_vacancy_in_market.png'
+    collect_money: 'daily/market/collect_money.png'
+    all_collectable: 'daily/market/all_collectable.png'
+    all_collected: 'daily/market/all_collected.png'
+    leave: 'daily/market/leave_market.png'
 
   master_apprentice:
     title: 'daily/master_apprentice/master_and_apprentice_title.png'
