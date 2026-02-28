@@ -21,6 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $ErrorActionPreference = 'Continue'
+          $PSNativeCommandErrorActionPreference = 'Ignore'
           
           if ("${{ github.event.inputs.tag_name }}" -notmatch "^v\d+\.\d+\.\d+$") {
             Write-Error "版本號格式錯誤，請使用 v1.0.0 的格式"
