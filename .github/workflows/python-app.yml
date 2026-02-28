@@ -20,12 +20,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $ErrorActionPreference = 'Continue'
+          
           if ("${{ github.event.inputs.tag_name }}" -notmatch "^v\d+\.\d+\.\d+$") {
             Write-Error "版本號格式錯誤，請使用 v1.0.0 的格式"
             exit 1
           }
-
-          $response = gh release view ${{ github.event.inputs.tag_name }} 2>&1
+          
+          gh release view ${{ github.event.inputs.tag_name }} 2>&1 | Out-Null
           if ($LASTEXITCODE -eq 0) {
             Write-Error "版本號 ${{ github.event.inputs.tag_name }} 已經存在！"
             exit 1
