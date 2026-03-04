@@ -329,3 +329,29 @@ class MapleVision:
         except Exception as e:
             print(f"Error in find_image_location: {e}")
             return None
+
+    def debug_rune_area(self):
+        full_x, full_y, full_w, full_h = self.maple_full_screen_area
+        roi_w = full_w
+        roi_h = int(full_h * 0.4)
+
+        img_np = self._capture((full_x, full_y, roi_w, roi_h))
+
+        # 先看原始截圖長什麼樣
+        cv2.imshow("原始截圖", img_np)
+
+        # 再看 mask 長什麼樣（白色區域是什麼）
+        lower_bound = np.array([50, 50, 50])
+        upper_bound = np.array([255, 255, 255])
+        mask = cv2.inRange(img_np, lower_bound, upper_bound)
+        cv2.imshow("白色遮罩", mask)
+
+        cv2.waitKey(0)  # 按任意鍵關閉
+        cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    from src.utils.windows_object import WindowsObject
+    maple = WindowsObject.find_maple("MapleStoryClassTW")
+    vision = MapleVision(maple)
+    vision.debug_rune_area()
