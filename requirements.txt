@@ -12,3 +12,4 @@ keyring
 zstandard
 nuitka
 mss
+ai_edge_litert
