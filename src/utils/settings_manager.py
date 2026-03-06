@@ -19,7 +19,8 @@ class SettingsManager:
         "recorded_route": "routes/recorded_route.json",
         "daily_prepare": "tasks/daily_prepare.json",
         "grind_settings": "tasks/grind_settings.json",
-        "hardware": "system/hardware.json"
+        "hardware": "system/hardware.json",
+        "normal_skills": "skills/normal_skills.json",
     }
 
     def __init__(self):

@@ -415,6 +415,39 @@ class GrindSettingsDialog(QDialog):
         self.chk_stop_people.setToolTip("偵測到紅點(其他玩家)時，腳本將會暫停操作")
         layout.addWidget(self.chk_stop_people)
 
+        # Checkbox 3: Auto solve Rune (Experimental)
+        self.chk_auto_solve_rune = QCheckBox("自動解除地圖輪迴（實驗）")
+        self.chk_auto_solve_rune.setToolTip("勾選後，腳本將會自動嘗試解除地圖上的符文")
+        self.chk_auto_solve_rune.toggled.connect(self.update_rune_ui_state)
+        layout.addWidget(self.chk_auto_solve_rune)
+
+        # 常用攻擊技能按鍵 (Horizontal Layout with indentation)
+        rune_layout = QHBoxLayout()
+        rune_layout.setContentsMargins(30, 0, 0, 0)
+        
+        self.lbl_normal_skill = QLabel("您的常用攻擊技能按鍵")
+        rune_layout.addWidget(self.lbl_normal_skill)
+
+        self.combo_normal_skill = QComboBox()
+        self.combo_normal_skill.setMinimumWidth(120)
+        keys = (
+            [chr(i) for i in range(ord('a'), ord('z')+1)] + 
+            [str(i) for i in range(10)] + 
+            ["'", '-', '=', '`', ';', '[', ']', ',', '.', '/', '\\'] +
+            [f'f{i}' for i in range(1, 13)] +
+            ['shift', 'ctrl', 'alt', 'space', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown']
+        )
+        self.combo_normal_skill.addItems(keys)
+        rune_layout.addWidget(self.combo_normal_skill)
+        rune_layout.addStretch()
+        layout.addLayout(rune_layout)
+
+    def update_rune_ui_state(self):
+        """根據 Checkbox 狀態啟用/停用『解除符文』按鍵選單"""
+        rune_enabled = self.chk_auto_solve_rune.isChecked()
+        self.lbl_normal_skill.setEnabled(rune_enabled)
+        self.combo_normal_skill.setEnabled(rune_enabled)
+
     def _load_settings(self):
         # 1. Load Skills
         skills_data = self.settings_manager.get("grind_skills", default=[])
@@ -428,11 +461,20 @@ class GrindSettingsDialog(QDialog):
         protection_data = self.settings_manager.get("grind_settings", default={})
         self.chk_stop_rune.setChecked(protection_data.get("stop_when_rune_appears", False))
         self.chk_stop_people.setChecked(protection_data.get("stop_when_people_appears", False))
+        self.chk_auto_solve_rune.setChecked(protection_data.get("auto_solve_rune", False))
         self.chk_stationary.setChecked(protection_data.get("stationary_mode", False))
         self.chk_random_up.setChecked(protection_data.get("random_up_movement", False))
 
         self.update_stationary_ui_state()
+        self.update_rune_ui_state()
 
+        # Load Normal Skill Key
+        normal_skill_data = self.settings_manager.get("normal_skills", default={})
+        normal_key = normal_skill_data.get("normal", "a")
+        index = self.combo_normal_skill.findText(normal_key)
+        if index >= 0:
+            self.combo_normal_skill.setCurrentIndex(index)
+        
         # Loop Settings
         if hasattr(self, 'chk_enable_route'): # 確保元件已建立
             self.chk_enable_route.setChecked(protection_data.get("enable_loop_route", False))
@@ -472,6 +514,7 @@ class GrindSettingsDialog(QDialog):
         protection_data = {
             "stop_when_rune_appears": self.chk_stop_rune.isChecked(),
             "stop_when_people_appears": self.chk_stop_people.isChecked(),
+            "auto_solve_rune": self.chk_auto_solve_rune.isChecked(),
             "stationary_mode": self.chk_stationary.isChecked(),
             "random_up_movement": self.chk_random_up.isChecked(),
             # Loop Settings
@@ -480,6 +523,12 @@ class GrindSettingsDialog(QDialog):
             "loop_route_interval": int(self.combo_loop_interval.currentText()) if hasattr(self, 'combo_loop_interval') else 5
         }
         self.settings_manager.save("grind_settings", protection_data)
+
+        # 3. Save Normal Skill Key
+        normal_skill_data = {
+            "normal": self.combo_normal_skill.currentText()
+        }
+        self.settings_manager.save("normal_skills", normal_skill_data)
 
     def accept(self):
         self.save_settings()
