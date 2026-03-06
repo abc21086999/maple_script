@@ -8,6 +8,7 @@ from src.utils.settings_manager import SettingsManager
 from src.utils.windows_object import WindowsObject
 from abc import ABC, abstractmethod
 from src.utils.maple_vision import MapleVision
+from src.utils.rune_detector import RuneDetector
 
 
 class MapleScript(ABC):
@@ -16,6 +17,7 @@ class MapleScript(ABC):
         self.maple = WindowsObject.find_maple("MapleStoryClassTW")
         self.yaml_loader = YamlLoader()
         self.settings = SettingsManager()
+        self.__model = RuneDetector()
         self.__vision = MapleVision(self.maple)
         self.__keyboard = controller
         self.__mouse = controller
@@ -207,6 +209,37 @@ class MapleScript(ABC):
             case None:
                 pass
 
+    def solve_rune(self, normal_attack):
+        """
+        解輪
+        :return:
+        """
+        rune_edge = self.yaml_loader.rune_box_edge
+        results = []
+
+        # 嘗試20次去辨識輪區域的邊框
+        for i in range(20):
+            arrows = self.__vision.get_rune_arrows(rune_edge)
+            # 如果沒辨識到那就普攻幾次
+            if arrows is None:
+                for _ in range(3):
+                    self.press_and_wait(normal_attack, 0.3)
+                continue
+
+            # 如果有辨識到，那麼就把每張圖片丟進去推論
+            for arrow in arrows:
+                direction, confidence = self.__model.predict(arrow)
+                results.append({"direction": direction, "confidence": confidence})
+
+            # 只有在信心水準足夠的時候才按下按鍵
+            if all(inference_result.get("confidence") > 0.8 for inference_result in results):
+                for result in results:
+                    self.press_and_wait(result.get("direction"), 0.2)
+                self.log("地圖輪解除成功")
+                return
+
+        self.log("符文解除失敗")
+
     def replay_script(self, recorded_events: list[dict]):
         """
         重播已經錄製的腳本
@@ -305,6 +338,14 @@ class MapleScript(ABC):
 
 
 if __name__ == "__main__":
+    from PySide6.QtCore import QCoreApplication
+
+    # 由於序號的位置需要公司名稱和軟體名稱
+    # 所以在這個檔案執行的時候要先初始化Qt框架然後做設定
+    app = QCoreApplication([])
+    app.setOrganizationName("MapleScriptTeam")
+    app.setApplicationName("MapleScript")
+
     class DebugMaple(MapleScript):
 
         def start(self):
@@ -312,6 +353,4 @@ if __name__ == "__main__":
 
     with XiaoController() as Xiao:
         Maple = DebugMaple(Xiao)
-        while True:
-            time.sleep(0.5)
-            print(Maple.has_rune())
+        Maple.solve_rune()

@@ -149,6 +149,10 @@ class YamlLoader:
                 result[category][key] = PIL.Image.open(img_path)
         return result
 
+    @cached_property
+    def rune_box_edge(self):
+        return PIL.Image.open(self.__photo_path / "rune_box_edge.png")
+
 
 if __name__ == "__main__":
     yaml_operator = YamlLoader()

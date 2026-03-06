@@ -224,6 +224,16 @@ class MapleGrind(MapleScript):
     def stop_on_people(self):
         return self.__settings.get("stop_when_people_appears", False)
 
+    @cached_property
+    def is_auto_solve_rune_enabled(self) -> bool:
+        """是否啟用自動解除地圖輪迴"""
+        return self.__settings.get("auto_solve_rune", False)
+
+    @cached_property
+    def normal_skill_key(self) -> str:
+        """從 normal_skills.json 讀取常用攻擊技能按鍵"""
+        return self.settings.get("normal_skills", key="normal", default="a")
+
     def start(self) -> None:
         try:
             while self.should_continue() and (self.is_stationary or self.is_route_enabled):
