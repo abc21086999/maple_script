@@ -217,6 +217,9 @@ class MapleScript(ABC):
         rune_edge = self.yaml_loader.rune_box_edge
         results = []
 
+        # 先按下一次對話鍵
+        self.press("y")
+
         # 嘗試20次去辨識輪區域的邊框
         for i in range(20):
             arrows = self.__vision.get_rune_arrows(rune_edge)
@@ -224,6 +227,8 @@ class MapleScript(ABC):
             if arrows is None:
                 for _ in range(3):
                     self.press_and_wait(normal_attack, 0.3)
+                self.sleep(0.3)
+                self.press_and_wait("y", 1)
                 continue
 
             # 如果有辨識到，那麼就把每張圖片丟進去推論

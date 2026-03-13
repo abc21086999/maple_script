@@ -396,4 +396,3 @@ if __name__ == "__main__":
     from src.utils.windows_object import WindowsObject
     maple = WindowsObject.find_maple("MapleStoryClassTW")
     vision = MapleVision(maple)
-    print(vision.get_rune_arrows(Path(r"C:\Users\abc21\Pictures\Screenshots\rune_box_edge.png")))

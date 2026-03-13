@@ -129,6 +129,8 @@ class MapleGrind(MapleScript):
 
             if self.stop_on_rune and self.has_rune():
                 self.log("地圖上有符文 (暫停中...)")
+                if self.is_auto_solve_rune_enabled:
+                    self.solve_rune(self.normal_skill_key)
                 self.sleep(10)
                 continue
 
