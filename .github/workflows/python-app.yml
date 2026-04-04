@@ -29,12 +29,6 @@ jobs:
           python -m pip install --upgrade pip
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-
       - name: Build with Nuitka (Windows)
         run: >
           nuitka 
@@ -82,6 +76,7 @@ jobs:
           --windows-icon-from-ico=icon.ico 
           --include-data-files=icon.ico=icon.ico 
           --include-data-dir=config=config 
+          --include-data-dir=models=models 
           --include-data-dir=photos=photos 
           --assume-yes-for-downloads 
           --output-dir=build 

@@ -329,3 +329,70 @@ class MapleVision:
         except Exception as e:
             print(f"Error in find_image_location: {e}")
             return None
+
+    def debug_rune_area(self):
+        full_x, full_y, full_w, full_h = self.maple_full_screen_area
+        roi_w = full_w
+        roi_h = int(full_h * 0.4)
+
+        img_np = self._capture((full_x, full_y, roi_w, roi_h))
+
+        # 先看原始截圖長什麼樣
+        cv2.imshow("原始截圖", img_np)
+
+        # 再看 mask 長什麼樣（白色區域是什麼）
+        lower_bound = np.array([50, 50, 50])
+        upper_bound = np.array([255, 255, 255])
+        mask = cv2.inRange(img_np, lower_bound, upper_bound)
+        cv2.imshow("白色遮罩", mask)
+
+        cv2.waitKey(0)  # 按任意鍵關閉
+        cv2.destroyAllWindows()
+
+    def _to_edge(self, img):
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        edges = cv2.Canny(gray, 50, 150)
+        return edges
+
+    def get_rune_arrows(self, template: PIL.Image.Image | str | Path):
+        # 讀取模板並轉成邊緣圖
+        if isinstance(template, (str, Path)):
+            template_img = cv2.imread(str(template))
+        elif isinstance(template, PIL.Image.Image):
+            template_img = cv2.cvtColor(np.array(template), cv2.COLOR_RGB2BGR)
+
+        template_edges = self._to_edge(template_img)
+
+        # 截圖上半部並轉成邊緣圖
+        full_x, full_y, full_w, full_h = self.maple_full_screen_area
+        screenshot = self._capture((full_x, full_y, full_w, full_h // 2))
+        screenshot_edges = self._to_edge(screenshot)
+
+        # 模板匹配
+        res = cv2.matchTemplate(screenshot_edges, template_edges, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+        if max_val <= 0.4:  # 閾值可以調整
+            return None
+
+        x, y = max_loc
+        arrow_region = screenshot[y:y + template_img.shape[0], x + 10:x + 10 + 375]
+        total_w = arrow_region.shape[1]
+        total_h = arrow_region.shape[0]
+        # 上下左右各縮小 15%（總共 30%）
+        crop_x = int(total_w * 0.15 / 4)  # 每份左右各縮
+        crop_y = int(total_h * 0.15)  # 上下各縮
+        arrows = []
+
+        for i in range(4):
+            left = int(total_w * i / 4) + crop_x
+            right = int(total_w * (i + 1) / 4) - crop_x
+            arrow = arrow_region[crop_y:total_h - crop_y, left:right]
+            arrows.append(arrow)
+
+        return arrows
+
+if __name__ == "__main__":
+    from src.utils.windows_object import WindowsObject
+    maple = WindowsObject.find_maple("MapleStoryClassTW")
+    vision = MapleVision(maple)

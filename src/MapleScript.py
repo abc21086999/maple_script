@@ -16,9 +16,10 @@ class MapleScript(ABC):
         self.maple = WindowsObject.find_maple("MapleStoryClassTW")
         self.yaml_loader = YamlLoader()
         self.settings = SettingsManager()
-        self.__vision = MapleVision(self.maple)
-        self.__keyboard = controller
-        self.__mouse = controller
+        self._model = None
+        self._vision = MapleVision(self.maple)
+        self._keyboard = controller
+        self._mouse = controller
 
         # 執行緒控制與 Log 回調
         self.__log_callback = log_callback
@@ -36,7 +37,7 @@ class MapleScript(ABC):
         """
         清理資源，例如關閉視覺辨識物件
         """
-        self.__vision.release()
+        self._vision.release()
 
     def should_continue(self) -> bool:
         """
@@ -86,13 +87,13 @@ class MapleScript(ABC):
         return self.maple.is_active
 
     def get_full_screen_screenshot(self):
-        return self.__vision.get_full_screen_screenshot()
+        return self._vision.get_full_screen_screenshot()
 
     def get_skill_area_screenshot(self):
-        return self.__vision.get_skill_area_screenshot()
+        return self._vision.get_skill_area_screenshot()
 
     def get_mini_map_area_screenshot(self):
-        return self.__vision.get_mini_map_area_screenshot()
+        return self._vision.get_mini_map_area_screenshot()
 
     def get_character_position(self, color_tolerance=30):
         """
@@ -100,7 +101,7 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: "left", "right", or "not_found"
         """
-        return self.__vision.get_character_position(color_tolerance)
+        return self._vision.get_character_position(color_tolerance)
 
     def has_other_players(self, color_tolerance=10) -> bool:
         """
@@ -109,7 +110,7 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: bool
         """
-        return self.__vision.has_other_players(color_tolerance)
+        return self._vision.has_other_players(color_tolerance)
 
     def has_rune(self, color_tolerance=10) -> bool:
         """
@@ -118,19 +119,42 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: bool
         """
-        return self.__vision.has_rune(color_tolerance)
+        return self._vision.has_rune(color_tolerance)
 
     def get_player_pos(self) -> tuple[int, int] | None:
         """
         獲取玩家在小地圖上的精確座標 (x, y)
         """
-        return self.__vision.get_player_pos()
+        return self._vision.get_player_pos()
 
     def get_rune_pos(self) -> tuple[int, int] | None:
         """
         獲取符文在小地圖上的精確座標 (x, y)
         """
-        return self.__vision.get_rune_pos()
+        return self._vision.get_rune_pos()
+
+    def up_jump(self):
+        """
+        模擬向上跳躍 (Alt -> Up + Alt)
+        """
+        if self.is_maple_focus():
+            self.press("alt")
+            self.sleep(0.1)
+            self.key_down("up")
+            self.press("alt")
+            self.key_up("up")
+            self.sleep(0.5)
+
+    def down_jump(self):
+        """
+        模擬向上跳躍 (Down + Alt)
+        """
+        if self.is_maple_focus():
+            self.key_down("down")
+            self.press("alt")
+            self.sleep(0.1)
+            self.key_up("down")
+            self.sleep(0.5)
 
     def move_to_point(self, target_x: int, target_y: int, threshold: int = 3):
         """
@@ -138,49 +162,69 @@ class MapleScript(ABC):
         """
         self.log(f"開始導航至目標座標: ({target_x}, {target_y})")
         
-        while self.should_continue() and self.is_maple_focus():
-            curr = self.get_player_pos()
-            if not curr:
-                self.log("找不到玩家位置，等待中...")
-                self.sleep(0.5)
-                continue
+        current_dir = None  # 紀錄硬體目前的物理狀態 (None, "left", "right")
+
+        # 定義一個內部的同步函數，只在狀態改變時發送指令
+        def sync_hardware(new_dir):
+            nonlocal current_dir
+            if new_dir == current_dir:
+                return # 狀態沒變，不發指令，不浪費時間
             
-            cx, cy = curr
-            dx = target_x - cx
-            dy = target_y - cy
+            # 狀態改變了，先確保之前的方向鍵放開
+            if current_dir:
+                self.key_up(current_dir)
             
-            # 如果已經抵達範圍內就停止
-            if abs(dx) <= threshold and abs(dy) <= threshold:
-                self.log("已抵達目標點")
-                break
-                
-            # 先處理水平移動
-            if dx > threshold:
-                self.key_down("right")
-                self.sleep(0.1)
-                new_curr = self.get_player_pos()
-                if new_curr and new_curr[0] >= target_x - threshold:
-                    self.key_up("right")
-            elif dx < -threshold:
-                self.key_down("left")
-                self.sleep(0.1)
-                new_curr = self.get_player_pos()
-                if new_curr and new_curr[0] <= target_x + threshold:
-                    self.key_up("left")
-            else:
-                self.key_up("left")
-                self.key_up("right")
+            # 再按下新的方向鍵
+            if new_dir:
+                self.key_down(new_dir)
             
-            # 處理垂直移動
-            if abs(dx) <= threshold * 3: # 接近目標 X 座標時才處理 Y
-                if dy < -threshold: # 目標在上方
-                    self.up_jump()
-                elif dy > threshold: # 目標在下方
-                    self.key_down("down")
-                    self.press("alt")
-                    self.sleep(0.1)
-                    self.key_up("down")
+            current_dir = new_dir # 更新記憶狀態
+
+        try:
+            while self.should_continue() and self.is_maple_focus():
+                curr = self.get_player_pos()
+                if not curr:
+                    self.log("找不到玩家位置，等待中...")
                     self.sleep(0.5)
+                    continue
+                
+                cx, cy = curr
+                dx = target_x - cx
+                dy = target_y - cy
+                
+                # 判斷是否抵達目標 (水平與垂直都到位)
+                if abs(dx) <= threshold and abs(dy) <= threshold:
+                    self.log("已抵達目標點")
+                    break
+                    
+                # --- 決定理想的方向 (拆解寫法，一目瞭然) ---
+                if dx > threshold:
+                    target_dir = "right"
+                elif dx < -threshold:
+                    target_dir = "left"
+                else:
+                    target_dir = None
+                
+                # --- 同步硬體狀態 (只在方向改變時發指令) ---
+                sync_hardware(target_dir)
+                
+                # 處理垂直移動 (這部分會與水平同時進行)
+                # 只有在接近目標 X 座標時才處理 Y，避免因為地形跳過頭
+                if abs(dx) <= threshold * 3:
+                    if dy < -threshold: # 目標在上方
+                        self.up_jump()
+                    elif dy > threshold: # 目標在下方
+                        self.down_jump()
+                
+                # 迴圈頻率穩定維持 20fps (0.05s)
+                # 因為 sync_hardware 絕大部分時間會 return，所以迴圈反應極快
+                self.sleep(0.05)
+                
+        finally:
+            # 確保退出時同步為停止狀態，並釋放所有可能的按鍵
+            sync_hardware(None)
+            if self._keyboard:
+                self._keyboard.release_all()
 
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
         """
@@ -189,7 +233,7 @@ class MapleScript(ABC):
         :param img: 一張截圖，沒有傳入就會自動擷取一張
         :return: bool
         """
-        return self.__vision.is_on_screen(pic=pic, img=img)
+        return self._vision.is_on_screen(pic=pic, img=img)
 
     def find_and_click_image(self, pic_for_search: str | PIL.Image.Image | Path) -> None:
         """
@@ -197,7 +241,7 @@ class MapleScript(ABC):
         :param pic_for_search: 要辨識的圖片
         :return: None
         """
-        match self.__vision.find_image_location(pic_for_search):
+        match self._vision.find_image_location(pic_for_search):
             case (dx, dy):
                 self.move((dx, dy))
                 self.sleep(0.2)
@@ -215,12 +259,12 @@ class MapleScript(ABC):
         start_replay_time = time.time()
         for event in recorded_events:
             if not self.should_continue():
-                self.__keyboard.release_all()
+                self._keyboard.release_all()
                 break
 
             if not self.is_maple_focus():
                 self.log("楓之谷不在前景，中止重播腳本")
-                self.__keyboard.release_all()
+                self._keyboard.release_all()
                 break
 
             action = event.get('action')
@@ -241,8 +285,8 @@ class MapleScript(ABC):
         self.log("腳本重播完畢")
 
     def press(self, key: str) -> None:
-        if self.__keyboard is not None:
-            self.__keyboard.press_key(key)
+        if self._keyboard is not None:
+            self._keyboard.press_key(key)
         else:
             self.log(f'沒鍵盤')
 
@@ -261,40 +305,40 @@ class MapleScript(ABC):
                 self.sleep(wait_time)
 
     def move(self, location: tuple) -> None:
-        if self.__mouse is not None:
-            self.__mouse.send_mouse_location(location)
+        if self._mouse is not None:
+            self._mouse.send_mouse_location(location)
         else:
             self.log(f'沒滑鼠')
 
     def click(self) -> None:
-        if self.__mouse is not None:
-            self.__mouse.click()
+        if self._mouse is not None:
+            self._mouse.click()
         else:
             self.log(f'沒滑鼠')
 
     def key_down(self, key: str) -> None:
-        if self.__keyboard is not None:
-            self.__keyboard.key_down(key)
+        if self._keyboard is not None:
+            self._keyboard.key_down(key)
             self.sleep(0.1)
         else:
             self.log(f'沒鍵盤')
 
     def key_up(self, key: str) -> None:
-        if self.__keyboard is not None:
-            self.__keyboard.key_up(key)
+        if self._keyboard is not None:
+            self._keyboard.key_up(key)
             self.sleep(0.1)
         else:
             self.log(f'沒鍵盤')
 
     def scroll_up(self) -> None:
-        if self.__mouse is not None:
-            self.__mouse.scroll_up()
+        if self._mouse is not None:
+            self._mouse.scroll_up()
         else:
             print(f'沒滑鼠')
 
     def scroll_down(self) -> None:
-        if self.__mouse is not None:
-            self.__mouse.scroll_down()
+        if self._mouse is not None:
+            self._mouse.scroll_down()
         else:
             print(f'沒滑鼠')
 
@@ -305,6 +349,14 @@ class MapleScript(ABC):
 
 
 if __name__ == "__main__":
+    from PySide6.QtCore import QCoreApplication
+
+    # 由於序號的位置需要公司名稱和軟體名稱
+    # 所以在這個檔案執行的時候要先初始化Qt框架然後做設定
+    app = QCoreApplication([])
+    app.setOrganizationName("MapleScriptTeam")
+    app.setApplicationName("MapleScript")
+
     class DebugMaple(MapleScript):
 
         def start(self):
@@ -312,6 +364,4 @@ if __name__ == "__main__":
 
     with XiaoController() as Xiao:
         Maple = DebugMaple(Xiao)
-        while True:
-            time.sleep(0.5)
-            print(Maple.has_rune())
+        Maple.up_jump()

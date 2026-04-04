@@ -1,5 +1,6 @@
 from src.utils.xiao_controller import XiaoController
 from src.MapleScript import MapleScript
+from src.utils.rune_detector import RuneDetector
 from functools import cached_property
 from pathlib import Path
 import PIL.Image
@@ -129,6 +130,17 @@ class MapleGrind(MapleScript):
 
             if self.stop_on_rune and self.has_rune():
                 self.log("地圖上有符文 (暫停中...)")
+                if self.is_auto_solve_rune_enabled:
+                    # 紀錄目前位置
+                    origin = self.get_player_pos()
+                    
+                    # 先移動到符文所在地
+                    if self.go_to_rune():
+                        self.solve_rune(self.normal_skill_key)
+                        
+                        # 如果有紀錄到原位置，就回去
+                        if origin:
+                            self.go_back(*origin)
                 self.sleep(10)
                 continue
 
@@ -192,6 +204,70 @@ class MapleGrind(MapleScript):
         if self.is_random_up_enabled:
             self.move_by_pressing_up()
 
+    def solve_rune(self, normal_attack):
+        """
+        解輪
+        :return:
+        """
+        # 只在要用到的時候再初始化
+        if self._model is None:
+            self._model = RuneDetector()
+
+        rune_edge = self.yaml_loader.rune_box_edge
+        results = []
+
+        # 先按下一次對話鍵
+        self.press("y")
+
+        # 嘗試20次去辨識輪區域的邊框
+        for i in range(20):
+            arrows = self._vision.get_rune_arrows(rune_edge)
+            # 如果沒辨識到那就普攻幾次
+            if arrows is None:
+                for _ in range(3):
+                    self.press_and_wait(normal_attack, 0.3)
+                self.sleep(0.3)
+                self.press_and_wait("y", 1)
+                continue
+
+            # 如果有辨識到，那麼就把每張圖片丟進去推論
+            for arrow in arrows:
+                direction, confidence = self._model.predict(arrow)
+                results.append({"direction": direction, "confidence": confidence})
+
+            # 只有在信心水準足夠的時候才按下按鍵
+            if all(inference_result.get("confidence") > 0.8 for inference_result in results):
+                for result in results:
+                    self.press_and_wait(result.get("direction"), 0.2)
+                self.log("地圖輪解除成功")
+                return
+
+        self.log("符文解除失敗")
+
+    def go_to_rune(self) -> bool:
+        """
+        移動至符文位置
+        :return: bool 是否成功移動到符文附近
+        """
+        rune_pos = self.get_rune_pos()
+        if rune_pos:
+            rx, ry = rune_pos
+            self.log(f"開始前往符文座標: ({rx}, {ry})")
+            self.move_to_point(rx, ry)
+            self.sleep(1)  # 確保角色落地
+            return True
+        else:
+            self.log("無法獲取符文在小地圖上的座標")
+            return False
+
+    def go_back(self, target_x: int, target_y: int):
+        """
+        返回指定的座標點 (通常是原練功點)
+        """
+        self.log(f"任務完成，返回原練功點: ({target_x}, {target_y})")
+        self.move_to_point(target_x, target_y)
+        self.sleep(2)
+
     @cached_property
     def is_stationary(self) -> bool:
         """是否為定點練功模式"""
@@ -223,6 +299,16 @@ class MapleGrind(MapleScript):
     @cached_property
     def stop_on_people(self):
         return self.__settings.get("stop_when_people_appears", False)
+
+    @cached_property
+    def is_auto_solve_rune_enabled(self) -> bool:
+        """是否啟用自動解除地圖輪迴"""
+        return self.__settings.get("auto_solve_rune", False)
+
+    @cached_property
+    def normal_skill_key(self) -> str:
+        """從 normal_skills.json 讀取常用攻擊技能按鍵"""
+        return self.settings.get("normal_skills", key="normal", default="a")
 
     def start(self) -> None:
         try:
