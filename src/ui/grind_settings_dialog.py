@@ -363,7 +363,7 @@ class GrindSettingsDialog(QDialog):
         layout = QVBoxLayout(self.tab_skills)
 
         header = QLabel("設定自動施放的技能與對應按鍵")
-        header.setStyleSheet("font-weight: bold; margin-bottom: 5px;")
+        header.setStyleSheet("font-weight: bold; margin-bottom: 5px; font-size: 14px;")
         layout.addWidget(header)
         
         # 啟用定點練功
@@ -378,8 +378,8 @@ class GrindSettingsDialog(QDialog):
         hbox_up.addWidget(self.chk_random_up)
         layout.addLayout(hbox_up)
 
-        sub_header = QLabel("圖片將自動儲存至系統 AppData 資料夾")
-        sub_header.setStyleSheet("color: gray; margin-bottom: 10px;")
+        sub_header = QLabel("請放入遊戲右下角的技能快捷鍵截圖，及對應按鍵")
+        sub_header.setStyleSheet("color: gray; margin-bottom: 10px; font-size: 14px;")
         layout.addWidget(sub_header)
 
         # Scroll Area for Skills

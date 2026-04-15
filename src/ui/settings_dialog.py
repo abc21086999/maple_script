@@ -8,10 +8,12 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 
 class SkillRow(QWidget):
-    def __init__(self, parent_dialog, base_data_path, data=None):
+    def __init__(self, parent_dialog, base_data_path, data=None, subfolder='toggle', show_key=True):
         super().__init__()
         self.parent_dialog = parent_dialog
         self.base_data_path = base_data_path
+        self.subfolder = subfolder
+        self.show_key = show_key
         self.image_path = None # 絕對路徑或相對路徑
         self._init_ui()
         if data:
@@ -24,25 +26,27 @@ class SkillRow(QWidget):
         # 1. 啟用開關
         self.checkbox = QCheckBox()
         self.checkbox.setFixedWidth(30)
-        self.checkbox.setToolTip("啟用此技能")
+        self.checkbox.setToolTip("啟用此項目")
         layout.addWidget(self.checkbox)
         
         layout.addStretch(1)
 
-        # 2. 按鍵選擇
-        self.key_combo = QComboBox()
-        self.key_combo.setMinimumWidth(120)
-        keys = (
-            [chr(i) for i in range(ord('a'), ord('z')+1)] + 
-            [str(i) for i in range(10)] + 
-            ["'", '-', '=', '`', ';', '[', ']', ',', '.', '/', '\\'] +
-            [f'f{i}' for i in range(1, 13)] +
-            ['shift', 'ctrl', 'alt', 'space', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown']
-        )
-        self.key_combo.addItems(keys)
-        layout.addWidget(self.key_combo)
-        
-        layout.addStretch(1)
+        # 2. 按鍵選擇 (選用)
+        if self.show_key:
+            self.key_combo = QComboBox()
+            self.key_combo.setMinimumWidth(120)
+            keys = (
+                [chr(i) for i in range(ord('a'), ord('z')+1)] + 
+                [str(i) for i in range(10)] + 
+                ["'", '-', '=', '`', ';', '[', ']', ',', '.', '/', '\\'] +
+                [f'f{i}' for i in range(1, 13)] +
+                ['shift', 'ctrl', 'alt', 'space', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown']
+            )
+            self.key_combo.addItems(keys)
+            layout.addWidget(self.key_combo)
+            layout.addStretch(1)
+        else:
+            self.key_combo = None
 
         # 3. 圖片預覽區域
         self.image_label = QLabel()
@@ -56,7 +60,7 @@ class SkillRow(QWidget):
         # 4. 選擇圖片按鈕
         self.btn_load = QPushButton("📂")
         self.btn_load.setFixedSize(30, 30)
-        self.btn_load.setToolTip("選擇技能圖片")
+        self.btn_load.setToolTip("選擇圖片")
         self.btn_load.clicked.connect(self.select_image)
         layout.addWidget(self.btn_load)
         
@@ -74,10 +78,11 @@ class SkillRow(QWidget):
     def _load_data(self, data):
         self.checkbox.setChecked(data.get('enabled', True))
         
-        key = data.get('key', 'a')
-        index = self.key_combo.findText(key, Qt.MatchFlag.MatchFixedString)
-        if index >= 0:
-            self.key_combo.setCurrentIndex(index)
+        if self.key_combo:
+            key = data.get('key', 'a')
+            index = self.key_combo.findText(key, Qt.MatchFlag.MatchFixedString)
+            if index >= 0:
+                self.key_combo.setCurrentIndex(index)
             
         path_str = data.get('image_path', '')
         if path_str:
@@ -96,12 +101,12 @@ class SkillRow(QWidget):
     def process_selected_image(self, original_path_str):
         """
         處理使用者選擇的圖片：
-        1. 將圖片複製到 AppData/toggle 下
+        1. 將圖片複製到 AppData/{subfolder} 下
         2. 更新 UI 顯示與內部路徑紀錄
         """
         original_path = Path(original_path_str)
-        # 目標資料夾：AppData/toggle
-        target_dir = self.base_data_path / 'toggle'
+        # 目標資料夾：AppData/{subfolder}
+        target_dir = self.base_data_path / self.subfolder
         target_dir.mkdir(parents=True, exist_ok=True)
         
         # 目標檔案路徑 (保留原檔名)
@@ -115,7 +120,7 @@ class SkillRow(QWidget):
                     reply = QMessageBox.question(
                         self, 
                         '覆蓋確認', 
-                        f'檔案 "{original_path.name}" 已存在於 AppData/toggle 資料夾中。\n是否要覆蓋它？',
+                        f'檔案 "{original_path.name}" 已存在於 AppData/{self.subfolder} 資料夾中。\n是否要覆蓋它？',
                         QMessageBox.Yes | QMessageBox.No, 
                         QMessageBox.No
                     )
@@ -158,7 +163,7 @@ class SkillRow(QWidget):
 
         return {
             'enabled': self.checkbox.isChecked(),
-            'key': self.key_combo.currentText(),
+            'key': self.key_combo.currentText() if self.key_combo else 'a',
             'image_path': saved_path
         }
 
@@ -208,7 +213,10 @@ class SettingsDialog(QDialog):
         # 根據傳入的 section_key 取得對應的名稱表
         self.display_names = self.SECTION_DISPLAY_NAMES.get(self.section_key, {})
         self.checkboxes = {}
-        self.rows = []
+        self.toggle_skill_rows = []
+        self.grind_set_rows = []
+        self.toggle_skill_layout = None
+        self.grind_set_layout = None
 
         # 1. 讀取目前的設定
         self.current_settings = self.settings_manager.get(self.section_key)
@@ -216,9 +224,9 @@ class SettingsDialog(QDialog):
         # 2. 建立 UI
         self._setup_ui()
         
-        # 3. 讀取 Toggle Skills 設定 (如果在這個 section 有支援的話)
+        # 3. 讀取自訂分頁資料 (如果在這個 section 有支援的話)
         if self.section_key == 'daily_prepare':
-            self._load_toggle_skills()
+            self._load_custom_data()
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -232,7 +240,9 @@ class SettingsDialog(QDialog):
         tab1_layout = QVBoxLayout(tab1)
         
         # 說明文字
-        tab1_layout.addWidget(QLabel("請勾選欲執行的子任務："))
+        tab1_header = QLabel("請勾選欲執行的子任務：")
+        tab1_header.setStyleSheet("font-weight: bold; margin-bottom: 5px; font-size: 14px;")
+        tab1_layout.addWidget(tab1_header)
 
         # 捲動區域
         scroll = QScrollArea()
@@ -272,35 +282,31 @@ class SettingsDialog(QDialog):
         
         self.tabs.addTab(tab1, "一般設定")
 
-        # --- 第二頁：開關技能 (僅在 daily_prepare 顯示) ---
+        # --- 其他分頁 (僅在 daily_prepare 顯示) ---
         if self.section_key == 'daily_prepare':
-            tab2 = QWidget()
-            tab2_layout = QVBoxLayout(tab2)
+            # 第二頁：開關技能
+            self.toggle_skill_layout = self._setup_skill_like_tab(
+                "開關技能", 
+                "設定自動施放的開關技能 (Toggle Skills)",
+                "請放入遊戲右上角開關技能的截圖，及對應按鍵",
+                "toggle_skills",
+                self.toggle_skill_rows,
+                "toggle",
+                "➕ 新增圖片",
+                show_key=True
+            )
             
-            header = QLabel("設定自動施放的開關技能 (Toggle Skills)")
-            header.setStyleSheet("font-weight: bold; margin-bottom: 5px;")
-            tab2_layout.addWidget(header)
-            
-            sub_header = QLabel("圖片將自動儲存至系統 AppData 資料夾")
-            sub_header.setStyleSheet("color: gray; margin-bottom: 10px;")
-            tab2_layout.addWidget(sub_header)
-
-            # Scroll Area for Skills
-            skill_scroll = QScrollArea()
-            skill_scroll.setWidgetResizable(True)
-            self.skill_scroll_content = QWidget()
-            self.skill_scroll_layout = QVBoxLayout(self.skill_scroll_content)
-            self.skill_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-            
-            skill_scroll.setWidget(self.skill_scroll_content)
-            tab2_layout.addWidget(skill_scroll)
-
-            # Add Button
-            btn_add = QPushButton("➕ 新增技能")
-            btn_add.clicked.connect(self.add_row)
-            tab2_layout.addWidget(btn_add)
-            
-            self.tabs.addTab(tab2, "開關技能")
+            # 第三頁：練功套組
+            self.grind_set_layout = self._setup_skill_like_tab(
+                "練功套組",
+                "設定角色練功套組的圖示",
+                "請放入角色套組介面中，練功套組的圖示截圖",
+                "grind_set",
+                self.grind_set_rows,
+                "grind_set",
+                "➕ 新增圖片",
+                show_key=False
+            )
 
         # 按鈕區 (確定/取消) - 放在分頁外面，共用
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -308,26 +314,70 @@ class SettingsDialog(QDialog):
         buttons.rejected.connect(self.reject)
         main_layout.addWidget(buttons)
 
-    def add_row(self, data=None):
+    def _setup_skill_like_tab(self, tab_title, header_text, sub_header_text, settings_key, rows_list, subfolder, add_button_text, show_key=True):
+        """通用方法建立類似技能列表的分頁"""
+        tab = QWidget()
+        tab_layout = QVBoxLayout(tab)
+        
+        header = QLabel(header_text)
+        header.setStyleSheet("font-weight: bold; margin-bottom: 5px; font-size: 14px;")
+        tab_layout.addWidget(header)
+        
+        sub_header = QLabel(sub_header_text)
+        sub_header.setStyleSheet("color: gray; margin-bottom: 10px; font-size: 14px;")
+        tab_layout.addWidget(sub_header)
+
+        # Scroll Area
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        
+        scroll.setWidget(scroll_content)
+        tab_layout.addWidget(scroll)
+
+        # Add Button
+        btn_add = QPushButton(add_button_text)
+        # 使用 lambda 傳遞參數給 add_row
+        btn_add.clicked.connect(lambda: self.add_row(None, rows_list, scroll_layout, subfolder, show_key))
+        tab_layout.addWidget(btn_add)
+        
+        self.tabs.addTab(tab, tab_title)
+        return scroll_layout
+
+    def add_row(self, data=None, rows_list=None, layout=None, subfolder='toggle', show_key=True):
+        if rows_list is None:
+            rows_list = self.toggle_skill_rows
+        if layout is None:
+            layout = self.toggle_skill_layout
+            
         if data is None:
             data = {'enabled': True, 'key': 'a', 'image_path': ''}
         
-        row = SkillRow(self, self.settings_manager.base_data_path, data)
-        self.skill_scroll_layout.addWidget(row)
-        self.rows.append(row)
+        row = SkillRow(self, self.settings_manager.base_data_path, data, subfolder, show_key)
+        layout.addWidget(row)
+        rows_list.append(row)
 
     def remove_row(self, row_obj):
-        if row_obj in self.rows:
-            self.rows.remove(row_obj)
+        if row_obj in self.toggle_skill_rows:
+            self.toggle_skill_rows.remove(row_obj)
+        elif row_obj in self.grind_set_rows:
+            self.grind_set_rows.remove(row_obj)
 
-    def _load_toggle_skills(self):
-        """讀取開關技能設定"""
+    def _load_custom_data(self):
+        """讀取自訂分頁設定 (開關技能、練功套組)"""
+        # 1. 讀取開關技能
         skills_data = self.settings_manager.get("toggle_skills", default=[])
-        if not isinstance(skills_data, list):
-            skills_data = []
+        if isinstance(skills_data, list):
+            for item in skills_data:
+                self.add_row(item, self.toggle_skill_rows, self.toggle_skill_layout, "toggle", show_key=True)
 
-        for item in skills_data:
-            self.add_row(item)
+        # 2. 讀取練功套組
+        grind_set_data = self.settings_manager.get("grind_set", default=[])
+        if isinstance(grind_set_data, list):
+            for item in grind_set_data:
+                self.add_row(item, self.grind_set_rows, self.grind_set_layout, "grind_set", show_key=False)
 
     def get_new_settings(self):
         """
@@ -346,15 +396,25 @@ class SettingsDialog(QDialog):
         new_data = self.get_new_settings()
         self.settings_manager.save(self.section_key, new_data)
 
-        # 2. 儲存開關技能 (如果有的話)
+        # 2. 儲存自訂分頁資料
         if self.section_key == 'daily_prepare':
+            # 儲存開關技能
             new_skills_data = []
-            for row in self.rows:
+            for row in self.toggle_skill_rows:
                 data = row.get_data()
                 if not data['image_path']:
                     continue
                 new_skills_data.append(data)
             self.settings_manager.save("toggle_skills", new_skills_data)
+            
+            # 儲存練功套組
+            new_grind_set_data = []
+            for row in self.grind_set_rows:
+                data = row.get_data()
+                if not data['image_path']:
+                    continue
+                new_grind_set_data.append(data)
+            self.settings_manager.save("grind_set", new_grind_set_data)
 
     def accept(self):
         self.save_settings()

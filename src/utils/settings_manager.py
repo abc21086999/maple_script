@@ -16,6 +16,7 @@ class SettingsManager:
     STORAGE_ROUTING = {
         "grind_skills": "skills/skills.json",
         "toggle_skills": "toggle/toggle_skills.json",
+        "grind_set": "tasks/grind_set.json",
         "recorded_route": "routes/recorded_route.json",
         "daily_prepare": "tasks/daily_prepare.json",
         "grind_settings": "tasks/grind_settings.json",

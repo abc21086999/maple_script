@@ -15,7 +15,17 @@ class DailyPrepare(MapleScript):
         """
         if not self.should_continue(): return
         self.log("正在切換至練功套組...")
+        
+        # 優先從使用者設定讀取練功套組圖片
+        grind_sets = self.settings.get("grind_set", default=[])
+        user_img = None
+        for gs in grind_sets:
+            if gs.get('enabled', True) and gs.get('image_path'):
+                user_img = gs.get('image_path')
+                break
+        
         imgs = self.__images['settings']
+        target_img = user_img if user_img else imgs['daily_set']
 
         while self.should_continue() and not self.is_maple_focus():
             self.sleep(0.1)
@@ -25,7 +35,7 @@ class DailyPrepare(MapleScript):
             self.press_and_wait(["tab", "down", "enter"])
 
             # 移動過去練功的圖案，並且點下去
-            self.find_and_click_image(imgs['daily_set'])
+            self.find_and_click_image(target_img)
 
             # 移動過去套用按鈕，並且點下去
             self.find_and_click_image(imgs['daily_apply'])
@@ -394,7 +404,7 @@ class DailyPrepare(MapleScript):
 
         # 切換到我的小屋的選項
         self.press_and_wait("tab")
-        for i in range(3):
+        for i in range(4):
             self.press_and_wait("right")
         self.press_and_wait("up")
 
@@ -432,7 +442,7 @@ class DailyPrepare(MapleScript):
 
         # 切換到我的小屋的選項然後離開
         self.press_and_wait("tab")
-        for i in range(3):
+        for i in range(4):
             self.press_and_wait("right")
         self.press_and_wait(["up", "enter", "down", "enter"])
 
@@ -441,30 +451,29 @@ class DailyPrepare(MapleScript):
         活動相關的放這邊
         :return: None
         """
-        if not self.should_continue(): return
+        if not self.should_continue():
+            return
         self.log("正在處理活動...")
         img = self.__images["event"]
+
         # 打開活動面板
         self.invoke_menu()
         self.press_and_wait(["tab", "left", "left", "enter"])
 
-        # 點下時間之力的那個tab，然後點下填滿，還有點下每週的獲得效果按鈕
+        # 點下怪物公園騷動的那個tab
         self.find_and_click_image(img['event_daily_checkin_tab'])
         while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header']):
             self.sleep(0.3)
+
+        # 點下捕獲怪物
         if self.is_on_screen(img['daily_check_in_button']):
             self.find_and_click_image(img['daily_check_in_button'])
-        self.press_and_wait("enter")
-        self.find_and_click_image(img['weekly_check_in_button'])
-        self.press_and_wait(["enter", "esc"])
+        self.press_and_wait("esc")
 
-        # 點下耶芙尼亞的禮物的tab，然後點下考察按鈕
-        self.find_and_click_image(img['event_daily_checkin_tab_2'])
-        while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header_2']):
-            self.sleep(0.3)
-        if self.is_on_screen(img['daily_check_in_button_2']):
-            self.find_and_click_image(img['daily_check_in_button_2'])
-            self.press_and_wait("esc")
+        # 點下每週怪物調查
+        self.find_and_click_image(img['weekly_check_in_button'])
+        self.press_and_wait(["enter"])
+
         self.press_and_wait(["esc", "esc"])
 
     def task_collector(self):
