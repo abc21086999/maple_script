@@ -1,4 +1,9 @@
 # MapleScript
+
+![Release](https://img.shields.io/github/v/release/abc21086999/maple_script)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Downloads](https://img.shields.io/github/downloads/abc21086999/maple_script/total?color=blue)
+
 ![程式預覽](screenshot.png)
 一個基於視覺辨識、Seeed Studio Xiao ESP32S3、CircuitPython、GUI 的自動化腳本程式，提供直覺的操作、路徑錄製功能。
 
