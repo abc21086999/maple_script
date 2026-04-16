@@ -471,10 +471,12 @@ class DailyPrepare(MapleScript):
         self.press_and_wait("esc")
 
         # 點下每週怪物調查
-        self.find_and_click_image(img['weekly_check_in_button'])
-        self.press_and_wait(["enter"])
+        if self.is_on_screen(img['weekly_check_in_button']):
+            self.find_and_click_image(img['weekly_check_in_button'])
+            self.press_and_wait(["enter", "esc"])
 
-        self.press_and_wait(["esc", "esc"])
+        # 關閉UI
+        self.press_and_wait("esc")
 
     def task_collector(self):
         # 定義任務對照表
