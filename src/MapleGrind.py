@@ -6,6 +6,13 @@ from pathlib import Path
 import PIL.Image
 import random
 import time
+from dataclasses import dataclass
+
+
+@dataclass
+class Skill:
+    key: str
+    image: PIL.Image.Image
 
 
 class MapleGrind(MapleScript):
@@ -17,12 +24,12 @@ class MapleGrind(MapleScript):
         self.__settings = self.settings.get("grind_settings")
 
     @cached_property
-    def user_skills(self) -> list:
+    def user_skills(self) -> list[Skill]:
         """
         從 settings.yaml 讀取使用者自定義的練功技能，並載入圖片。
         使用 cached_property 確保只載入一次。
         Returns:
-            list[dict]: [{'key': 'a', 'image': PIL.Image}, ...]
+            list[Skill]: [Skill(key="a", image=PIL.Image), ...]
         """
         # 1. 取得純資料
         raw_skills = self.settings.get('grind_skills', default=[])
@@ -42,10 +49,12 @@ class MapleGrind(MapleScript):
 
             if img_path.exists():
                 try:
-                    loaded_skills.append({
-                        'key': item.get('key'),
-                        'image': PIL.Image.open(img_path)
-                    })
+                    loaded_skills.append(
+                        Skill(
+                            key = item.get('key'),
+                            image = PIL.Image.open(img_path)
+                        )
+                    )
                 except Exception as e:
                     self.log(f"Error loading skill image {img_path}: {e}")
         
@@ -68,8 +77,8 @@ class MapleGrind(MapleScript):
         # 先截一次圖，判斷各個技能準備好了沒，並根據技能準備好了沒的狀況，將準備好的技能的按鍵，加入一個list當中
         screenshot = self.get_skill_area_screenshot()
         for skill_data in self.user_skills:
-            skill_image = skill_data.get("image")
-            skill_key = skill_data.get("key")
+            skill_image = skill_data.image
+            skill_key = skill_data.key
             if self.is_on_screen(skill_image, screenshot):
                 self.__skills_list.append(skill_key)
 
