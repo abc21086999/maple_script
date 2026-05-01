@@ -215,6 +215,11 @@ class GrindSettingsDialog(QDialog):
         self._setup_protection_tab()
         self.tabs.addTab(self.tab_protection, "保護設定")
 
+        # --- Tab 4: 隨機跑圖 ---
+        self.tab_wander = QWidget()
+        self._setup_wander_tab()
+        self.tabs.addTab(self.tab_wander, "隨機跑圖")
+
         # Buttons (OK/Cancel)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.accept)
@@ -359,6 +364,71 @@ class GrindSettingsDialog(QDialog):
         stationary_enabled = self.chk_stationary.isChecked()
         self.chk_random_up.setEnabled(stationary_enabled)
 
+    def _setup_wander_tab(self):
+        layout = QVBoxLayout(self.tab_wander)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        header = QLabel("隨機跑圖設定")
+        header.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 5px;")
+        layout.addWidget(header)
+
+        # 1. 啟用隨機跑圖
+        self.chk_enable_wander = QCheckBox("啟用隨機跑圖")
+        self.chk_enable_wander.setToolTip("勾選後，角色將會在練功時定期執行隨機移動與導航回歸")
+        self.chk_enable_wander.toggled.connect(self.update_wander_ui_state)
+        layout.addWidget(self.chk_enable_wander)
+
+        face_center_layout = QHBoxLayout()
+        face_center_layout.setContentsMargins(20, 0, 0, 0)
+
+        # 1.1 面向中心
+        self.chk_face_center = QCheckBox("結束後讓角色面向中心（怪多的一側）")
+        self.chk_face_center.setToolTip("回歸原點後，自動根據座標讓角色面向地圖中心")
+        face_center_layout.addWidget(self.chk_face_center)
+        face_center_layout.addStretch()
+        layout.addLayout(face_center_layout)
+
+        # 2. 跑圖持續時間
+        dur_layout = QHBoxLayout()
+        dur_layout.setContentsMargins(20, 0, 0, 0)
+        self.lbl_wander_dur = QLabel("跑圖持續時間：")
+        dur_layout.addWidget(self.lbl_wander_dur)
+
+        self.combo_wander_duration = QComboBox()
+        intervals = [str(i) for i in range(5, 360, 5)]
+        self.combo_wander_duration.addItems(intervals)
+        self.combo_wander_duration.setFixedWidth(60)
+        dur_layout.addWidget(self.combo_wander_duration)
+        dur_layout.addWidget(QLabel("秒"))
+        dur_layout.addStretch()
+        layout.addLayout(dur_layout)
+
+        # 3. 循環冷卻設定
+        cool_layout = QHBoxLayout()
+        cool_layout.setContentsMargins(20, 10, 0, 0)
+        self.chk_enable_wander_interval = QCheckBox("啟用循環冷卻：每")
+        self.chk_enable_wander_interval.toggled.connect(self.update_wander_ui_state)
+        cool_layout.addWidget(self.chk_enable_wander_interval)
+
+        self.combo_wander_interval = QComboBox()
+        self.combo_wander_interval.addItems(intervals)
+        self.combo_wander_interval.setFixedWidth(60)
+        cool_layout.addWidget(self.combo_wander_interval)
+        cool_layout.addWidget(QLabel("秒重複一次"))
+        cool_layout.addStretch()
+        layout.addLayout(cool_layout)
+
+    def update_wander_ui_state(self):
+        """根據 Checkbox 狀態啟用/停用隨機跑圖相關 UI"""
+        wander_enabled = self.chk_enable_wander.isChecked()
+        self.lbl_wander_dur.setEnabled(wander_enabled)
+        self.combo_wander_duration.setEnabled(wander_enabled)
+        self.chk_enable_wander_interval.setEnabled(wander_enabled)
+        self.chk_face_center.setEnabled(wander_enabled)
+        
+        interval_enabled = self.chk_enable_wander_interval.isChecked()
+        self.combo_wander_interval.setEnabled(wander_enabled and interval_enabled)
+
     def _setup_skills_tab(self):
         layout = QVBoxLayout(self.tab_skills)
 
@@ -487,6 +557,24 @@ class GrindSettingsDialog(QDialog):
             
             self.update_loop_ui_state()
 
+        # Wander Settings
+        if hasattr(self, 'chk_enable_wander'):
+            self.chk_enable_wander.setChecked(protection_data.get("enable_random_wander", False))
+            self.chk_face_center.setChecked(protection_data.get("face_center_after_wander", False))
+            self.chk_enable_wander_interval.setChecked(protection_data.get("enable_random_wander_interval", False))
+            
+            dur = str(protection_data.get("random_wander_duration", 30))
+            idx_dur = self.combo_wander_duration.findText(dur)
+            if idx_dur >= 0:
+                self.combo_wander_duration.setCurrentIndex(idx_dur)
+            
+            wait = str(protection_data.get("random_wander_interval", 50))
+            idx_wait = self.combo_wander_interval.findText(wait)
+            if idx_wait >= 0:
+                self.combo_wander_interval.setCurrentIndex(idx_wait)
+            
+            self.update_wander_ui_state()
+
     def add_row(self, data=None):
         if data is None:
             data = {'enabled': True, 'key': 'a', 'image_path': ''}
@@ -520,7 +608,13 @@ class GrindSettingsDialog(QDialog):
             # Loop Settings
             "enable_loop_route": self.chk_enable_route.isChecked() if hasattr(self, 'chk_enable_route') else False,
             "enable_loop_interval": self.chk_enable_interval.isChecked() if hasattr(self, 'chk_enable_interval') else False,
-            "loop_route_interval": int(self.combo_loop_interval.currentText()) if hasattr(self, 'combo_loop_interval') else 5
+            "loop_route_interval": int(self.combo_loop_interval.currentText()) if hasattr(self, 'combo_loop_interval') else 5,
+            # Wander Settings
+            "enable_random_wander": self.chk_enable_wander.isChecked() if hasattr(self, 'chk_enable_wander') else False,
+            "face_center_after_wander": self.chk_face_center.isChecked() if hasattr(self, 'chk_face_center') else False,
+            "enable_random_wander_interval": self.chk_enable_wander_interval.isChecked() if hasattr(self, 'chk_enable_wander_interval') else False,
+            "random_wander_duration": int(self.combo_wander_duration.currentText()) if hasattr(self, 'combo_wander_duration') else 30,
+            "random_wander_interval": int(self.combo_wander_interval.currentText()) if hasattr(self, 'combo_wander_interval') else 50
         }
         self.settings_manager.save("grind_settings", protection_data)
 

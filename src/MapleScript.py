@@ -147,7 +147,7 @@ class MapleScript(ABC):
 
     def down_jump(self):
         """
-        模擬向上跳躍 (Down + Alt)
+        模擬向下跳躍 (Down + Alt)
         """
         if self.is_maple_focus():
             self.key_down("down")
@@ -160,7 +160,7 @@ class MapleScript(ABC):
         """
         導航至小地圖上的特定座標
         """
-        self.log(f"開始導航至目標座標: ({target_x}, {target_y})")
+        self.log(f"開始導航至目標座標")
         
         current_dir = None  # 紀錄硬體目前的物理狀態 (None, "left", "right")
 

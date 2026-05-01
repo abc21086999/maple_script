@@ -273,9 +273,24 @@ class MapleGrind(MapleScript):
         """
         返回指定的座標點 (通常是原練功點)
         """
-        self.log(f"任務完成，返回原練功點: ({target_x}, {target_y})")
+        self.log(f"任務完成，返回原練功點")
         self.move_to_point(target_x, target_y)
         self.sleep(2)
+
+    def face_center(self):
+        """
+        讓角色面向地圖中軸
+        """
+        curr = self.get_player_pos()
+        if curr:
+            cx, _ = curr
+            _, _, mw, _ = self._vision.get_mini_map_area()
+            if cx < mw / 2:
+                # 在左邊，面向右
+                self.press("right")
+            else:
+                # 在右邊，面向左
+                self.press("left")
 
     @cached_property
     def is_stationary(self) -> bool:
@@ -319,18 +334,124 @@ class MapleGrind(MapleScript):
         """從 normal_skills.json 讀取常用攻擊技能按鍵"""
         return self.settings.get("normal_skills", key="normal", default="a")
 
+    @cached_property
+    def is_random_wander_enabled(self) -> bool:
+        """是否啟用隨機亂逛模式"""
+        return self.__settings.get("enable_random_wander", False)
+
+    @cached_property
+    def is_face_center_enabled(self) -> bool:
+        """結束後是否面向中心"""
+        return self.__settings.get("face_center_after_wander", False)
+
+    @cached_property
+    def random_wander_duration(self) -> int:
+        """隨機亂逛持續秒數"""
+        return int(self.__settings.get("random_wander_duration", 30))
+
+    @cached_property
+    def is_random_wander_interval_enabled(self) -> bool:
+        """是否啟用隨機跑圖的循環冷卻"""
+        return self.__settings.get("enable_random_wander_interval", False)
+
+    @cached_property
+    def random_wander_interval_seconds(self) -> int:
+        """隨機跑圖的循環冷卻秒數"""
+        return int(self.__settings.get("random_wander_interval", 50))
+
+    def random_wander(self):
+        """
+        在指定時間內隨機左右亂逛，靠近邊界 20px 自動轉向，最後回到原位。
+        """
+        if not self.is_random_wander_enabled:
+            return
+
+        origin = self.get_player_pos()
+        if not origin:
+            self.log("找不到玩家位置，取消隨機亂逛")
+            return
+
+        self.log(f"開始隨機亂逛，持續 {self.random_wander_duration} 秒")
+        
+        # 取得小地圖寬度與高度
+        _, _, mw, mh = self._vision.get_mini_map_area()
+        h_mid = mh / 2
+        
+        end_time = time.time() + self.random_wander_duration
+        current_dir = random.choice(["left", "right"])
+        
+        # 同步硬體的輔助函數
+        last_dir = None
+
+        def sync_dir(new_dir):
+            nonlocal last_dir
+            if new_dir == last_dir:
+                return
+            if last_dir:
+                self.key_up(last_dir)
+            if new_dir:
+                self.key_down(new_dir)
+            last_dir = new_dir
+
+        try:
+            while self.should_continue() and time.time() < end_time and self.is_maple_focus():
+                # 取得目前位置
+                curr = self.get_player_pos()
+                if not curr:
+                    self.sleep(0.5)
+                    continue
+                
+                cx, cy = curr
+                
+                # 邊界轉向判定 (20px 緩衝)
+                if cx <= 20:
+                    current_dir = "right"
+                elif cx >= mw - 20:
+                    current_dir = "left"
+                
+                # 執行移動
+                sync_dir(current_dir)
+                
+                # 10% 機率隨機跳躍，根據高度位置調整權重 (8:2)
+                if random.random() < 0.1:
+                    if cy > h_mid:
+                        # 在下面，優先往上跳
+                        jump_action = random.choices([self.up_jump, self.down_jump], weights=[80, 20])[0]
+                    else:
+                        # 在上面，優先往下跳
+                        jump_action = random.choices([self.up_jump, self.down_jump], weights=[20, 80])[0]
+                    
+                    jump_action()
+                
+                self.sleep(0.1)
+        finally:
+            sync_dir(None) # 停止移動
+            self.go_back(*origin)
+
+        # 回歸後自動面向中心
+        if self.is_face_center_enabled:
+            self.face_center()
+
+        # 處理循環冷卻邏輯
+        if self.is_random_wander_interval_enabled:
+            self.log(f"隨機跑圖結束，等待下一次循環: {self.random_wander_interval_seconds} 秒")
+            self.monitor_and_grind(self.random_wander_interval_seconds)
+
     def start(self) -> None:
         try:
-            while self.should_continue() and (self.is_stationary or self.is_route_enabled):
+            while self.should_continue() and (self.is_stationary or self.is_route_enabled or self.is_random_wander_enabled):
                 # 1. 等待直到環境安全
                 if not self.wait_until_safe():
                     break
                 
-                # 2. 執行原地練功 (如果是 0，代表只做一輪基本的安全檢查與清理)
+                # 2. 執行原地練功
                 self.monitor_and_grind(0)
 
                 # 3. 執行路徑
                 self.walk_the_map()
+
+                # 4. 執行隨機亂逛
+                self.random_wander()
 
                 # 一個短暫的等待以避免空轉
                 self.sleep(1)
