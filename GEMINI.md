@@ -47,7 +47,7 @@ This will open the "Guai Guai Automation Control Center". You can click buttons 
 - `main.py`: **GUI Entry Point**. Initializes the `PySide6` application and hardware connection.
 - `src/`: Core logic and task implementations.
     - `MapleScript.py`: Base class for all scripts. Includes minimap navigation (`move_to_point`), input handling, and hardware safety mechanisms.
-    - `MapleGrind.py`: Automation for hunting/grinding.
+    - `MapleGrind.py`: Automation for hunting/grinding. Supports stationary, route-based, and random wander modes with automatic origin return and boundary detection.
     - `RouteRecorder.py`: Tool for recording keyboard input sequences.
     - `DailyBoss.py`, `DailyPrepare.py`, `MonsterCollection.py`, `Storage.py`, `DancingMachine.py`: Specific task modules.
 - `src/ui/`: Contains GUI-related code.
