@@ -381,14 +381,7 @@ class GrindSettingsDialog(QDialog):
         face_center_layout = QHBoxLayout()
         face_center_layout.setContentsMargins(20, 0, 0, 0)
 
-        # 1.1 面向中心
-        self.chk_face_center = QCheckBox("結束後讓角色面向中心（怪多的一側）")
-        self.chk_face_center.setToolTip("回歸原點後，自動根據座標讓角色面向地圖中心")
-        face_center_layout.addWidget(self.chk_face_center)
-        face_center_layout.addStretch()
-        layout.addLayout(face_center_layout)
-
-        # 2. 跑圖持續時間
+        # 1. 跑圖持續時間
         dur_layout = QHBoxLayout()
         dur_layout.setContentsMargins(20, 0, 0, 0)
         self.lbl_wander_dur = QLabel("跑圖持續時間：")
@@ -402,6 +395,15 @@ class GrindSettingsDialog(QDialog):
         dur_layout.addWidget(QLabel("秒"))
         dur_layout.addStretch()
         layout.addLayout(dur_layout)
+
+        # 2. 面向中心
+        self.chk_face_center = QCheckBox("結束後讓角色面向中心（怪多的一側）")
+        self.chk_face_center.setToolTip("回歸原點後，自動根據座標讓角色面向地圖中心")
+        face_center_layout.addWidget(self.chk_face_center)
+        face_center_layout.addStretch()
+        layout.addLayout(face_center_layout)
+
+
 
         # 3. 循環冷卻設定
         cool_layout = QHBoxLayout()
