@@ -137,19 +137,20 @@ class MapleGrind(MapleScript):
                 self.sleep(1)
                 continue
 
+            if self.is_auto_solve_rune_enabled:
+                # 紀錄目前位置
+                origin = self.get_player_pos()
+
+                # 先移動到符文所在地
+                if self.go_to_rune():
+                    self.solve_rune()
+
+                    # 如果有紀錄到原位置，就回去
+                    if origin:
+                        self.go_back(*origin)
+
             if self.stop_on_rune and self.has_rune():
                 self.log("地圖上有符文 (暫停中...)")
-                if self.is_auto_solve_rune_enabled:
-                    # 紀錄目前位置
-                    origin = self.get_player_pos()
-                    
-                    # 先移動到符文所在地
-                    if self.go_to_rune():
-                        self.solve_rune(self.normal_skill_key)
-                        
-                        # 如果有紀錄到原位置，就回去
-                        if origin:
-                            self.go_back(*origin)
                 self.sleep(10)
                 continue
 
@@ -213,7 +214,7 @@ class MapleGrind(MapleScript):
         if self.is_random_up_enabled:
             self.move_by_pressing_up()
 
-    def solve_rune(self, normal_attack):
+    def solve_rune(self):
         """
         解輪
         :return:
@@ -234,7 +235,7 @@ class MapleGrind(MapleScript):
             # 如果沒辨識到那就普攻幾次
             if arrows is None:
                 for _ in range(3):
-                    self.press_and_wait(normal_attack, 0.3)
+                    self.press_and_wait(self.normal_skill_key, 0.3)
                 self.sleep(0.3)
                 self.press_and_wait("y", 1)
                 continue
