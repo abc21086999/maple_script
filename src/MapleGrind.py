@@ -137,7 +137,7 @@ class MapleGrind(MapleScript):
                 self.sleep(1)
                 continue
 
-            if self.is_auto_solve_rune_enabled:
+            if self.is_auto_solve_rune_enabled and self.has_rune():
                 # 紀錄目前位置
                 origin = self.get_player_pos()
 
