@@ -29,13 +29,19 @@ class DailyPrepare(MapleScript):
 
         while self.should_continue() and not self.is_maple_focus():
             self.sleep(0.1)
+
         if self.is_maple_focus():
             # 打開角色套組設定的界面
             self.invoke_menu()
             self.press_and_wait(["tab", "down", "enter"])
 
+            # 等待界面出現
+            while not self.is_on_screen(imgs['daily_apply']):
+                self.sleep(0.1)
+
             # 移動過去練功的圖案，並且點下去
-            self.find_and_click_image(target_img)
+            if self.is_on_screen(target_img):
+                self.find_and_click_image(target_img)
 
             # 移動過去套用按鈕，並且點下去
             self.find_and_click_image(imgs['daily_apply'])
