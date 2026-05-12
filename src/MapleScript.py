@@ -180,7 +180,21 @@ class MapleScript(ABC):
             
             current_dir = new_dir # 更新記憶狀態
 
+        # 一個用於脫困用的函數
+        def escape():
+            nonlocal current_dir
+            if current_dir:
+                self.key_up(current_dir)
+                self.sleep(0.1)
+                self.key_down("down")
+                self.sleep(3)
+                self.key_up("down")
+                self.sleep(0.1)
+                self.key_down(current_dir)
+
         try:
+
+            is_stuck_counter = 0
             while self.should_continue() and self.is_maple_focus():
                 curr = self.get_player_pos()
                 if not curr:
@@ -219,6 +233,21 @@ class MapleScript(ABC):
                 # 迴圈頻率穩定維持 20fps (0.05s)
                 # 因為 sync_hardware 絕大部分時間會 return，所以迴圈反應極快
                 self.sleep(0.05)
+
+                # 如果角色位置都沒有改變，那麼就是卡住了
+                # 增加一個卡住計數器
+                if curr == self.get_player_pos():
+                    is_stuck_counter += 1
+
+                # 如果位置不同，那就清空計數器
+                elif curr != self.get_player_pos():
+                    is_stuck_counter = 0
+
+                # 計數器數量多到一定程度代表玩家卡住了，就執行脫困，然後清空計數器
+                if is_stuck_counter >= 40:
+                    self.log(f'偵測到玩家卡在繩子上，將離開繩子')
+                    escape()
+                    is_stuck_counter = 0
                 
         finally:
             # 確保退出時同步為停止狀態，並釋放所有可能的按鍵
