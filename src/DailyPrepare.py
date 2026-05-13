@@ -459,6 +459,7 @@ class DailyPrepare(MapleScript):
         """
         if not self.should_continue():
             return
+
         self.log("正在處理活動...")
         img = self.__images["event"]
 
@@ -466,17 +467,17 @@ class DailyPrepare(MapleScript):
         self.invoke_menu()
         self.press_and_wait(["tab", "left", "left", "enter"])
 
-        # 點下怪物公園騷動的那個tab
+        # 點下卡爾西溫章魚慶典的那個tab
         self.find_and_click_image(img['event_daily_checkin_tab'])
         while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header']):
             self.sleep(0.3)
 
-        # 點下捕獲怪物
+        # 點下每日準備
         if self.is_on_screen(img['daily_check_in_button']):
             self.find_and_click_image(img['daily_check_in_button'])
         self.press_and_wait("esc")
 
-        # 點下每週怪物調查
+        # 點下每週準備
         if self.is_on_screen(img['weekly_check_in_button']):
             self.find_and_click_image(img['weekly_check_in_button'])
             self.press_and_wait(["enter", "esc"])
