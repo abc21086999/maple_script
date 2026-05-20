@@ -193,8 +193,8 @@ class MapleScript(ABC):
                 self.key_down(current_dir)
 
         try:
-
             is_stuck_counter = 0
+            last_position = None
             while self.should_continue() and self.is_maple_focus():
                 curr = self.get_player_pos()
                 if not curr:
@@ -236,18 +236,22 @@ class MapleScript(ABC):
 
                 # 如果角色位置都沒有改變，那麼就是卡住了
                 # 增加一個卡住計數器
-                if curr == self.get_player_pos():
-                    is_stuck_counter += 1
+                if last_position is not None:
+                    if last_position == curr:
+                        is_stuck_counter += 1
 
-                # 如果位置不同，那就清空計數器
-                elif curr != self.get_player_pos():
-                    is_stuck_counter = 0
+                    # 如果位置不同，那就清空計數器
+                    else:
+                        is_stuck_counter = 0
+
+                last_position = curr
 
                 # 計數器數量多到一定程度代表玩家卡住了，就執行脫困，然後清空計數器
                 if is_stuck_counter >= 40:
                     self.log(f'偵測到玩家卡在繩子上，將離開繩子')
                     escape()
                     is_stuck_counter = 0
+                    last_position = None
                 
         finally:
             # 確保退出時同步為停止狀態，並釋放所有可能的按鍵
