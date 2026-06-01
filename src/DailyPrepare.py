@@ -238,7 +238,8 @@ class DailyPrepare(MapleScript):
         領取HD禮物
         :return: None
         """
-        if not self.should_continue(): return
+        if not self.should_continue():
+            return
         self.log("正在領取 HD 獎勵...")
         imgs = self.__images['hd']
 
@@ -262,9 +263,30 @@ class DailyPrepare(MapleScript):
             elif self.is_on_screen(imgs['receive_button']):
                 self.find_and_click_image(imgs['receive_button'])
 
+                # 讀取獎勵設定
+                hd_settings = self.settings.get("hd_rewards", default={})
+
                 # 如果有可以領取的禮物（考量到禮拜天可以領兩次所以就用while）
-                while self.should_continue() and self.is_on_screen(imgs['has_gift']):
-                    self.find_and_click_image(imgs['take_coin'])
+                while self.should_continue() and self.is_on_screen(imgs['has_gift']) and self.is_maple_focus():
+
+                    # 先截圖作為辨識用
+                    hd_gift_selection_panel = self.get_full_screen_screenshot()
+
+                    # 遍歷所有勾選的獎勵項目
+                    found_reward = False
+                    for reward_key, enabled in hd_settings.items():
+                        if enabled and reward_key in imgs:
+                            reward = imgs[reward_key]
+                            if self.is_on_screen(pic=reward, img=hd_gift_selection_panel):
+                                self.log(f"正在領取獎勵: {reward_key}")
+                                self.find_and_click_image(reward)
+                                found_reward = True
+                                break
+                    
+                    # 如果沒勾選任何東西，或找不到圖片，就領取預設的HD硬幣
+                    if not found_reward:
+                        self.log("未找到勾選的獎勵，領取預設獎勵 (HD 硬幣)")
+                        self.find_and_click_image(imgs['take_coin'])
 
                     # 關閉領完之後的確認頁面
                     self.press_and_wait("esc")
@@ -475,7 +497,7 @@ class DailyPrepare(MapleScript):
         # 點下每日準備
         if self.is_on_screen(img['daily_check_in_button']):
             self.find_and_click_image(img['daily_check_in_button'])
-        self.press_and_wait("esc")
+            self.press_and_wait("esc")
 
         # 點下每週準備
         if self.is_on_screen(img['weekly_check_in_button']):

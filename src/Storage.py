@@ -53,24 +53,29 @@ class Storage(MapleScript):
 
         # 將密碼一個一個輸入
         for password_char in self.__second_password:
-            # 如果這個字是大寫，但是大寫沒開，那就打開，然後輸入
-            if password_char.isupper() and not self.__isupper:
-                self.find_and_click_image(self.__upper_case)
-                self.__isupper = True
-                self.__click_button(password_char)
-            # 如果這個字不是大寫，但是大寫卻開了，那就關掉，然後輸入
-            elif password_char.islower() and self.__isupper:
-                self.find_and_click_image(self.__upper_case)
-                self.__isupper = False
-                self.__click_button(password_char)
-            # 剩下包括：大寫且大寫開了、小寫大寫也沒開、數字，都直接輸入
+            if self.should_continue() and self.is_maple_focus():
+                # 如果這個字是大寫，但是大寫沒開，那就打開，然後輸入
+                if password_char.isupper() and not self.__isupper:
+                    self.find_and_click_image(self.__upper_case)
+                    self.__isupper = True
+                    self.__click_button(password_char)
+                # 如果這個字不是大寫，但是大寫卻開了，那就關掉，然後輸入
+                elif password_char.islower() and self.__isupper:
+                    self.find_and_click_image(self.__upper_case)
+                    self.__isupper = False
+                    self.__click_button(password_char)
+                # 剩下包括：大寫且大寫開了、小寫大寫也沒開、數字，都直接輸入
+                else:
+                    self.__click_button(password_char)
             else:
-                self.__click_button(password_char)
+                break
 
         # 點擊確認
-        if self.should_continue():
+        if self.should_continue() and self.is_maple_focus():
             self.find_and_click_image(self.__ui_dict['confirm'])
             self.log("密碼輸入完成")
+        else:
+            self.log("密碼輸入失敗")
 
     def start(self):
         self.__fill_in_the_password()

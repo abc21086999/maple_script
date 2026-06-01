@@ -7,6 +7,25 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QCheckBox,
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 
+HD_REWARD_OPTIONS = {
+    'take_core': '核心寶石',
+    'take_arcane': '密法符文交換券',
+    'take_authentic': '真實符文交換券',
+    'pendant_of_spirit': '精靈墜飾',
+    'exp_3x_coupon': '經驗值3倍券',
+    'slot_expansion': '欄位擴充選擇券',
+    'milestone_25': '25里程',
+    'medal_of_honor': '特殊名譽勳章',
+    'royal_face': '皇家整形交換券',
+    'royal_hair': '皇家美髮交換券',
+    'coloring_coupon': '染色券',
+    'typhoon_growth': '颱風成長祕藥',
+    'beauty_album_slot': '美容相簿欄位擴充券',
+    'karma_rare_scroll': '卡勒馬附加稀有捲軸',
+    'grand_gift': '特級禮物 (最後一天)',
+}
+# TODO: 真實符文交換券, 美容相簿欄位擴充券, 卡勒馬附加稀有捲軸, 特級禮物
+
 class SkillRow(QWidget):
     def __init__(self, parent_dialog, base_data_path, data=None, subfolder='toggle', show_key=True):
         super().__init__()
@@ -213,6 +232,7 @@ class SettingsDialog(QDialog):
         # 根據傳入的 section_key 取得對應的名稱表
         self.display_names = self.SECTION_DISPLAY_NAMES.get(self.section_key, {})
         self.checkboxes = {}
+        self.hd_reward_checkboxes = {}
         self.toggle_skill_rows = []
         self.grind_set_rows = []
         self.toggle_skill_layout = None
@@ -307,6 +327,9 @@ class SettingsDialog(QDialog):
                 "➕ 新增圖片",
                 show_key=False
             )
+            
+            # 第四頁：HD 獎勵設定
+            self._setup_hd_tab()
 
         # 按鈕區 (確定/取消) - 放在分頁外面，共用
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -346,6 +369,36 @@ class SettingsDialog(QDialog):
         self.tabs.addTab(tab, tab_title)
         return scroll_layout
 
+    def _setup_hd_tab(self):
+        """建立 HD 獎勵設定分頁"""
+        tab = QWidget()
+        tab_layout = QVBoxLayout(tab)
+        
+        header = QLabel("HD 獎勵設定")
+        header.setStyleSheet("font-weight: bold; margin-bottom: 5px; font-size: 14px;")
+        tab_layout.addWidget(header)
+        
+        sub_header = QLabel("請勾選想要領取的 HD 獎勵項目 (將依序搜尋)：")
+        sub_header.setStyleSheet("color: gray; margin-bottom: 10px; font-size: 14px;")
+        tab_layout.addWidget(sub_header)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        content = QWidget()
+        layout = QVBoxLayout(content)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # 依照 HD_REWARD_OPTIONS 建立 Checkbox
+        for key, display_name in HD_REWARD_OPTIONS.items():
+            cb = QCheckBox(display_name)
+            layout.addWidget(cb)
+            self.hd_reward_checkboxes[key] = cb
+
+        scroll.setWidget(content)
+        tab_layout.addWidget(scroll)
+        
+        self.tabs.addTab(tab, "HD設定")
+
     def add_row(self, data=None, rows_list=None, layout=None, subfolder='toggle', show_key=True):
         if rows_list is None:
             rows_list = self.toggle_skill_rows
@@ -378,6 +431,11 @@ class SettingsDialog(QDialog):
         if isinstance(grind_set_data, list):
             for item in grind_set_data:
                 self.add_row(item, self.grind_set_rows, self.grind_set_layout, "grind_set", show_key=False)
+
+        # 3. 讀取 HD 獎勵勾選設定
+        hd_rewards = self.settings_manager.get("hd_rewards", default={})
+        for key, cb in self.hd_reward_checkboxes.items():
+            cb.setChecked(hd_rewards.get(key, False))
 
     def get_new_settings(self):
         """
@@ -415,6 +473,12 @@ class SettingsDialog(QDialog):
                     continue
                 new_grind_set_data.append(data)
             self.settings_manager.save("grind_set", new_grind_set_data)
+            
+            # 儲存 HD 獎勵勾選設定
+            new_hd_rewards = {}
+            for key, cb in self.hd_reward_checkboxes.items():
+                new_hd_rewards[key] = cb.isChecked()
+            self.settings_manager.save("hd_rewards", new_hd_rewards)
 
     def accept(self):
         self.save_settings()

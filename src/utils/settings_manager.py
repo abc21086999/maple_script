@@ -19,6 +19,7 @@ class SettingsManager:
         "grind_set": "tasks/grind_set.json",
         "recorded_route": "routes/recorded_route.json",
         "daily_prepare": "tasks/daily_prepare.json",
+        "hd_rewards": "tasks/hd_rewards.json",
         "grind_settings": "tasks/grind_settings.json",
         "hardware": "system/hardware.json",
         "normal_skills": "skills/normal_skills.json",
