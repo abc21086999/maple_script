@@ -35,6 +35,7 @@ class XiaoController:
         self.__baudrate = baudrate
         self.__timeout = timeout
         self.__stop_event = threading.Event()
+        self.__log = False
 
     @staticmethod
     def list_available_ports():
@@ -122,7 +123,8 @@ class XiaoController:
         :param key: 要按的按鈕
         """
         self.__send(f'{key}\n')
-        print(f"已發送指令: 按下 {key}")
+        if self.__log:
+            print(f"已發送指令: 按下 {key}")
 
 
     def key_down(self, key: str):
@@ -131,7 +133,8 @@ class XiaoController:
         :param key: 要長壓的按鈕
         """
         self.__send(f'keyDown:{key}\n')
-        print(f"已發送指令: 長壓 {key}")
+        if self.__log:
+            print(f"已發送指令: 長壓 {key}")
 
     def key_up(self, key: str):
         """
@@ -139,21 +142,24 @@ class XiaoController:
         :param key: 要放開的按鈕
         """
         self.__send(f'keyUp:{key}\n')
-        print(f"已發送指令: 放開 {key}")
+        if self.__log:
+            print(f"已發送指令: 放開 {key}")
 
     def scroll_up(self):
         """
         向硬體發送一個滑鼠滾輪上滑指令
         """
         self.__send(f'scroll_up\n')
-        print(f"已發送指令: 要上滑")
+        if self.__log:
+            print(f"已發送指令: 要上滑")
 
     def scroll_down(self):
         """
         向硬體發送一個滑鼠滾輪下滑指令
         """
         self.__send(f'scroll_down\n')
-        print(f"已發送指令: 要下滑")
+        if self.__log:
+            print(f"已發送指令: 要下滑")
 
     def send_mouse_location(self, location: tuple):
         """
@@ -161,28 +167,31 @@ class XiaoController:
         :param location: 滑鼠和目標之間的距離差
         """
         self.__send(f'{location}\n')
-        print(f"已發送指令: 要移動'{location}'")
+        if self.__log:
+            print(f"已發送指令: 要移動'{location}'")
 
     def click(self):
         """
         向硬體發送一個按下滑鼠的指令
         """
         self.__send(f'click\n')
-        print(f"已發送指令：按下滑鼠")
+        if self.__log:
+            print(f"已發送指令：按下滑鼠")
 
     def release_all(self):
         """
         向硬體發送一個放開所有按壓的按鍵的指令
         """
         self.__send(f'release_all\n')
-        print(f"已發送指令: 放開全部按鍵")
+        if self.__log:
+            print(f"已發送指令: 放開全部按鍵")
 
     def _read_from_port(self):
         while not self.__stop_event.is_set():
             if self.__connection is not None and self.__connection.is_open:
                 try:
                     data = self.__connection.readline()
-                    if data:
+                    if data and self.__log:
                         print("Xiao:", data.decode().strip())
                 except Exception:
                     break

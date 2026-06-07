@@ -256,8 +256,7 @@ class MapleScript(ABC):
         finally:
             # 確保退出時同步為停止狀態，並釋放所有可能的按鍵
             sync_hardware(None)
-            if self._keyboard:
-                self._keyboard.release_all()
+            self.release_all()
 
     def is_on_screen(self, pic: PIL.Image.Image | str | Path, img=None) -> bool:
         """
@@ -292,12 +291,12 @@ class MapleScript(ABC):
         start_replay_time = time.time()
         for event in recorded_events:
             if not self.should_continue():
-                self._keyboard.release_all()
+                self.release_all()
                 break
 
             if not self.is_maple_focus():
                 self.log("楓之谷不在前景，中止重播腳本")
-                self._keyboard.release_all()
+                self.release_all()
                 break
 
             action = event.get('action')
@@ -374,6 +373,12 @@ class MapleScript(ABC):
             self._mouse.scroll_down()
         else:
             print(f'沒滑鼠')
+
+    def release_all(self):
+        if self._keyboard is not None:
+            self._keyboard.release_all()
+        else:
+            print(f'沒鍵盤')
 
     @abstractmethod
     def start(self):

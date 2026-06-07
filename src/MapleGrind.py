@@ -7,6 +7,7 @@ import PIL.Image
 import random
 import time
 from dataclasses import dataclass
+from src.MapleMachine import Machine
 
 
 @dataclass
@@ -90,7 +91,6 @@ class MapleGrind(MapleScript):
         random.shuffle(self.__skills_list)
         return None
 
-
     def press_ready_skills(self) -> None:
         """
         將技能一個一個按下去
@@ -126,17 +126,12 @@ class MapleGrind(MapleScript):
             self.press("alt")
             self.key_up("down")
 
-    def wait_until_safe(self) -> bool:
+    def solve_rune_encapsulation(self) -> None:
         """
-        持續檢查直到環境安全 (焦點、符文、其他玩家)。
-        :return: bool 如果回傳 False 代表收到了停止信號
+        將解除輪迴的動作封裝起來。
+        :return: None
         """
-        while self.should_continue():
-            if not self.is_maple_focus():
-                self.log("楓之谷不在前景，暫停中")
-                self.sleep(1)
-                continue
-
+        if self.should_continue():
             if self.is_auto_solve_rune_enabled and self.has_rune():
                 # 紀錄目前位置
                 origin = self.get_player_pos()
@@ -148,43 +143,6 @@ class MapleGrind(MapleScript):
                     # 如果有紀錄到原位置，就回去
                     if origin:
                         self.go_back(*origin)
-
-            if self.stop_on_rune and self.has_rune():
-                self.log("地圖上有符文 (暫停中...)")
-                self.sleep(10)
-                continue
-
-            if self.stop_on_people and self.has_other_players():
-                self.log("地圖上有其他人 (暫停中...)")
-                self.sleep(10)
-                continue
-
-            # 通過所有檢查
-            return True
-        return False
-
-    def monitor_and_grind(self, seconds: float = 0):
-        """
-        在指定時間內監控安全並執行原地練功。
-        :param seconds: 持續秒數。如果是 0，則只執行一輪檢查與練功。
-        """
-        end_time = time.time() + seconds
-
-        while self.should_continue():
-            # 1. 確保環境安全
-            if not self.wait_until_safe():
-                break
-
-            # 2. 執行原地練功 (如果有開啟的話)
-            if self.is_stationary:
-                self.grind_mode()
-
-            # 3. 判斷是否達成時間要求
-            if seconds <= 0 or time.time() >= end_time:
-                break
-
-            # 4. 避免過於頻繁的循環
-            self.sleep(1)
 
     def walk_the_map(self) -> None:
         """
@@ -198,11 +156,6 @@ class MapleGrind(MapleScript):
                 self.replay_script(recorded_events)
             else:
                 self.log("警告: 未錄製任何路徑 (或路徑為空)")
-
-            # 如果有設定間隔，就休息一下，進入原地練功；否則直接進行下一輪
-            if self.is_loop_interval_enabled:
-                self.log(f"腳本執行完畢，等待下一次循環: {self.route_interval_seconds} 秒")
-                self.monitor_and_grind(self.route_interval_seconds)
 
     def grind_mode(self):
         """
@@ -231,6 +184,9 @@ class MapleGrind(MapleScript):
 
         # 嘗試20次去辨識輪區域的邊框
         for i in range(20):
+            if not self.should_continue() or not self.is_maple_focus():
+                return
+
             arrows = self._vision.get_rune_arrows(rune_edge)
             # 如果沒辨識到那就普攻幾次
             if arrows is None:
@@ -433,34 +389,20 @@ class MapleGrind(MapleScript):
         if self.is_face_center_enabled:
             self.face_center()
 
-        # 處理循環冷卻邏輯
-        if self.is_random_wander_interval_enabled:
-            self.log(f"隨機跑圖結束，等待下一次循環: {self.random_wander_interval_seconds} 秒")
-            self.monitor_and_grind(self.random_wander_interval_seconds)
-
     def start(self) -> None:
         try:
             while self.should_continue() and (self.is_stationary or self.is_route_enabled or self.is_random_wander_enabled):
-                # 1. 等待直到環境安全
-                if not self.wait_until_safe():
-                    break
-                
-                # 2. 執行原地練功
-                self.monitor_and_grind(0)
 
-                # 3. 執行路徑
-                self.walk_the_map()
-
-                # 4. 執行隨機亂逛
-                self.random_wander()
-
-                # 一個短暫的等待以避免空轉
-                self.sleep(1)
+                state_machine = Machine(self)
+                state_machine.run()
 
             self.log("練功腳本已停止")
 
         except KeyboardInterrupt:
             self.log(f'腳本中止')
+
+        finally:
+            self.release_all()
 
 
 if __name__ == "__main__":

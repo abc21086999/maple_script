@@ -1,23 +1,28 @@
-# MapleScript
+<h1 align="center">MapleScript</h1>
 
-![Release](https://img.shields.io/github/v/release/abc21086999/maple_script)
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![Downloads](https://img.shields.io/github/downloads/abc21086999/maple_script/total?color=blue)
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/abc21086999/maple_script" alt="Release" />
+  <img src="https://img.shields.io/badge/Python-3.13-blue" alt="Python" />
+  <img src="https://img.shields.io/github/downloads/abc21086999/maple_script/total?color=blue" alt="Downloads" />
+</p>
+
+<p align="center">
+  <a href="README_EN.md">English</a> | <a href="README.md">繁體中文</a>
+</p>
 
 ![程式預覽](screenshot.png)
-一個基於視覺辨識、Seeed Studio Xiao ESP32S3、CircuitPython、GUI 的自動化腳本程式，提供直覺的操作、路徑錄製功能。
+一個基於電腦視覺、Seeed Studio Xiao ESP32S3、CircuitPython 與 PySide6 GUI 的自動化腳本程式，提供直覺的操作與路徑錄製功能。
 
-主要目的是打造**有耳朵的鍵盤、滑鼠**，能夠一邊聽（辨識畫面），一邊按下按鍵或是一邊移動滑鼠。
+主要目的是打造**有耳朵的鍵盤、滑鼠**，能夠一邊聽（辨識畫面元件），一邊模擬按鍵或移動滑鼠。
 
 ## ✨ 主要特色
-- **現代化控制中心**：基於 PySide6 的深色主題介面。
+- **現代化控制中心**：深色主題的圖形介面。
 - **路徑錄製與重播**：支援手動錄製練功循環路徑，並實現高精度的時間序列重播。
-- **安全防護機制**：
-  - **自動偵測暫停**：偵測到符文 (Rune) 或其他玩家 (紅點) 時自動暫停。
-  - **緊急停止 (STOP)**：一鍵即時中斷所有背景任務。
 - **全自動化功能**：
-  - **自動練功 (Auto Grind)**：支援「定點模式」、「路徑循環模式」與「隨機亂逛模式」，自動辨識並施放冷卻完畢的技能。
-  - **每日行程全自動**：自動處理每日/每週任務、戰地硬幣、HD 獎勵、里程、拍賣場、師徒與小屋。
+  - **自動練功 (Auto Grind - 狀態機架構)**：
+    - 採用 **Finite State Machine (FSM)** 設計，將練功行為拆分為獨立模組狀態：Stationary (定點)、Walker (走圖)、Wander (亂逛)、RuneSolver (解輪) 與 Pause (暫停)。
+    - **堆疊中斷機制 (Stack-based Interrupt)**：當偵測到不安全狀況（如偵測到紅點、出現符文、失去視窗焦點）時，狀態機會將當前狀態推入堆疊並切換至中斷狀態；當環境恢復安全後，能自動彈出（Pop）並無縫恢復先前狀態 — **完整保留內部計時（如冷卻時間）**。
+  - **每日行程全自動**：自動處理每日/每週任務、戰地硬幣、HD、里程、拍賣場、小屋等。
   - **輔助工具**：怪物蒐藏、裝備分解、倉庫密碼自動輸入。
 
 ## 🛠️ 環境需求與安裝
@@ -25,8 +30,8 @@
 1.  **硬體準備**：
     - 請參考[如何準備硬體](how_to_circuitpython.md)
 2. **執行可執行檔（exe）**
-3. **或是安裝Python和相依套件後本地運行**：
-    - 安裝 Python 3.10+
+3. **或是安裝 Python 和相依套件後本地運行**：
+    - 安裝 Python 3.11+
     - 建立並啟動虛擬環境：
       ```bash
       python -m venv venv
@@ -49,37 +54,53 @@
 
 ```mermaid
 graph TD
-    User[使用者] -->|點擊按鈕| GUI[圖形介面 （PySide6）]
-    
-    subgraph "前端 （Main Thread）"
-        GUI -->|啟動任務| TaskManager[任務管家]
+    User[使用者] -->|點擊按鈕| GUI["圖形介面 (PySide6)"]
+
+    subgraph "前端 (Main Thread)"
+        GUI -->|啟動任務| TaskManager["任務管家"]
         GUI -->|按下停止| TaskManager
-        LogSignal[Log 信號橋樑] -.->|更新文字| GUI
+        LogSignal["Log 信號橋樑"] -.->|更新文字| GUI
     end
 
-    subgraph "後端 （Worker Thread）"
-        TaskManager -->|產生獨立執行緒| Worker[工作執行緒]
-        Worker -->|執行邏輯| Script[MapleScript （練功／打王...）]
-        
+    subgraph "後端 (Worker Thread)"
+        TaskManager -->|產生獨立執行緒| Worker["工作執行緒"]
+        Worker -->|執行邏輯| Script["MapleScript"]
+
+        subgraph "所有腳本"
+            Daily["每日任務腳本\n(線性腳本)"]
+            subgraph "練功狀態機 (MapleMachine)"
+                FSM["狀態機管理器 (Machine)"]
+                State["定點 / 走圖 / 亂逛 / 解輪"]
+                PauseState["暫停 / 解輪"]
+                FSM -->|"check_status() → 狀態字串"| State
+                FSM -->|"偵測到不安全：推入狀態至堆疊"| PauseState
+                PauseState -.->|"恢復安全時：從堆疊彈出狀態"| FSM
+            end
+        end
+
+        Script -->|"每日／戰地／拍賣...\n(線性腳本)"| Daily
+        Script -->|MapleGrind 啟動| FSM
         Script -->|回報進度| LogSignal
-        Script -->|檢查停止信號| StopEvent{是否停止?}
-        
-        Script -->|視覺辨識| Vision[電腦視覺 （OpenCV）]
-        Script -->|控制指令| Controller[Xiao 控制器]
+        Script -->|檢查停止信號| StopEvent{"是否停止?"}
+        Script -->|電腦視覺| Vision["電腦視覺 (OpenCV)"]
+        Script -->|控制指令| Controller["Xiao 控制器"]
     end
 
     subgraph "硬體層"
-        Controller ==>|USB Serial| XiaoBoard[Xiao ESP32S3]
-        XiaoBoard ==>|HID| Game[楓之谷視窗]
+        Controller ==>|USB Serial| XiaoBoard["Xiao ESP32S3"]
+        XiaoBoard ==>|HID| Game["楓之谷視窗"]
     end
 ```
+
+> [!NOTE]
+> 關於自動練功狀態機的詳細轉移邏輯、冷卻設計與堆疊暫停運作原理，請參考 [狀態機系統說明文件](src/states/README.md)。
 
 ## 🔌 硬體互動原理
 ```mermaid
 %%{init: {'theme': 'forest'} }%%
 graph LR;
 
-step1[Xiao初始化為鍵盤、滑鼠]
+step1[Xiao初始化為鍵盤滑鼠]
 
 step2[電腦辨識畫面]
 

@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="how_to_circuitpython_EN.md">English</a> | <a href="how_to_circuitpython.md">繁體中文</a>
+</p>
+
 ## 📦 硬體設定（第一次使用必做）
 
 > 如果你從來沒碰過微控制器也沒關係，照著步驟做就好！

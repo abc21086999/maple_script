@@ -5,6 +5,11 @@
 開發者不保證本軟體之功能穩定性，亦不對因使用本軟體而導致之任何直接或間接損失（包括但不限於遊戲帳號遭封鎖、資料遺失、硬體損壞或法律糾紛）負擔任何法律或賠償責任。
 使用本軟體即代表您已閱讀並同意此免責聲明之所有內容。
 
+This project (MapleScript) is intended solely for technical research, personal learning, and academic exchange.
+Users must fully understand and assume all risks before downloading, installing, or executing this software.
+The developers do not guarantee the stability of this software and shall not be held legally liable or responsible for any direct or indirect losses (including but not limited to game account bans, data loss, hardware damage, or legal disputes) arising from the use of this software.
+By using this software, you acknowledge that you have read and agreed to all the contents of this disclaimer.
+
 -----------------------------------------------------------
 
                     GNU GENERAL PUBLIC LICENSE
