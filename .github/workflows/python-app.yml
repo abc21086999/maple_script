@@ -14,8 +14,6 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      UV_SYSTEM_PYTHON: 1
 
     steps:
       - name: Checkout Code
@@ -35,7 +33,7 @@ jobs:
 
       - name: Build with Nuitka (Windows)
         run: >
-          python -m nuitka
+          uv run python -m nuitka
           --standalone
           --windows-console-mode=disable
           --enable-plugin=pyside6
