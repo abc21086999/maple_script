@@ -35,7 +35,7 @@ jobs:
 
       - name: Build with Nuitka (Windows)
         run: >
-          nuitka
+          uv run nuitka
           --standalone
           --windows-console-mode=disable
           --enable-plugin=pyside6
