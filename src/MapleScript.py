@@ -309,6 +309,11 @@ class MapleScript(ABC):
                 if self.sleep(sleep_duration): # 如果被中斷就停止
                     break
 
+            if not self.is_maple_focus():
+                self.log("楓之谷不在前景，中止重播腳本")
+                self.release_all()
+                break
+
             if action == 'key_down':
                 self.key_down(key_str)
             elif action == 'key_up':

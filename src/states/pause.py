@@ -9,6 +9,7 @@ class Pause(States):
     def enter(self) -> None:
         print(f'切換到{self.__class__.__name__}模式')
         self.bot.release_all()
+        self.bot.log("練功暫停中")
 
     def check_status(self):
         # 楓谷不在前景，進入暫停狀態
@@ -19,9 +20,11 @@ class Pause(States):
             return None
         # 地圖上有輪迴要停下來，進入暫停狀態
         if self.bot.stop_on_rune and self.bot.has_rune():
+            self.bot.log(f'地圖上有輪迴')
             return None
         # 地圖上有人要停下來，進入暫停狀態
         if self.bot.stop_on_people and self.bot.has_other_players():
+            self.bot.log(f'地圖上有其他玩家')
             return None
         return POP
 
