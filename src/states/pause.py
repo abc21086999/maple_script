@@ -20,11 +20,9 @@ class Pause(States):
             return None
         # 地圖上有輪迴要停下來，進入暫停狀態
         if self.bot.stop_on_rune and self.bot.has_rune():
-            self.bot.log(f'地圖上有輪迴')
             return None
         # 地圖上有人要停下來，進入暫停狀態
         if self.bot.stop_on_people and self.bot.has_other_players():
-            self.bot.log(f'地圖上有其他玩家')
             return None
         return POP
 

@@ -30,9 +30,11 @@ class Stationary(States):
             return "RUNESOLVER"
         # 地圖上有輪迴要停下來，進入暫停狀態
         if self.bot.stop_on_rune and self.bot.has_rune():
+            self.bot.log("地圖上有輪迴")
             return "PAUSE"
         # 地圖上有人要停下來，進入暫停狀態
         if self.bot.stop_on_people and self.bot.has_other_players():
+            self.bot.log("地圖上有其他人")
             return "PAUSE"
         # 定點練功模式沒有啟用，那就切到下一個執行錄製腳本的狀態
         if not self.bot.is_stationary:
@@ -52,6 +54,7 @@ class Stationary(States):
         :return: None
         """
         self.bot.grind_mode()
+        self.bot.sleep(1)
 
     def exit(self) -> None:
         self.bot.release_all()
