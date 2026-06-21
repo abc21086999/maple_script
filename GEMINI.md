@@ -9,7 +9,7 @@ The architecture is composed of three main parts:
 2.  **A Python control script (Backend)**: Running on a **Windows** host computer. It uses computer vision libraries (`mss`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action. AI-powered rune detection is handled by `src/utils/rune_detector.py` using TFLite models in `models/`.
 3.  **A Seeed Studio Xiao ESP32S3 microcontroller**: Acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
 
-The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities, **thread-safety mechanisms**, and **minimap-based navigation** (`move_to_point`). Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`, `RouteRecorder`) inherit from the base `MapleScript` class. Particularly, the grinding automation ([MapleGrind](file:///C:/Users/abc21/PycharmProjects/maple_script/src/MapleGrind.py)) is implemented using a Finite State Machine (FSM) architecture, delegating state behaviors to individual classes under `src/states/` and managed by [MapleMachine.py](file:///C:/Users/abc21/PycharmProjects/maple_script/src/MapleMachine.py).
+The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities, **thread-safety mechanisms**, and **minimap-based navigation** (`move_to_point`). Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`, `RouteRecorder`) inherit from the base `MapleScript` class. Particularly, the grinding automation ([MapleGrind](src/MapleGrind.py)) is implemented using a Finite State Machine (FSM) architecture, delegating state behaviors to individual classes under `src/states/` and managed by [MapleMachine.py](src/MapleMachine.py).
 
 Settings and resources are managed by a **hybrid storage system**:
 - **General Preferences & Dynamic Data**: Stored as JSON files in `AppData/Local` (managed by `SettingsManager`). This includes skill configurations, recorded routes, and task-specific toggles.
@@ -43,7 +43,7 @@ This will open the "Guai Guai Automation Control Center". You can click buttons 
 
 ### 4. CI/CD & Automated Packaging
 
-The project uses GitHub Actions for automated build and release workflows. The workflow is defined in [.github/workflows/python-app.yml](file:///C:/Users/abc21/PycharmProjects/maple_script/.github/workflows/python-app.yml):
+The project uses GitHub Actions for automated build and release workflows. The workflow is defined in [.github/workflows/python-app.yml](.github/workflows/python-app.yml):
 - **Package Management**: Uses `uv` (`setup-uv`) as the package and environment manager to accelerate the installation and caching of dependency packages (`requirements.txt`).
 - **Compilation & Bundling**: Uses `Nuitka` via `uv run python -m nuitka` to compile the standalone executable, excluding unnecessary PySide6 modules to compress the output size, and publishes the bundled `main.zip` to GitHub Releases.
 
@@ -56,7 +56,7 @@ The project uses GitHub Actions for automated build and release workflows. The w
     - `MapleScript.py`: Base class for all scripts. Includes minimap navigation (`move_to_point`), input handling, and hardware safety mechanisms.
     - `MapleGrind.py`: Entry point for hunting/grinding automation. It initializes the state machine to run the grind loop.
     - `MapleMachine.py`: State machine manager (`Machine`) that drives the grinding loop, handles state transitions, and manages an interruption stack.
-    - `states/`: Directory containing concrete states for the grinding FSM (detailed documentation in [src/states/README.md](file:///C:/Users/abc21/PycharmProjects/maple_script/src/states/README.md)):
+    - `states/`: Directory containing concrete states for the grinding FSM (detailed documentation in [src/states/README.md](src/states/README.md)):
         - `base.py`: The abstract base class for all states.
         - `stationary.py`, `walker.py`, `wander.py`: Core behaviors (grinding, loop route, random wander).
         - `runesolver.py`, `pause.py`: Interruption states for solving runes and pausing when unsafe.
@@ -103,7 +103,7 @@ The project uses GitHub Actions for automated build and release workflows. The w
 - **Static Config & Resource Manager**: `YamlLoader` (`config_loader.py`) centralizes UI offsets and image resources, providing pre-loaded `PIL.Image` objects to scripts.
 
 ### Grinding State Machine (FSM)
-The grinding routine ([MapleGrind](file:///C:/Users/abc21/PycharmProjects/maple_script/src/MapleGrind.py)) is structured as a Finite State Machine managed by `Machine` ([MapleMachine.py](file:///C:/Users/abc21/PycharmProjects/maple_script/src/MapleMachine.py)) to decouple behavior logic (see [src/states/README.md](file:///C:/Users/abc21/PycharmProjects/maple_script/src/states/README.md) for detailed architecture):
+The grinding routine ([MapleGrind](src/MapleGrind.py)) is structured as a Finite State Machine managed by `Machine` ([MapleMachine.py](src/MapleMachine.py)) to decouple behavior logic (see [src/states/README.md](src/states/README.md) for detailed architecture):
 - **State Transition by Keys**: To prevent circular imports, states return string keys (e.g., `"WALKER"`, `"RUNESOLVER"`) during status checks. The machine maps these to concrete state classes via `state_mapping`.
 - **Stack-based Interruption**: When an unsafe condition occurs or a rune appears, the active state is pushed onto a stack (`Machine.stack`) and replaced by `Pause` or `RuneSolver`. Once resolved, the state is popped back to resume where it left off.
 - **Cooldown & Wait Variants**: States like `Walker` and `Wander` support cooldown intervals, split into active grinding cooldown (`WalkerCoolDown`) and idle waiting (`WalkerWaiting`) based on user configurations.
