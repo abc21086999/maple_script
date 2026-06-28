@@ -442,10 +442,10 @@ class DailyPrepare(MapleScript):
 
         # 等待到達小屋
         while self.should_continue() and not self.is_on_screen(imgs['caretaker']):
-            self.sleep(0.5)
+            self.sleep(1)
 
         # 艾咪、艾爾文和珍妮會有預設的對話框
-        if self.is_on_screen(imgs['amy']) or self.is_on_screen(imgs['alvin']) or self.is_on_screen(imgs['jenny']):
+        if self.is_on_screen(imgs['next']):
             self.press_and_wait("y", 0.5)
 
         # 點擊管理人圖案
@@ -456,7 +456,7 @@ class DailyPrepare(MapleScript):
 
         # 如果有可以對話（這段還有改善空間但是先這樣寫ㄅ）
         self.sleep(0.3)
-        if self.is_on_screen(imgs['caretaker_talkable']):
+        if not self.is_on_screen(imgs['second_item']):
             for i in range(6):
                 self.press_and_wait("y")
 
