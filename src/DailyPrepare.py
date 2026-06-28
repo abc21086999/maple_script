@@ -489,7 +489,13 @@ class DailyPrepare(MapleScript):
         self.invoke_menu()
         self.press_and_wait(["tab", "left", "left", "enter"])
 
-        # 點下卡爾西溫章魚慶典的那個tab
+        # 如果活動面板的抽屜沒打開，那麼就按一下
+        drawer_1 = img['event_daily_checkin_tab_drawer']
+
+        if self.is_on_screen(drawer_1):
+            self.find_and_click_image(drawer_1)
+
+        # 點下主要活動簽到
         self.find_and_click_image(img['event_daily_checkin_tab'])
         while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header']):
             self.sleep(0.3)
@@ -499,10 +505,20 @@ class DailyPrepare(MapleScript):
             self.find_and_click_image(img['daily_check_in_button'])
             self.press_and_wait("esc")
 
+        # 點下另外一個活動簽到
+        self.find_and_click_image(img['event_daily_checkin_tab_2'])
+        while self.should_continue() and not self.is_on_screen(img['daily_check_in_button_2']):
+            self.sleep(0.3)
+
+        # 點下另一個活動的每日準備
+        if self.is_on_screen(img['daily_check_in_button_2']):
+            self.find_and_click_image(img['daily_check_in_button_2'])
+            self.press_and_wait("esc")
+
         # 點下每週準備
-        if self.is_on_screen(img['weekly_check_in_button']):
-            self.find_and_click_image(img['weekly_check_in_button'])
-            self.press_and_wait(["enter", "esc"])
+        # if self.is_on_screen(img['weekly_check_in_button']):
+        #     self.find_and_click_image(img['weekly_check_in_button'])
+        #     self.press_and_wait(["enter", "esc"])
 
         # 關閉UI
         self.press_and_wait("esc")
