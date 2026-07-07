@@ -156,4 +156,12 @@ end
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=abc21086999/maple_script&type=date&legend=top-left)](https://www.star-history.com/#abc21086999/maple_script&type=date&legend=top-left)
+## Star History
+
+<a href="https://www.star-history.com/?type=date&legend=top-left&repos=abc21086999%2Fmaple_script">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&theme=dark&legend=top-left&sealed_token=Fl891yIE9YItza6h_NcBKlithguzNSczhpmJL2K2GzBv-gMVbC-g6JOnAJg8ZSdvQygG40AUCOIFMbRORdfKZ9Fl1nQv3GNAngIZGzgA8cyVVpFVovEq4uJP2tGhmMR1j_HqE40e8U_YB_2yjFOs_aLHjQlbPuu2lMgizOHxdQPqLk4ON22uX5HSSBQ2" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=Fl891yIE9YItza6h_NcBKlithguzNSczhpmJL2K2GzBv-gMVbC-g6JOnAJg8ZSdvQygG40AUCOIFMbRORdfKZ9Fl1nQv3GNAngIZGzgA8cyVVpFVovEq4uJP2tGhmMR1j_HqE40e8U_YB_2yjFOs_aLHjQlbPuu2lMgizOHxdQPqLk4ON22uX5HSSBQ2" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=Fl891yIE9YItza6h_NcBKlithguzNSczhpmJL2K2GzBv-gMVbC-g6JOnAJg8ZSdvQygG40AUCOIFMbRORdfKZ9Fl1nQv3GNAngIZGzgA8cyVVpFVovEq4uJP2tGhmMR1j_HqE40e8U_YB_2yjFOs_aLHjQlbPuu2lMgizOHxdQPqLk4ON22uX5HSSBQ2" />
+ </picture>
+</a>
