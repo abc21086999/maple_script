@@ -83,7 +83,6 @@ jobs:
           --include-data-dir=photos=photos
           --assume-yes-for-downloads
           --output-dir=build
-          --lto=yes
           main.py
 
       - name: Zip Dist Folder (PowerShell)
