@@ -38,6 +38,7 @@ jobs:
           --standalone
           --windows-console-mode=disable
           --enable-plugin=pyside6
+          --noinclude-qt-translations
           --nofollow-import-to=PySide6.QtWebEngine
           --nofollow-import-to=PySide6.QtWebEngineCore
           --nofollow-import-to=PySide6.QtWebEngineWidgets
@@ -76,6 +77,25 @@ jobs:
           --nofollow-import-to=PySide6.QtOpenGL
           --nofollow-import-to=PySide6.QtOpenGLWidgets
           --nofollow-import-to=PySide6.QtShaderTools
+          --nofollow-import-to=PySide6.QtDBus
+          --nofollow-import-to=PySide6.QtUiTools
+          --nofollow-import-to=PySide6.QtAxContainer
+          --nofollow-import-to=PySide6.QtPdf
+          --nofollow-import-to=PySide6.QtPdfWidgets
+          --nofollow-import-to=PySide6.QtSpatialAudio
+          --nofollow-import-to=PySide6.QtSvgWidgets
+          --nofollow-import-to=PySide6.QtAsyncio
+          --nofollow-import-to=PySide6.QtGraphs
+          --nofollow-import-to=PySide6.QtGraphsWidgets
+          --nofollow-import-to=PySide6.QtHttpServer
+          --nofollow-import-to=tkinter
+          --nofollow-import-to=turtle
+          --nofollow-import-to=unittest
+          --nofollow-import-to=doctest
+          --nofollow-import-to=pydoc
+          --nofollow-import-to=setuptools
+          --nofollow-import-to=distutils
+          --nofollow-import-to=PIL.ImageTk
           --windows-icon-from-ico=icon.ico
           --include-data-files=icon.ico=icon.ico
           --include-data-dir=config=config
