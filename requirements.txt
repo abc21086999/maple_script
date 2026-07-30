@@ -4,6 +4,7 @@ numpy
 pyserial
 adafruit_board_toolkit
 pynput
+pydirectinput
 pywin32
 PyYAML
 PySide6

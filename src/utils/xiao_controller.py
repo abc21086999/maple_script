@@ -1,5 +1,7 @@
 import serial.tools.list_ports
 import threading
+import ctypes
+import pydirectinput
 from serial import Serial
 from src.utils.settings_manager import SettingsManager
 
@@ -202,7 +204,64 @@ class ControllerMocker:
     """
     硬體控制器的 Mock 類別，用於在沒有硬體時維持程式運行。
     """
-    pass
+    def __init__(self):
+        self.__log = False
+        self.__held_keys = set()
+        pydirectinput.PAUSE = 0
+
+    def press_key(self, key: str):
+        pydirectinput.press(key)
+        if self.__log:
+            print(f"模擬輸入按鍵：{key}")
+
+    def key_down(self, key: str):
+        pydirectinput.keyDown(key)
+        self.__held_keys.add(key)
+        if self.__log:
+            print(f"模擬按下按鍵：{key}")
+
+    def key_up(self, key: str):
+        try:
+            pydirectinput.keyUp(key)
+        finally:
+            self.__held_keys.discard(key)
+        if self.__log:
+            print(f"模擬放開按鍵：{key}")
+
+    def scroll_up(self):
+        self.__scroll(1)
+        if self.__log:
+            print("模擬向上捲動滑鼠")
+
+    def scroll_down(self):
+        self.__scroll(-1)
+        if self.__log:
+            print("模擬向下捲動滑鼠")
+
+    def send_mouse_location(self, location: tuple):
+        x, y = location
+        pydirectinput.moveRel(x, y)
+        if self.__log:
+            print(f"模擬移動滑鼠至：{location}")
+
+    def click(self):
+        pydirectinput.click()
+        if self.__log:
+            print("模擬點擊滑鼠")
+
+    def release_all(self):
+        for key in self.__held_keys:
+            pydirectinput.keyUp(key)
+
+        self.__held_keys.clear()
+
+        if self.__log:
+            print("模擬放開所有由程式按住的按鍵")
+
+    @staticmethod
+    def __scroll(amount: int):
+        # PyDirectInput 1.0.4 尚未提供 scroll()，以 Windows API 補齊相容介面。
+        ctypes.windll.user32.mouse_event(0x0800, 0, 0, amount * 120, 0)
 
 
 if __name__ == "__main__":

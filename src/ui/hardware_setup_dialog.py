@@ -94,7 +94,7 @@ def show_no_hardware_warning():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Warning)
     msg.setWindowTitle("硬體連線提示")
-    msg.setText("由於目前未設置硬體輸入，因此將無法操控遊戲角色，請參考README設置CircuitPython設備")
+    msg.setText("由於目前未設置硬體輸入，因此將使用軟體模擬輸入。請確保你使用管理員權限開啟本程式。\n另外請參考 README 設置 CircuitPython 設備。")
     msg.setStandardButtons(QMessageBox.Ok)
     msg.exec()
 
