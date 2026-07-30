@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/v/release/abc21086999/maple_script" alt="Release" />
-  <img src="https://img.shields.io/badge/Python-3.13-blue" alt="Python" />
+  <img src="https://img.shields.io/badge/Python-3.12-blue" alt="Python" />
   <img src="https://img.shields.io/github/downloads/abc21086999/maple_script/total?color=blue" alt="Downloads" />
 </p>
 
@@ -154,6 +154,8 @@ end
 ## 📄 License & Disclaimer
 
 This project is licensed under the [GNU General Public License v3.0](LICENSE.txt). Before using this software, please make sure to read and agree to the **Disclaimer** listed in the `LICENSE.txt` file.
+
+**Additionally, please be sure to turn off the 'Client LOG Collection' option in the TMS settings, otherwise your account may be locked.**
 
 ## ⭐ Star History
 

@@ -2,26 +2,28 @@
 
 本目錄包含將 MapleGrind 腳本重構為有限狀態機 (Finite State Machine, FSM) 的程式碼。FSM 設計將原有的程序化邏輯解耦，將自動打怪 (grinding)、行走 (walking)、遊走 (wandering)、解符文 (rune solving) 和暫停 (pausing) 等行為隔離到專用的狀態類別中。這提高了專案的可維護性和擴展性。
 
+[English version of this document](README_EN.md)
+
 ---
 
 ## 🏗️ 架構與核心組件
 
 FSM 系統由三個主要部分組成：
 
-1. **狀態基類 ([States](src/states/base.py))**
+1. **狀態基類 ([States](base.py))**
    所有具體狀態的父類別。為了防止循環導入 (circular imports)，其型別註解依賴於低階的 `MapleScript` 基類，而不是具體的 `MapleGrind` 類別。此處也定義了堆疊中斷機制所使用的 `POP` 標記物件。
 
-2. **狀態機管理器 ([Machine](src/MapleMachine.py))**
+2. **狀態機管理器 ([Machine](../MapleMachine.py))**
    維護當前活動狀態 (`current_state`)，執行 `switch()` 中的轉換邏輯，管理中斷堆疊 (`stack`)，並驅動 `run()` 中的主執行迴圈。
 
 3. **具體狀態 (Concrete States)**
    實現特定的行為和轉換檢查：
-   - **[Stationary](src/states/stationary.py)**：原地打怪行為。每個 tick 執行 `grind_mode()`。
-   - **[Waiting](src/states/waiting.py)**：純冷卻等待行為。每個 tick 進入休眠而不進行打怪。接受 `seconds` 和 `next_state` 參數。
-   - **[Walker](src/states/walker.py)**：重播錄製的路徑事件。
-   - **[Wander](src/states/wander.py)**：隨機向左或向右遊走。
-   - **[RuneSolver](src/states/runesolver.py)**：自動移動至符文處並進行破解。
-   - **[Pause](src/states/pause.py)**：當遊戲失去焦點、其他玩家出現或符文需要手動處理時停止執行。
+   - **[Stationary](stationary.py)**：原地打怪行為。每個 tick 執行 `grind_mode()`。
+   - **[Waiting](waiting.py)**：純冷卻等待行為。每個 tick 進入休眠而不進行打怪。接受 `seconds` 和 `next_state` 參數。
+   - **[Walker](walker.py)**：重播錄製的路徑事件。
+   - **[Wander](wander.py)**：隨機向左或向右遊走。
+   - **[RuneSolver](runesolver.py)**：自動移動至符文處並進行破解。
+   - **[Pause](pause.py)**：當遊戲失去焦點、其他玩家出現或符文需要手動處理時停止執行。
 
 ---
 

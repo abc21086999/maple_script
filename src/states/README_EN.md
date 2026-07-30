@@ -8,20 +8,20 @@ This directory contains the code for the MapleGrind script refactored into a Fin
 
 The FSM system consists of three main parts:
 
-1. **State Base Class ([States](src/states/base.py))**
+1. **State Base Class ([States](base.py))**
    The parent class of all concrete states. To prevent circular imports, its type annotation depends on the low-level `MapleScript` base class rather than the concrete `MapleGrind` class. This also defines the `POP` sentinel object used by the stack-based interrupt mechanism.
 
-2. **State Machine Manager ([Machine](src/MapleMachine.py))**
+2. **State Machine Manager ([Machine](../MapleMachine.py))**
    Maintains the active state (`current_state`), runs the transition logic in `switch()`, manages the interrupt stack (`stack`), and drives the main execution loop in `run()`.
 
 3. **Concrete States**
    Implement specific behaviors and transition checks:
-   - **[Stationary](src/states/stationary.py)**: Stationary grinding behavior. Executes `grind_mode()` every tick.
-   - **[Waiting](src/states/waiting.py)**: Pure cooldown waiting behavior. Sleeps every tick without grinding. Accepts `seconds` and `next_state` parameters.
-   - **[Walker](src/states/walker.py)**: Replays the recorded route events.
-   - **[Wander](src/states/wander.py)**: Randomly wanders left and right.
-   - **[RuneSolver](src/states/runesolver.py)**: Moves to and solves map runes automatically.
-   - **[Pause](src/states/pause.py)**: Halts execution when the game loses focus, other players appear, or a rune requires manual handling.
+   - **[Stationary](stationary.py)**: Stationary grinding behavior. Executes `grind_mode()` every tick.
+   - **[Waiting](waiting.py)**: Pure cooldown waiting behavior. Sleeps every tick without grinding. Accepts `seconds` and `next_state` parameters.
+   - **[Walker](walker.py)**: Replays the recorded route events.
+   - **[Wander](wander.py)**: Randomly wanders left and right.
+   - **[RuneSolver](runesolver.py)**: Moves to and solves map runes automatically.
+   - **[Pause](pause.py)**: Halts execution when the game loses focus, other players appear, or a rune requires manual handling.
 
 ---
 
