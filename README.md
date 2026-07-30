@@ -154,12 +154,14 @@ end
 
 本專案採用 [GNU General Public License v3.0](LICENSE.txt) 授權。使用本軟體前，請務必閱讀並同意 `LICENSE.txt` 檔案中所列之**免責聲明**。
 
+**另外，請務必將TMS設定中的『客戶端LOG蒐集』選項關閉，否則帳號有可能被鎖。**
+
 ## ⭐ Star History
 
 <a href="https://www.star-history.com/?repos=abc21086999%2Fmaple_script&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&theme=dark&legend=top-left&sealed_token=H1y5U8wYS3-P5Zpydljpn8b7DVS9y6RuY04EMJFdqFNUp5TZM4Q95ggLj1T9wFeGA0gsjnKDF3lwlIIye5lGV9qTgCdYvSgFhSlL-Pa5ptWfzNSwtL3aVH6ZJOqelph_EIMf9p-vY0lRumggsrite01wrigWgS3qLqz1I3mk-ihBXD8z-YotFt1msDpl" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=H1y5U8wYS3-P5Zpydljpn8b7DVS9y6RuY04EMJFdqFNUp5TZM4Q95ggLj1T9wFeGA0gsjnKDF3lwlIIye5lGV9qTgCdYvSgFhSlL-Pa5ptWfzNSwtL3aVH6ZJOqelph_EIMf9p-vY0lRumggsrite01wrigWgS3qLqz1I3mk-ihBXD8z-YotFt1msDpl" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=H1y5U8wYS3-P5Zpydljpn8b7DVS9y6RuY04EMJFdqFNUp5TZM4Q95ggLj1T9wFeGA0gsjnKDF3lwlIIye5lGV9qTgCdYvSgFhSlL-Pa5ptWfzNSwtL3aVH6ZJOqelph_EIMf9p-vY0lRumggsrite01wrigWgS3qLqz1I3mk-ihBXD8z-YotFt1msDpl" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&theme=dark&legend=top-left&sealed_token=v0_OcpIwa5UJXQ-IXb9JKkQtw-0Q_sFyAmPpohwin3Lbd4bWsGLcTA8LQOMTCYLQTfLoPVDxcRKzkkFnIS7hK-rz6gsQ7Rf8aoBh2eVkaQ5kdx0y8Ez1jPOG5R1ukASPD5EScjQuMRugasKhpYoSxMYu17_lBK3vn5Cvgddb_EUc4YR0iWXAa0LrJCV-" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=v0_OcpIwa5UJXQ-IXb9JKkQtw-0Q_sFyAmPpohwin3Lbd4bWsGLcTA8LQOMTCYLQTfLoPVDxcRKzkkFnIS7hK-rz6gsQ7Rf8aoBh2eVkaQ5kdx0y8Ez1jPOG5R1ukASPD5EScjQuMRugasKhpYoSxMYu17_lBK3vn5Cvgddb_EUc4YR0iWXAa0LrJCV-" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=v0_OcpIwa5UJXQ-IXb9JKkQtw-0Q_sFyAmPpohwin3Lbd4bWsGLcTA8LQOMTCYLQTfLoPVDxcRKzkkFnIS7hK-rz6gsQ7Rf8aoBh2eVkaQ5kdx0y8Ez1jPOG5R1ukASPD5EScjQuMRugasKhpYoSxMYu17_lBK3vn5Cvgddb_EUc4YR0iWXAa0LrJCV-" />
  </picture>
 </a>

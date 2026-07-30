@@ -157,4 +157,11 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE.txt
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=abc21086999/maple_script&type=date&legend=top-left)](https://www.star-history.com/#abc21086999/maple_script&type=date&legend=top-left)
+<a href="https://www.star-history.com/?repos=abc21086999%2Fmaple_script&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&theme=dark&legend=top-left&sealed_token=v0_OcpIwa5UJXQ-IXb9JKkQtw-0Q_sFyAmPpohwin3Lbd4bWsGLcTA8LQOMTCYLQTfLoPVDxcRKzkkFnIS7hK-rz6gsQ7Rf8aoBh2eVkaQ5kdx0y8Ez1jPOG5R1ukASPD5EScjQuMRugasKhpYoSxMYu17_lBK3vn5Cvgddb_EUc4YR0iWXAa0LrJCV-" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=v0_OcpIwa5UJXQ-IXb9JKkQtw-0Q_sFyAmPpohwin3Lbd4bWsGLcTA8LQOMTCYLQTfLoPVDxcRKzkkFnIS7hK-rz6gsQ7Rf8aoBh2eVkaQ5kdx0y8Ez1jPOG5R1ukASPD5EScjQuMRugasKhpYoSxMYu17_lBK3vn5Cvgddb_EUc4YR0iWXAa0LrJCV-" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=abc21086999/maple_script&type=date&legend=top-left&sealed_token=v0_OcpIwa5UJXQ-IXb9JKkQtw-0Q_sFyAmPpohwin3Lbd4bWsGLcTA8LQOMTCYLQTfLoPVDxcRKzkkFnIS7hK-rz6gsQ7Rf8aoBh2eVkaQ5kdx0y8Ez1jPOG5R1ukASPD5EScjQuMRugasKhpYoSxMYu17_lBK3vn5Cvgddb_EUc4YR0iWXAa0LrJCV-" />
+ </picture>
+</a>
+
