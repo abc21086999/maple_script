@@ -110,7 +110,14 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: bool
         """
-        return self._vision.has_other_players(color_tolerance)
+        result = self._vision.has_other_players(color_tolerance)
+
+        # 如果小地圖沒開，那麼就顯示訊息，然後回傳False
+        if result is None:
+            self.log("小地圖未開啟")
+            return False
+
+        return result
 
     def has_rune(self, color_tolerance=10) -> bool:
         """
@@ -119,13 +126,27 @@ class MapleScript(ABC):
         :param color_tolerance: int, 顏色容忍度
         :return: bool
         """
-        return self._vision.has_rune(color_tolerance)
+        result = self._vision.has_rune(color_tolerance)
+
+        # 如果小地圖沒開，那麼就顯示訊息，然後回傳False
+        if result is None:
+            self.log("小地圖未開啟")
+            return False
+
+        return result
 
     def get_player_pos(self) -> tuple[int, int] | None:
         """
         獲取玩家在小地圖上的精確座標 (x, y)
         """
-        return self._vision.get_player_pos()
+        result = self._vision.get_player_pos()
+
+        # 如果小地圖沒開，那麼就顯示訊息，然後回傳False
+        if result is None:
+            self.log("小地圖未開啟")
+            return None
+
+        return result
 
     def get_rune_pos(self) -> tuple[int, int] | None:
         """

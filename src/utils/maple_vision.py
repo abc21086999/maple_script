@@ -65,15 +65,19 @@ class MapleVision:
             "width": int(width),
             "height": int(height)
         }
-        
-        # mss grab returns a BGRA image
-        sct_img = self.sct.grab(monitor)
-        
-        # Convert to numpy array
-        img_np = np.array(sct_img)
-        
-        # Convert BGRA to BGR (OpenCV format)
-        return cv2.cvtColor(img_np, cv2.COLOR_BGRA2BGR)
+
+        try:
+            # mss grab returns a BGRA image
+            sct_img = self.sct.grab(monitor)
+
+            # Convert to numpy array
+            img_np = np.array(sct_img)
+
+            # Convert BGRA to BGR (OpenCV format)
+            return cv2.cvtColor(img_np, cv2.COLOR_BGRA2BGR)
+
+        except mss.ScreenShotError:
+            return None
 
     def get_full_screen_screenshot(self):
         return self._capture(self.maple_full_screen_area)
@@ -164,7 +168,7 @@ class MapleVision:
         else:
             return "right"
 
-    def has_other_players(self, color_tolerance=10) -> bool:
+    def has_other_players(self, color_tolerance=10) -> bool | None:
         """
         偵測小地圖上有沒有其他玩家（紅點）。
         使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
@@ -173,6 +177,10 @@ class MapleVision:
         """
         # 1. 擷取小地圖畫面
         img_np = self.get_mini_map_area_screenshot()
+
+        # 處理小地圖沒開啟的狀況
+        if img_np is None:
+            return None
         
         # 2. 計算色差並建立遮罩
         diff_matrix = np.sum(np.abs(img_np - self.other_player_color), axis=2)
@@ -185,7 +193,7 @@ class MapleVision:
         # 4. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的紅點
         return cv2.countNonZero(eroded_mask) > 0
 
-    def has_rune(self, color_tolerance=10) -> bool:
+    def has_rune(self, color_tolerance=10) -> bool | None:
         """
         偵測小地圖上有沒有輪（符文）。
         使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
@@ -194,6 +202,10 @@ class MapleVision:
         """
         # 1. 擷取小地圖畫面
         img_np = self.get_mini_map_area_screenshot()
+
+        # 處理小地圖沒開啟的狀況
+        if img_np is None:
+            return None
         
         # 2. 計算色差並建立遮罩
         diff_matrix = np.sum(np.abs(img_np - self.rune_color), axis=2)
@@ -211,6 +223,10 @@ class MapleVision:
         獲取玩家在小地圖上的座標 (x, y)
         """
         img_np = self.get_mini_map_area_screenshot()
+
+        # 處理小地圖沒開啟的狀況
+        if img_np is None:
+            return None
         
         diff_matrix = np.sum(np.abs(img_np - self.my_character_color), axis=2)
         mask = (diff_matrix < 30).astype(np.uint8) * 255
