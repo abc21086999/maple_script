@@ -113,4 +113,4 @@ The grinding routine ([MapleGrind](src/MapleGrind.py)) is structured as a Finite
 - All hardware actions are routed through `src/utils/xiao_controller.py`.
 - **Automatic Connection**: The controller identifies the correct COM port by matching the **Serial Number** stored in user settings.
 - **Safety Mechanism**: Scripts must use `release_all()` in `finally` blocks or upon interruption to ensure no keys remain pressed on the hardware level.
-- **Controller Mocker**: If hardware is not found, a `ControllerMocker` is used to allow the GUI to run without failing, though actions won't be sent to the game.
+- **Controller Mocker**: If hardware is not found, a `ControllerMocker` keeps the GUI and tasks usable by sending software-level keyboard and mouse input through `pydirectinput`. It does not use the Xiao hardware path.
