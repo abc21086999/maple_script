@@ -1,20 +1,20 @@
-# GEMINI Project Context: MapleScript Automation
+# Project Context: MapleScript Automation
 
 ## Project Overview
 
-This is a Python-based automation project for the online game *MapleStory*. Its primary purpose is to automate repetitive in-game tasks, such as completing daily quests, fighting bosses, and managing collections.
+This is a Python-based automation project for the online game *MapleStory*. Its primary purpose is to automate repetitive in-game tasks, such as completing daily quests and managing collections.
 
 The architecture is composed of three main parts:
 1.  **A Graphical User Interface (GUI)**: Built with `PySide6`, acting as the main control center for users. It provides a modern, dark-themed interface to start/stop tasks and view execution logs.
 2.  **A Python control script (Backend)**: Running on a **Windows** host computer. It uses computer vision libraries (`mss`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action. AI-powered rune detection is handled by `src/utils/rune_detector.py` using TFLite models in `models/`.
 3.  **A Seeed Studio Xiao ESP32S3 microcontroller**: Acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
 
-The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities, **thread-safety mechanisms**, and **minimap-based navigation** (`move_to_point`). Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyBoss`, `RouteRecorder`) inherit from the base `MapleScript` class. Particularly, the grinding automation ([MapleGrind](src/MapleGrind.py)) is implemented using a Finite State Machine (FSM) architecture, delegating state behaviors to individual classes under `src/states/` and managed by [MapleMachine.py](src/MapleMachine.py).
+The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities, **thread-safety mechanisms**, and **minimap-based navigation** (`move_to_point`). Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyPrepare`, `RouteRecorder`) inherit from the base `MapleScript` class. Particularly, the grinding automation ([MapleGrind](src/MapleGrind.py)) is implemented using a Finite State Machine (FSM) architecture, delegating state behaviors to individual classes under `src/states/` and managed by [MapleMachine.py](src/MapleMachine.py).
 
 Settings and resources are managed by a **hybrid storage system**:
 - **General Preferences & Dynamic Data**: Stored as JSON files in `AppData/Local` (managed by `SettingsManager`). This includes skill configurations, recorded routes, and task-specific toggles.
 - **Sensitive Data (e.g., Passwords)**: Securely managed using Windows Credential Manager via `SecretManager`.
-- **Resource Management & Static Config**: Managed by `YamlLoader` in `src/utils/config_loader.py`. It loads static configurations from `config/config.yaml` and **caches image resources** as `PIL.Image` objects for global use.
+- **Resource Management & Static Config**: Managed by `YamlLoader` in `src/utils/config_loader.py`. It loads static configurations from `config/config.yaml` and lazily caches image resources as `PIL.Image` objects per loader instance.
 
 ## Building and Running
 
@@ -31,7 +31,7 @@ Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
-Key dependencies include `PySide6`, `qdarkstyle`, `pywin32`, `opencv-python`, `mss`, `Pillow`, `pynput`, `pyserial`, `keyring`, `pyyaml`, and `ai-edge-litert`.
+Key dependencies include `PySide6`, `qdarkstyle`, `pywin32`, `opencv-python`, `mss`, `Pillow`, `pynput`, `pyserial`, `keyring`, `PyYAML`, and `ai_edge_litert`.
 
 ### 3. Running the Application
 
@@ -39,7 +39,7 @@ To launch the graphical interface:
 ```bash
 python main.py
 ```
-This will open the "Guai Guai Automation Control Center". You can click buttons to start tasks and use the "STOP" button to interrupt them immediately.
+This will open the "Automation Control Center". You can click buttons to start tasks and use the "STOP" button to interrupt them immediately.
 
 ### 4. CI/CD & Automated Packaging
 
@@ -62,7 +62,7 @@ The project uses GitHub Actions for automated build and release workflows. The w
         - `runesolver.py`, `pause.py`: Interruption states for solving runes and pausing when unsafe.
         - `waiting.py`: Idle states used during cooldown periods.
     - `RouteRecorder.py`: Tool for recording keyboard input sequences.
-    - `DailyBoss.py`, `DailyPrepare.py`, `MonsterCollection.py`, `Storage.py`, `DancingMachine.py`: Specific task modules.
+    - `DailyPrepare.py`, `MonsterCollection.py`, `Storage.py`, `DancingMachine.py`: Supported task modules.
 - `src/ui/`: Contains GUI-related code.
     - `app_window.py`: The main window layout and signal/slot logic.
     - `task_manager.py`: Manages background threads for script execution.
@@ -82,8 +82,8 @@ The project uses GitHub Actions for automated build and release workflows. The w
 - `tools/`: Supplementary tools like `KeyLogger.py`.
 
 ### Coordinate Systems & Multi-Monitor Support
-- **Primary-Monitor Relative**: The project uses the standard Windows coordinate system where the **top-left of the primary monitor is (0,0)**.
-- **Unified Logic**: Both `mss` (for screen capture) and `win32api` (for mouse/window positioning) operate in this same virtual screen coordinate space. 
+- **Windows Virtual-Desktop Coordinates**: Window rectangles returned by `win32gui.GetWindowRect` and the regions captured by `mss` use the same virtual-desktop coordinate space. Coordinates may be negative for monitors placed left of or above the primary monitor.
+- **Unified Logic**: Both `mss` (for screen capture) and Windows APIs used for mouse/window positioning operate in this same coordinate space.
 - **No Manual Offsets for Capture**: Do not apply manual offsets like `screen_offset` or virtual screen normalization for full-screen or window-level capture.
 - **UI Offsets for Detection**: Specific interaction areas (e.g., skill slots, minimap, rune arrows) are defined using `ui_offsets` in `config.yaml` relative to the game window's client area.
 
@@ -96,11 +96,12 @@ The project uses GitHub Actions for automated build and release workflows. The w
 ### Configuration & Storage
 - **AppData Storage**: `SettingsManager` virtualizes paths and routes data into specific subdirectories in `AppData/Local/MapleScriptTeam/MapleScript`:
     - `skills/`: User-defined skill images and hotkeys.
+    - `toggle/`: Toggle-skill configuration.
     - `routes/`: Recorded keyboard sequences (`recorded_route.json`).
     - `tasks/`: Toggles and parameters for various automation tasks.
     - `system/`: Hardware serial numbers and connection settings.
 - **Path Virtualization**: Uses the `$APP_DATA$` prefix in JSON files to ensure absolute image paths are correctly resolved across different environments.
-- **Static Config & Resource Manager**: `YamlLoader` (`config_loader.py`) centralizes UI offsets and image resources, providing pre-loaded `PIL.Image` objects to scripts.
+- **Static Config & Resource Manager**: `YamlLoader` (`config_loader.py`) centralizes UI offsets and image resources. Each loader instance lazily caches its loaded `PIL.Image` objects for reuse by that instance.
 
 ### Grinding State Machine (FSM)
 The grinding routine ([MapleGrind](src/MapleGrind.py)) is structured as a Finite State Machine managed by `Machine` ([MapleMachine.py](src/MapleMachine.py)) to decouple behavior logic (see [src/states/README.md](src/states/README.md) for detailed architecture):

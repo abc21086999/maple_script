@@ -11,7 +11,6 @@ from src.ui.hardware_setup_dialog import HardwareSetupDialog
 from src.MapleGrind import MapleGrind
 from src.DailyPrepare import DailyPrepare
 from src.MonsterCollection import MonsterCollection
-from src.DailyBoss import DailyBoss
 from src.Storage import Storage
 from src.DancingMachine import Dancing
 from pathlib import Path

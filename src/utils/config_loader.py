@@ -135,21 +135,6 @@ class YamlLoader:
         return images
 
     @cached_property
-    def daily_boss_images(self) -> dict:
-        """
-        載入每日Boss相關圖片
-        """
-        config = self.__config.get('daily_boss', {})
-        result = {}
-        # config 結構為 Category/Boss -> Key -> Filename
-        for category, items in config.items():
-            result[category] = {}
-            for key, filename in items.items():
-                img_path = self.__photo_path / "boss" / filename
-                result[category][key] = PIL.Image.open(img_path)
-        return result
-
-    @cached_property
     def rune_box_edge(self):
         return PIL.Image.open(self.__photo_path / "rune_box_edge.png")
 
