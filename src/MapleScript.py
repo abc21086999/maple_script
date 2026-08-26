@@ -74,7 +74,7 @@ class MapleScript(ABC):
         # 打開總覽界面
         self.press_and_wait("esc")
         # 確保有打開
-        while self.should_continue() and not self.is_on_screen(self.yaml_loader.menu["menu_market_icon"]):
+        while self.should_continue() and self.is_maple_focus() and not self.is_on_screen(self.yaml_loader.menu["menu_market_icon"]):
             self.sleep(0.5)
             self.press_and_wait("esc")
         return None

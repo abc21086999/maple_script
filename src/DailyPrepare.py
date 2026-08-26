@@ -38,6 +38,8 @@ class DailyPrepare(MapleScript):
             # 等待界面出現
             while not self.is_on_screen(imgs['daily_apply']):
                 self.sleep(0.1)
+                if not self.should_continue() or not self.is_maple_focus():
+                    return None
 
             # 移動過去練功的圖案，並且點下去
             if self.is_on_screen(target_img):
@@ -71,7 +73,7 @@ class DailyPrepare(MapleScript):
         # 確保在遊戲視窗內
         if self.is_maple_focus():
             for skill in skills:
-                if not self.should_continue(): 
+                if not self.should_continue() or not self.is_maple_focus():
                     break
                 
                 # 檢查是否啟用
@@ -253,6 +255,8 @@ class DailyPrepare(MapleScript):
             # 等待開啟HD界面
             while not self.is_on_screen(imgs["hd_title"]):
                 self.sleep(0.5)
+                if not self.should_continue() or not self.is_maple_focus():
+                    return None
 
             # 如果這個月都已經領完了，那就離開
             if self.is_on_screen(imgs['all_received']):
