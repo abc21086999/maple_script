@@ -27,7 +27,8 @@ class MapleGrind(MapleScript):
     @cached_property
     def user_skills(self) -> list[Skill]:
         """
-        從 settings.yaml 讀取使用者自定義的練功技能，並載入圖片。
+        從 settings 讀取使用者自定義的練功技能，並載入圖片。
+        支援舊版 list[dict] 相容與新版 dict 預設組格式。
         使用 cached_property 確保只載入一次。
         Returns:
             list[Skill]: [Skill(key="a", image=PIL.Image), ...]
@@ -35,12 +36,21 @@ class MapleGrind(MapleScript):
         # 1. 取得純資料
         raw_skills = self.settings.get('grind_skills', default=[])
         
-        if not isinstance(raw_skills, list):
+        if isinstance(raw_skills, list):
+            target_skills = raw_skills
+        elif isinstance(raw_skills, dict):
+            active_preset = str(raw_skills.get('active_preset', 0))
+            presets = raw_skills.get('presets', {})
+            target_skills = presets.get(active_preset, [])
+        else:
+            target_skills = []
+
+        if not isinstance(target_skills, list):
             return []
 
         loaded_skills = []
 
-        for item in raw_skills:
+        for item in target_skills:
             # 必須啟用且有圖片路徑
             if not item.get('enabled', False) or not item.get('image_path'):
                 continue

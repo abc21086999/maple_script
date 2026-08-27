@@ -5,14 +5,13 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QCheckBox,
     QComboBox, QPushButton, QLabel, QScrollArea,
     QWidget, QFileDialog, QFrame, QDialogButtonBox, QMessageBox,
-    QTabWidget, QApplication
+    QTabWidget
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from src.RouteRecorder import RouteRecorder
 import ctypes
-import sys
-import subprocess
+
 
 class SkillRow(QWidget):
     def __init__(self, parent_dialog, base_data_path, data=None):
@@ -178,7 +177,84 @@ class SkillRow(QWidget):
         self.parent_dialog.remove_row(self)
 
 
+class SkillPresetTab(QWidget):
+    def __init__(self, parent_dialog, base_data_path, preset_index: int, on_active_toggled_callback):
+        super().__init__()
+        self.parent_dialog = parent_dialog
+        self.base_data_path = base_data_path
+        self.preset_index = preset_index
+        self.on_active_toggled = on_active_toggled_callback
+        self.rows = []
+        self._init_ui()
+
+    def _init_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(5, 5, 5, 5)
+
+        # 頂部控制列：啟用此預設組 (Checkbox)
+        top_layout = QHBoxLayout()
+        self.chk_active = QCheckBox("啟用此預設組")
+        self.chk_active.setStyleSheet("font-weight: bold;")
+        self.chk_active.toggled.connect(self._handle_toggled)
+        top_layout.addWidget(self.chk_active)
+        top_layout.addStretch()
+        layout.addLayout(top_layout)
+
+        # Scroll Area for Skills
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        self.scroll_content = QWidget()
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+        self.scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scroll.setWidget(self.scroll_content)
+        layout.addWidget(scroll)
+
+        # Add Button
+        btn_add = QPushButton("➕ 新增技能")
+        btn_add.clicked.connect(self.add_row)
+        layout.addWidget(btn_add)
+
+    def _handle_toggled(self, checked: bool):
+        self.on_active_toggled(self.preset_index, checked)
+
+    def set_active(self, active: bool):
+        self.chk_active.blockSignals(True)
+        self.chk_active.setChecked(active)
+        self.chk_active.blockSignals(False)
+
+    def is_active(self) -> bool:
+        return self.chk_active.isChecked()
+
+    def add_row(self, data=None):
+        if data is None:
+            data = {'enabled': True, 'key': 'a', 'image_path': ''}
+        row = SkillRow(self, self.base_data_path, data)
+        self.scroll_layout.addWidget(row)
+        self.rows.append(row)
+
+    def remove_row(self, row_obj):
+        if row_obj in self.rows:
+            self.rows.remove(row_obj)
+
+    def clear_rows(self):
+        for row in list(self.rows):
+            row.setParent(None)
+            row.deleteLater()
+        self.rows.clear()
+
+    def get_skills_data(self) -> list[dict]:
+        skills_data = []
+        for row in self.rows:
+            data = row.get_data()
+            if not data['image_path']:
+                continue
+            skills_data.append(data)
+        return skills_data
+
+
 class GrindSettingsDialog(QDialog):
+    NUM_PRESETS = 5
+
     def __init__(self, parent, settings_manager, task_manager=None, controller=None):
         super().__init__(parent)
         self.setWindowTitle("練功技能設定 (Grind Settings)")
@@ -187,7 +263,8 @@ class GrindSettingsDialog(QDialog):
         self.settings_manager = settings_manager
         self.task_manager = task_manager
         self.controller = controller
-        self.rows = []
+        self.preset_tabs = []
+        self.active_preset_index = 0
         
         self._setup_ui()
         self._load_settings()
@@ -454,20 +531,32 @@ class GrindSettingsDialog(QDialog):
         sub_header.setStyleSheet("color: gray; margin-bottom: 10px; font-size: 14px;")
         layout.addWidget(sub_header)
 
-        # Scroll Area for Skills
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        self.scroll_content = QWidget()
-        self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        # 技能預設組子分頁 (5組預設組)
+        self.skill_sub_tabs = QTabWidget()
+        self.preset_tabs = []
+        for i in range(self.NUM_PRESETS):
+            preset_tab = SkillPresetTab(
+                self, 
+                self.settings_manager.base_data_path, 
+                preset_index=i, 
+                on_active_toggled_callback=self.on_preset_toggled
+            )
+            self.preset_tabs.append(preset_tab)
+            self.skill_sub_tabs.addTab(preset_tab, f"預設組 {i + 1}")
         
-        scroll.setWidget(self.scroll_content)
-        layout.addWidget(scroll)
+        layout.addWidget(self.skill_sub_tabs)
 
-        # Add Button
-        btn_add = QPushButton("➕ 新增技能")
-        btn_add.clicked.connect(self.add_row)
-        layout.addWidget(btn_add)
+    def on_preset_toggled(self, preset_index: int, checked: bool):
+        if checked:
+            self.active_preset_index = preset_index
+            for i, tab in enumerate(self.preset_tabs):
+                if i != preset_index:
+                    tab.set_active(False)
+        else:
+            if self.active_preset_index == preset_index:
+                any_active = any(tab.is_active() for tab in self.preset_tabs)
+                if not any_active:
+                    self.active_preset_index = -1
 
     def _setup_protection_tab(self):
         layout = QVBoxLayout(self.tab_protection)
@@ -521,13 +610,35 @@ class GrindSettingsDialog(QDialog):
         self.combo_normal_skill.setEnabled(rune_enabled)
 
     def _load_settings(self):
-        # 1. Load Skills
-        skills_data = self.settings_manager.get("grind_skills", default=[])
-        if not isinstance(skills_data, list):
-            skills_data = []
+        # 1. Load Skills (支援舊格式 list[dict] 自動遷移)
+        skills_raw = self.settings_manager.get("grind_skills", default=[])
+        if isinstance(skills_raw, list):
+            migrated_data = {
+                "active_preset": 0,
+                "presets": {str(i): [] for i in range(self.NUM_PRESETS)}
+            }
+            migrated_data["presets"]["0"] = skills_raw
+            self.settings_manager.save("grind_skills", migrated_data)
+            skills_dict = migrated_data
+        elif isinstance(skills_raw, dict):
+            skills_dict = skills_raw
+        else:
+            skills_dict = {
+                "active_preset": 0,
+                "presets": {str(i): [] for i in range(self.NUM_PRESETS)}
+            }
 
-        for item in skills_data:
-            self.add_row(item)
+        self.active_preset_index = int(skills_dict.get("active_preset", 0))
+        presets_data = skills_dict.get("presets", {})
+
+        for i, tab in enumerate(self.preset_tabs):
+            tab.clear_rows()
+            tab_skills = presets_data.get(str(i), [])
+            if not isinstance(tab_skills, list):
+                tab_skills = []
+            for item in tab_skills:
+                tab.add_row(item)
+            tab.set_active(i == self.active_preset_index)
 
         # 2. Load Protection Settings & Loop Settings
         protection_data = self.settings_manager.get("grind_settings", default={})
@@ -577,28 +688,17 @@ class GrindSettingsDialog(QDialog):
             
             self.update_wander_ui_state()
 
-    def add_row(self, data=None):
-        if data is None:
-            data = {'enabled': True, 'key': 'a', 'image_path': ''}
-        
-        row = SkillRow(self, self.settings_manager.base_data_path, data)
-        self.scroll_layout.addWidget(row)
-        self.rows.append(row)
-
-    def remove_row(self, row_obj):
-        if row_obj in self.rows:
-            self.rows.remove(row_obj)
-
     def save_settings(self):
-        # 1. Save Skills
-        new_skills_data = []
-        for row in self.rows:
-            data = row.get_data()
-            if not data['image_path']:
-                continue
-            new_skills_data.append(data)
-            
-        self.settings_manager.save("grind_skills", new_skills_data)
+        # 1. Save Skills (5 組預設分頁)
+        presets_to_save = {}
+        for i, tab in enumerate(self.preset_tabs):
+            presets_to_save[str(i)] = tab.get_skills_data()
+
+        skills_save_data = {
+            "active_preset": self.active_preset_index,
+            "presets": presets_to_save
+        }
+        self.settings_manager.save("grind_skills", skills_save_data)
 
         # 2. Save Protection & Loop Settings
         protection_data = {
