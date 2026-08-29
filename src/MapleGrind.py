@@ -259,6 +259,161 @@ class MapleGrind(MapleScript):
                 # 在右邊，面向左
                 self.press("left")
 
+    def up_jump(self):
+        """
+        模擬向上跳躍：依據設定動態選擇『上跳技能』或『上跳組合』
+        """
+        if not self.is_maple_focus():
+            return
+
+        jk = self.jump_key
+
+        # 如果有設定上跳技能
+        if self.is_up_jump_skill_enabled:
+            self.press(self.up_jump_skill_key)
+            self.sleep(0.5)
+
+        # 如果是一般的上跳組合
+        elif self.is_up_jump_combo_enabled:
+
+            if self.up_jump_combo == "跳+上+跳":
+                self.press(jk)
+                self.sleep(0.1)
+                self.key_down("up")
+                self.press(jk)
+                self.key_up("up")
+                self.sleep(0.5)
+
+            elif self.up_jump_combo == "跳+上+上":
+                self.press(jk)
+                self.sleep(0.1)
+                self.press("up")
+                self.sleep(0.05)
+                self.press("up")
+                self.sleep(0.5)
+        else:
+            # 未勾選時的預設上跳行為 (跳 + 上 + 跳)
+            self.press(jk)
+            self.sleep(0.1)
+            self.key_down("up")
+            self.press(jk)
+            self.key_up("up")
+            self.sleep(0.5)
+
+    def down_jump(self):
+        """
+        模擬向下跳躍 (Down + 跳躍鍵)
+        """
+        if self.is_maple_focus():
+            jk = self.jump_key
+            self.key_down("down")
+            self.press(jk)
+            self.sleep(0.1)
+            self.key_up("down")
+            self.sleep(0.5)
+
+    def move_to_point(self, target_x: int, target_y: int, threshold: int = 3):
+        """
+        導航至小地圖上的特定座標
+        """
+        self.log(f"開始導航至目標座標")
+
+        current_dir = None  # 紀錄硬體目前的物理狀態 (None, "left", "right")
+
+        # 定義一個內部的同步函數，只在狀態改變時發送指令
+        def sync_hardware(new_dir):
+            nonlocal current_dir
+            if new_dir == current_dir:
+                return  # 狀態沒變，不發指令，不浪費時間
+
+            # 狀態改變了，先確保之前的方向鍵放開
+            if current_dir:
+                self.key_up(current_dir)
+
+            # 再按下新的方向鍵
+            if new_dir:
+                self.key_down(new_dir)
+
+            current_dir = new_dir  # 更新記憶狀態
+
+        # 一個用於脫困用的函數
+        def escape():
+            nonlocal current_dir
+            if current_dir:
+                self.key_up(current_dir)
+                self.sleep(0.1)
+                self.key_down("down")
+                self.sleep(3)
+                self.key_up("down")
+                self.sleep(0.1)
+                self.key_down(current_dir)
+
+        try:
+            is_stuck_counter = 0
+            last_position = None
+            while self.should_continue() and self.is_maple_focus():
+                curr = self.get_player_pos()
+                if not curr:
+                    self.log("找不到玩家位置，等待中...")
+                    self.sleep(0.5)
+                    continue
+
+                cx, cy = curr
+                dx = target_x - cx
+                dy = target_y - cy
+
+                # 判斷是否抵達目標 (水平與垂直都到位)
+                if abs(dx) <= threshold and abs(dy) <= threshold:
+                    self.log("已抵達目標點")
+                    break
+
+                # --- 決定理想的方向 (拆解寫法，一目瞭然) ---
+                if dx > threshold:
+                    target_dir = "right"
+                elif dx < -threshold:
+                    target_dir = "left"
+                else:
+                    target_dir = None
+
+                # --- 同步硬體狀態 (只在方向改變時發指令) ---
+                sync_hardware(target_dir)
+
+                # 處理垂直移動 (這部分會與水平同時進行)
+                # 只有在接近目標 X 座標時才處理 Y，避免因為地形跳過頭
+                if abs(dx) <= threshold * 3:
+                    if dy < -threshold:  # 目標在上方
+                        self.up_jump()
+                    elif dy > threshold:  # 目標在下方
+                        self.down_jump()
+
+                # 迴圈頻率穩定維持 20fps (0.05s)
+                # 因為 sync_hardware 絕大部分時間會 return，所以迴圈反應極快
+                self.sleep(0.05)
+
+                # 如果角色位置都沒有改變，那麼就是卡住了
+                # 增加一個卡住計數器
+                if last_position is not None:
+                    if last_position == curr:
+                        is_stuck_counter += 1
+
+                    # 如果位置不同，那就清空計數器
+                    else:
+                        is_stuck_counter = 0
+
+                last_position = curr
+
+                # 計數器數量多到一定程度代表玩家卡住了，就執行脫困，然後清空計數器
+                if is_stuck_counter >= 40:
+                    self.log(f'偵測到玩家卡在繩子上，將離開繩子')
+                    escape()
+                    is_stuck_counter = 0
+                    last_position = None
+
+        finally:
+            # 確保退出時同步為停止狀態，並釋放所有可能的按鍵
+            sync_hardware(None)
+            self.release_all()
+
     @cached_property
     def is_stationary(self) -> bool:
         """是否為定點練功模式"""
@@ -335,6 +490,38 @@ class MapleGrind(MapleScript):
     def wander_hold_key(self) -> str:
         """隨機跑圖長壓的按鍵名稱"""
         return self.__settings.get("wander_hold_key", "shift")
+
+    @cached_property
+    def is_up_jump_combo_enabled(self) -> bool:
+        """是否啟用上跳組合"""
+        return self.__settings.get("enable_up_jump_combo", False)
+
+    @cached_property
+    def up_jump_combo(self) -> str:
+        """上跳組合類型 ('跳+上+跳' 或 '跳+上+上')"""
+        return self.__settings.get("up_jump_combo", "跳+上+跳")
+
+    @cached_property
+    def is_jump_key_enabled(self) -> bool:
+        """是否指定跳躍按鍵"""
+        return self.__settings.get("enable_jump_key", True)
+
+    @cached_property
+    def jump_key(self) -> str:
+        """跳躍按鍵名稱 (若未啟用指定跳躍按鍵，預設回退為 'alt')"""
+        if not self.is_jump_key_enabled:
+            return "alt"
+        return self.__settings.get("jump_key", "alt")
+
+    @cached_property
+    def is_up_jump_skill_enabled(self) -> bool:
+        """是否啟用上跳技能"""
+        return self.__settings.get("enable_up_jump_skill", False)
+
+    @cached_property
+    def up_jump_skill_key(self) -> str:
+        """上跳技能按鍵名稱 (預設 'c')"""
+        return self.__settings.get("up_jump_skill_key", "c")
 
     def random_wander(self):
         """

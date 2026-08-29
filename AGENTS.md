@@ -9,7 +9,7 @@ The architecture is composed of three main parts:
 2.  **A Python control script (Backend)**: Running on a **Windows** host computer. It uses computer vision libraries (`mss`, `OpenCV`, `Pillow`) and Windows-specific APIs (`pywin32`) to interact with the game window. It recognizes game elements by matching them against images in the `photos/` directory to decide on the next action. AI-powered rune detection is handled by `src/utils/rune_detector.py` using TFLite models in `models/`.
 3.  **A Seeed Studio Xiao ESP32S3 microcontroller**: Acting as a hardware-level input device. It runs `CircuitPython` and receives commands from the host PC via a USB serial connection. It translates these commands into actual keyboard presses and mouse movements, making the automation difficult to distinguish from human input.
 
-The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities, **thread-safety mechanisms**, and **minimap-based navigation** (`move_to_point`). Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyPrepare`, `RouteRecorder`) inherit from the base `MapleScript` class. Particularly, the grinding automation ([MapleGrind](src/MapleGrind.py)) is implemented using a Finite State Machine (FSM) architecture, delegating state behaviors to individual classes under `src/states/` and managed by [MapleMachine.py](src/MapleMachine.py).
+The core logic is encapsulated in `src/MapleScript.py`, which provides base functionalities, input handling, and **thread-safety mechanisms**. Computer vision tasks are delegated to `src/utils/maple_vision.py`. Low-level window management is handled by `src/utils/windows_object.py`. Specific automation routines (e.g., `MapleGrind`, `DailyPrepare`, `RouteRecorder`) inherit from the base `MapleScript` class. Particularly, the grinding automation ([MapleGrind](src/MapleGrind.py)) includes **minimap-based navigation** (`move_to_point`) and is implemented using a Finite State Machine (FSM) architecture, delegating state behaviors to individual classes under `src/states/` and managed by [MapleMachine.py](src/MapleMachine.py).
 
 Settings and resources are managed by a **hybrid storage system**:
 - **General Preferences & Dynamic Data**: Stored as JSON files in `AppData/Local` (managed by `SettingsManager`). This includes skill configurations, recorded routes, and task-specific toggles.
@@ -53,8 +53,8 @@ The project uses GitHub Actions for automated build and release workflows. The w
 - `main.py`: **GUI Entry Point**. Initializes the `PySide6` application and hardware connection.
 - `.github/workflows/python-app.yml`: GitHub Actions workflow configuration file, utilizing `uv` and `Nuitka` for automated compilation and release of the Windows standalone executable.
 - `src/`: Core logic and task implementations.
-    - `MapleScript.py`: Base class for all scripts. Includes minimap navigation (`move_to_point`), input handling, and hardware safety mechanisms.
-    - `MapleGrind.py`: Entry point for hunting/grinding automation. It initializes the state machine to run the grind loop.
+    - `MapleScript.py`: Base class for all scripts. Includes input handling, base automation utilities, and hardware safety mechanisms.
+    - `MapleGrind.py`: Entry point for hunting/grinding automation. Includes minimap navigation (`move_to_point`) and initializes the state machine to run the grind loop.
     - `MapleMachine.py`: State machine manager (`Machine`) that drives the grinding loop, handles state transitions, and manages an interruption stack.
     - `states/`: Directory containing concrete states for the grinding FSM (detailed documentation in [src/states/README.md](src/states/README.md)):
         - `base.py`: The abstract base class for all states.

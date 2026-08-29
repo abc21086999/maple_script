@@ -455,8 +455,13 @@ class GrindSettingsDialog(QDialog):
         self.chk_enable_wander.toggled.connect(self.update_wander_ui_state)
         layout.addWidget(self.chk_enable_wander)
 
-        face_center_layout = QHBoxLayout()
-        face_center_layout.setContentsMargins(20, 0, 0, 0)
+        keys = (
+            [chr(i) for i in range(ord('a'), ord('z')+1)] + 
+            [str(i) for i in range(10)] + 
+            ["'", '-', '=', '`', ';', '[', ']', ',', '.', '/', '\\'] +
+            [f'f{i}' for i in range(1, 13)] +
+            ['shift', 'ctrl', 'alt', 'space', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown']
+        )
 
         # 1. 跑圖持續時間
         dur_layout = QHBoxLayout()
@@ -473,14 +478,62 @@ class GrindSettingsDialog(QDialog):
         dur_layout.addStretch()
         layout.addLayout(dur_layout)
 
-        # 2. 面向中心
+        # 2. 上跳組合設定
+        jump_combo_layout = QHBoxLayout()
+        jump_combo_layout.setContentsMargins(20, 0, 0, 0)
+        self.chk_enable_up_jump_combo = QCheckBox("啟用上跳組合：")
+        self.chk_enable_up_jump_combo.setToolTip("勾選後，隨機跑圖將使用指定的按鍵組合進行上跳（與上跳技能互斥）")
+        self.chk_enable_up_jump_combo.toggled.connect(self._on_up_jump_combo_toggled)
+        jump_combo_layout.addWidget(self.chk_enable_up_jump_combo)
+
+        self.combo_up_jump_combo = QComboBox()
+        jump_combos = ["跳+上+跳", "跳+上+上"]
+        self.combo_up_jump_combo.addItems(jump_combos)
+        self.combo_up_jump_combo.setFixedWidth(120)
+        jump_combo_layout.addWidget(self.combo_up_jump_combo)
+        jump_combo_layout.addStretch()
+        layout.addLayout(jump_combo_layout)
+
+        # 3. 跳躍按鍵設定（供上跳組合使用）
+        jump_key_layout = QHBoxLayout()
+        jump_key_layout.setContentsMargins(40, 0, 0, 0)
+        self.chk_enable_jump_key = QCheckBox("指定跳躍按鍵：")
+        self.chk_enable_jump_key.setToolTip("設定角色跳躍對應的按鍵，供上跳組合判斷使用")
+        self.chk_enable_jump_key.toggled.connect(self.update_wander_ui_state)
+        jump_key_layout.addWidget(self.chk_enable_jump_key)
+
+        self.combo_jump_key = QComboBox()
+        self.combo_jump_key.addItems(keys)
+        self.combo_jump_key.setFixedWidth(100)
+        jump_key_layout.addWidget(self.combo_jump_key)
+        jump_key_layout.addStretch()
+        layout.addLayout(jump_key_layout)
+
+        # 4. 上跳技能設定
+        jump_skill_layout = QHBoxLayout()
+        jump_skill_layout.setContentsMargins(20, 0, 0, 0)
+        self.chk_enable_up_jump_skill = QCheckBox("啟用上跳技能：")
+        self.chk_enable_up_jump_skill.setToolTip("勾選後，隨機跑圖將使用單一技能按鍵進行上跳（與上跳組合互斥）")
+        self.chk_enable_up_jump_skill.toggled.connect(self._on_up_jump_skill_toggled)
+        jump_skill_layout.addWidget(self.chk_enable_up_jump_skill)
+
+        self.combo_up_jump_skill = QComboBox()
+        self.combo_up_jump_skill.addItems(keys)
+        self.combo_up_jump_skill.setFixedWidth(100)
+        jump_skill_layout.addWidget(self.combo_up_jump_skill)
+        jump_skill_layout.addStretch()
+        layout.addLayout(jump_skill_layout)
+
+        # 5. 面向中心
+        face_center_layout = QHBoxLayout()
+        face_center_layout.setContentsMargins(20, 0, 0, 0)
         self.chk_face_center = QCheckBox("結束後讓角色面向中心（怪多的一側）")
         self.chk_face_center.setToolTip("回歸原點後，自動根據座標讓角色面向地圖中心")
         face_center_layout.addWidget(self.chk_face_center)
         face_center_layout.addStretch()
         layout.addLayout(face_center_layout)
 
-        # 3. 走路時長壓按鍵（如瞬間移動）
+        # 6. 走路時長壓按鍵（如瞬間移動）
         hold_key_layout = QHBoxLayout()
         hold_key_layout.setContentsMargins(20, 0, 0, 0)
         self.chk_enable_wander_hold_key = QCheckBox("走路時長壓指定按鍵（如瞬間移動）：")
@@ -489,20 +542,13 @@ class GrindSettingsDialog(QDialog):
         hold_key_layout.addWidget(self.chk_enable_wander_hold_key)
 
         self.combo_wander_hold_key = QComboBox()
-        keys = (
-            [chr(i) for i in range(ord('a'), ord('z')+1)] + 
-            [str(i) for i in range(10)] + 
-            ["'", '-', '=', '`', ';', '[', ']', ',', '.', '/', '\\'] +
-            [f'f{i}' for i in range(1, 13)] +
-            ['shift', 'ctrl', 'alt', 'space', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown']
-        )
         self.combo_wander_hold_key.addItems(keys)
         self.combo_wander_hold_key.setFixedWidth(100)
         hold_key_layout.addWidget(self.combo_wander_hold_key)
         hold_key_layout.addStretch()
         layout.addLayout(hold_key_layout)
 
-        # 4. 循環冷卻設定
+        # 7. 循環冷卻設定
         cool_layout = QHBoxLayout()
         cool_layout.setContentsMargins(20, 10, 0, 0)
         self.chk_enable_wander_interval = QCheckBox("啟用循環冷卻：每")
@@ -516,6 +562,18 @@ class GrindSettingsDialog(QDialog):
         cool_layout.addWidget(QLabel("秒重複一次"))
         cool_layout.addStretch()
         layout.addLayout(cool_layout)
+
+    def _on_up_jump_combo_toggled(self, checked: bool):
+        if checked:
+            if self.chk_enable_up_jump_skill.isChecked():
+                self.chk_enable_up_jump_skill.setChecked(False)
+        self.update_wander_ui_state()
+
+    def _on_up_jump_skill_toggled(self, checked: bool):
+        if checked:
+            if self.chk_enable_up_jump_combo.isChecked():
+                self.chk_enable_up_jump_combo.setChecked(False)
+        self.update_wander_ui_state()
 
     def update_wander_ui_state(self):
         """根據 Checkbox 狀態啟用/停用隨機跑圖相關 UI"""
@@ -531,6 +589,18 @@ class GrindSettingsDialog(QDialog):
         self.chk_enable_wander_interval.setEnabled(wander_enabled)
         interval_enabled = self.chk_enable_wander_interval.isChecked()
         self.combo_wander_interval.setEnabled(wander_enabled and interval_enabled)
+
+        self.chk_enable_up_jump_combo.setEnabled(wander_enabled)
+        combo_enabled = self.chk_enable_up_jump_combo.isChecked()
+        self.combo_up_jump_combo.setEnabled(wander_enabled and combo_enabled)
+
+        self.chk_enable_jump_key.setEnabled(wander_enabled and combo_enabled)
+        jump_key_enabled = self.chk_enable_jump_key.isChecked()
+        self.combo_jump_key.setEnabled(wander_enabled and combo_enabled and jump_key_enabled)
+
+        self.chk_enable_up_jump_skill.setEnabled(wander_enabled)
+        skill_enabled = self.chk_enable_up_jump_skill.isChecked()
+        self.combo_up_jump_skill.setEnabled(wander_enabled and skill_enabled)
 
     def _setup_skills_tab(self):
         layout = QVBoxLayout(self.tab_skills)
@@ -716,6 +786,24 @@ class GrindSettingsDialog(QDialog):
             idx_wait = self.combo_wander_interval.findText(wait)
             if idx_wait >= 0:
                 self.combo_wander_interval.setCurrentIndex(idx_wait)
+
+            self.chk_enable_up_jump_combo.setChecked(protection_data.get("enable_up_jump_combo", False))
+            combo_val = protection_data.get("up_jump_combo", "跳+上+跳")
+            idx_combo = self.combo_up_jump_combo.findText(combo_val)
+            if idx_combo >= 0:
+                self.combo_up_jump_combo.setCurrentIndex(idx_combo)
+
+            self.chk_enable_jump_key.setChecked(protection_data.get("enable_jump_key", True))
+            jump_k = protection_data.get("jump_key", "alt")
+            idx_jk = self.combo_jump_key.findText(jump_k)
+            if idx_jk >= 0:
+                self.combo_jump_key.setCurrentIndex(idx_jk)
+
+            self.chk_enable_up_jump_skill.setChecked(protection_data.get("enable_up_jump_skill", False))
+            skill_k = protection_data.get("up_jump_skill_key", "c")
+            idx_sk = self.combo_up_jump_skill.findText(skill_k)
+            if idx_sk >= 0:
+                self.combo_up_jump_skill.setCurrentIndex(idx_sk)
             
             self.update_wander_ui_state()
 
@@ -749,7 +837,13 @@ class GrindSettingsDialog(QDialog):
             "wander_hold_key": self.combo_wander_hold_key.currentText() if hasattr(self, 'combo_wander_hold_key') else "shift",
             "enable_random_wander_interval": self.chk_enable_wander_interval.isChecked() if hasattr(self, 'chk_enable_wander_interval') else False,
             "random_wander_duration": int(self.combo_wander_duration.currentText()) if hasattr(self, 'combo_wander_duration') else 30,
-            "random_wander_interval": int(self.combo_wander_interval.currentText()) if hasattr(self, 'combo_wander_interval') else 50
+            "random_wander_interval": int(self.combo_wander_interval.currentText()) if hasattr(self, 'combo_wander_interval') else 50,
+            "enable_up_jump_combo": self.chk_enable_up_jump_combo.isChecked() if hasattr(self, 'chk_enable_up_jump_combo') else False,
+            "up_jump_combo": self.combo_up_jump_combo.currentText() if hasattr(self, 'combo_up_jump_combo') else "跳+上+跳",
+            "enable_jump_key": self.chk_enable_jump_key.isChecked() if hasattr(self, 'chk_enable_jump_key') else True,
+            "jump_key": self.combo_jump_key.currentText() if hasattr(self, 'combo_jump_key') else "alt",
+            "enable_up_jump_skill": self.chk_enable_up_jump_skill.isChecked() if hasattr(self, 'chk_enable_up_jump_skill') else False,
+            "up_jump_skill_key": self.combo_up_jump_skill.currentText() if hasattr(self, 'combo_up_jump_skill') else "c"
         }
         self.settings_manager.save("grind_settings", protection_data)
 
