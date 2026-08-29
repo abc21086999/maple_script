@@ -326,6 +326,16 @@ class MapleGrind(MapleScript):
         """隨機跑圖的循環冷卻秒數"""
         return int(self.__settings.get("random_wander_interval", 50))
 
+    @cached_property
+    def is_wander_hold_key_enabled(self) -> bool:
+        """隨機跑圖時是否長壓指定按鍵"""
+        return self.__settings.get("enable_wander_hold_key", False)
+
+    @cached_property
+    def wander_hold_key(self) -> str:
+        """隨機跑圖長壓的按鍵名稱"""
+        return self.__settings.get("wander_hold_key", "shift")
+
     def random_wander(self):
         """
         在指定時間內隨機左右亂逛，靠近邊界 20px 自動轉向，最後回到原位。
@@ -360,7 +370,10 @@ class MapleGrind(MapleScript):
                 self.key_down(new_dir)
             last_dir = new_dir
 
+        hold_key = self.wander_hold_key if self.is_wander_hold_key_enabled else None
+
         try:
+
             while self.should_continue() and time.time() < end_time and self.is_maple_focus():
                 # 取得目前位置
                 curr = self.get_player_pos()
@@ -378,6 +391,10 @@ class MapleGrind(MapleScript):
                 
                 # 執行移動
                 sync_dir(current_dir)
+
+                if hold_key:
+                    print(hold_key)
+                    self.press(hold_key)
                 
                 # 10% 機率隨機跳躍，根據高度位置調整權重 (8:2)
                 if random.random() < 0.1:
@@ -393,6 +410,7 @@ class MapleGrind(MapleScript):
                 self.sleep(0.1)
         finally:
             sync_dir(None) # 停止移動
+            self.release_all()
             self.go_back(*origin)
 
         # 回歸後自動面向中心

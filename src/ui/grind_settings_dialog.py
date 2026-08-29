@@ -480,9 +480,29 @@ class GrindSettingsDialog(QDialog):
         face_center_layout.addStretch()
         layout.addLayout(face_center_layout)
 
+        # 3. 走路時長壓按鍵（如瞬間移動）
+        hold_key_layout = QHBoxLayout()
+        hold_key_layout.setContentsMargins(20, 0, 0, 0)
+        self.chk_enable_wander_hold_key = QCheckBox("走路時長壓指定按鍵（如瞬間移動）：")
+        self.chk_enable_wander_hold_key.setToolTip("勾選後，隨機跑圖移動期間將會持續按著指定按鍵")
+        self.chk_enable_wander_hold_key.toggled.connect(self.update_wander_ui_state)
+        hold_key_layout.addWidget(self.chk_enable_wander_hold_key)
 
+        self.combo_wander_hold_key = QComboBox()
+        keys = (
+            [chr(i) for i in range(ord('a'), ord('z')+1)] + 
+            [str(i) for i in range(10)] + 
+            ["'", '-', '=', '`', ';', '[', ']', ',', '.', '/', '\\'] +
+            [f'f{i}' for i in range(1, 13)] +
+            ['shift', 'ctrl', 'alt', 'space', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown']
+        )
+        self.combo_wander_hold_key.addItems(keys)
+        self.combo_wander_hold_key.setFixedWidth(100)
+        hold_key_layout.addWidget(self.combo_wander_hold_key)
+        hold_key_layout.addStretch()
+        layout.addLayout(hold_key_layout)
 
-        # 3. 循環冷卻設定
+        # 4. 循環冷卻設定
         cool_layout = QHBoxLayout()
         cool_layout.setContentsMargins(20, 10, 0, 0)
         self.chk_enable_wander_interval = QCheckBox("啟用循環冷卻：每")
@@ -502,9 +522,13 @@ class GrindSettingsDialog(QDialog):
         wander_enabled = self.chk_enable_wander.isChecked()
         self.lbl_wander_dur.setEnabled(wander_enabled)
         self.combo_wander_duration.setEnabled(wander_enabled)
-        self.chk_enable_wander_interval.setEnabled(wander_enabled)
         self.chk_face_center.setEnabled(wander_enabled)
+        self.chk_enable_wander_hold_key.setEnabled(wander_enabled)
         
+        hold_key_enabled = self.chk_enable_wander_hold_key.isChecked()
+        self.combo_wander_hold_key.setEnabled(wander_enabled and hold_key_enabled)
+
+        self.chk_enable_wander_interval.setEnabled(wander_enabled)
         interval_enabled = self.chk_enable_wander_interval.isChecked()
         self.combo_wander_interval.setEnabled(wander_enabled and interval_enabled)
 
@@ -674,6 +698,13 @@ class GrindSettingsDialog(QDialog):
         if hasattr(self, 'chk_enable_wander'):
             self.chk_enable_wander.setChecked(protection_data.get("enable_random_wander", False))
             self.chk_face_center.setChecked(protection_data.get("face_center_after_wander", False))
+            self.chk_enable_wander_hold_key.setChecked(protection_data.get("enable_wander_hold_key", False))
+            
+            hold_key = protection_data.get("wander_hold_key", "shift")
+            idx_hold = self.combo_wander_hold_key.findText(hold_key)
+            if idx_hold >= 0:
+                self.combo_wander_hold_key.setCurrentIndex(idx_hold)
+
             self.chk_enable_wander_interval.setChecked(protection_data.get("enable_random_wander_interval", False))
             
             dur = str(protection_data.get("random_wander_duration", 30))
@@ -714,6 +745,8 @@ class GrindSettingsDialog(QDialog):
             # Wander Settings
             "enable_random_wander": self.chk_enable_wander.isChecked() if hasattr(self, 'chk_enable_wander') else False,
             "face_center_after_wander": self.chk_face_center.isChecked() if hasattr(self, 'chk_face_center') else False,
+            "enable_wander_hold_key": self.chk_enable_wander_hold_key.isChecked() if hasattr(self, 'chk_enable_wander_hold_key') else False,
+            "wander_hold_key": self.combo_wander_hold_key.currentText() if hasattr(self, 'combo_wander_hold_key') else "shift",
             "enable_random_wander_interval": self.chk_enable_wander_interval.isChecked() if hasattr(self, 'chk_enable_wander_interval') else False,
             "random_wander_duration": int(self.combo_wander_duration.currentText()) if hasattr(self, 'combo_wander_duration') else 30,
             "random_wander_interval": int(self.combo_wander_interval.currentText()) if hasattr(self, 'combo_wander_interval') else 50
