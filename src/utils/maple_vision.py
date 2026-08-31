@@ -98,7 +98,7 @@ class MapleVision:
 
         # 1. 鎖定搜尋範圍：只看視窗左上角 1/4 區域
         full_x, full_y, full_w, full_h = self.maple_full_screen_area
-        roi_w, roi_h = full_w // 6, full_h // 3
+        roi_w, roi_h = full_w // 2, full_h // 2
 
         # 截圖 (BGR)
         img_np = self._capture((full_x, full_y, roi_w, roi_h))
