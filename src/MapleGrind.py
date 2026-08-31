@@ -546,18 +546,22 @@ class MapleGrind(MapleScript):
         
         # 同步硬體的輔助函數
         last_dir = None
+        hold_key = self.wander_hold_key if self.is_wander_hold_key_enabled else None
+        key_held = False
 
         def sync_dir(new_dir):
-            nonlocal last_dir
+            nonlocal last_dir, key_held
             if new_dir == last_dir:
                 return
+            # 轉向時若有按住技能鍵，先放開以便轉向後重新補壓
+            if hold_key and key_held:
+                self.key_up(hold_key)
+                key_held = False
             if last_dir:
                 self.key_up(last_dir)
             if new_dir:
                 self.key_down(new_dir)
             last_dir = new_dir
-
-        hold_key = self.wander_hold_key if self.is_wander_hold_key_enabled else None
 
         try:
 
@@ -579,9 +583,9 @@ class MapleGrind(MapleScript):
                 # 執行移動
                 sync_dir(current_dir)
 
-                if hold_key:
-                    print(hold_key)
-                    self.press(hold_key)
+                if hold_key and not key_held:
+                    self.key_down(hold_key)
+                    key_held = True
                 
                 # 10% 機率隨機跳躍，根據高度位置調整權重 (8:2)
                 if random.random() < 0.1:
@@ -592,6 +596,11 @@ class MapleGrind(MapleScript):
                         # 在上面，優先往下跳
                         jump_action = random.choices([self.up_jump, self.down_jump], weights=[20, 80])[0]
                     
+                    # 跳躍前若有按住技能鍵，先放開以避免跳躍動作被阻擋，落地後會自動補壓
+                    if hold_key and key_held:
+                        self.key_up(hold_key)
+                        key_held = False
+
                     jump_action()
                 
                 self.sleep(0.1)
