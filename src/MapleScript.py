@@ -38,6 +38,7 @@ class MapleScript(ABC):
         清理資源，例如關閉視覺辨識物件
         """
         self._vision.release()
+        self._keyboard.release_all()
 
     def should_continue(self) -> bool:
         """
@@ -171,6 +172,9 @@ class MapleScript(ABC):
         :param pic_for_search: 要辨識的圖片
         :return: None
         """
+        if not self.is_maple_focus() or not self.should_continue():
+            return None
+
         match self._vision.find_image_location(pic_for_search):
             case (dx, dy):
                 self.move((dx, dy))

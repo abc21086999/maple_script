@@ -17,3 +17,6 @@ env/
 dist/
 build/
 *.log
+
+# AI and Agents
+.agents/

@@ -187,13 +187,13 @@ class MapleGrind(MapleScript):
             self._model = RuneDetector()
 
         rune_edge = self.yaml_loader.rune_box_edge
-        results = []
 
         # 先按下一次對話鍵
         self.press("y")
 
         # 嘗試20次去辨識輪區域的邊框
         for i in range(20):
+            results = []
             if not self.should_continue() or not self.is_maple_focus():
                 return
 

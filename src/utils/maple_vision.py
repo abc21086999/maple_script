@@ -246,6 +246,10 @@ class MapleVision:
         獲取符文在小地圖上的座標 (x, y)
         """
         img_np = self.get_mini_map_area_screenshot()
+
+        # 處理小地圖沒開啟的狀況
+        if img_np is None:
+            return None
         
         diff_matrix = np.sum(np.abs(img_np - self.rune_color), axis=2)
         mask = (diff_matrix < 30).astype(np.uint8) * 255

@@ -179,6 +179,7 @@ class MainWindow(QMainWindow):
         dialog = GrindSettingsDialog(self, self.settings_manager, self.manager, self.controller)
         if dialog.exec():
             self.log_signal.text_written.emit("練功技能設定已更新")
+            self.log_signal.text_written.emit("請停止後重新開始任務以套用")
 
     def open_daily_settings(self):
         """開啟每日任務的設定視窗"""

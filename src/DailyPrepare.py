@@ -553,9 +553,11 @@ class DailyPrepare(MapleScript):
         """
         # 先拿到所有要執行的任務
         tasks_to_run = self.task_collector()
+
         # 一個一個執行
+        something_wrong = False
         for task_name, task_func in tasks_to_run.items():
-            if not self.should_continue():
+            if not self.should_continue() or not self.is_maple_focus():
                 break
 
             if task_func:
@@ -564,10 +566,14 @@ class DailyPrepare(MapleScript):
                     task_func()
                 except Exception as e:
                     self.log(f"任務 '{task_name}' 執行時發生錯誤: {e}")
+                    something_wrong = True
             else:
                 self.log(f"跳過未知的任務: {task_name}")
 
-        self.log("所有排程任務執行完畢")
+        if something_wrong:
+            self.log("有任務在執行時出錯！")
+        else:
+            self.log("所有排程任務執行完畢")
 
 
 if __name__ == "__main__":
