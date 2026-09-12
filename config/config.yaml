@@ -277,15 +277,23 @@ daily_prepare:
     second_item: 'daily/home/unselected_item.png'
 
   event:
-    event_daily_checkin_tab_drawer: 'event/event_daily_checkin_tab_drawer.png'
-    event_daily_checkin_tab: 'event/event_daily_checkin_tab.png'
-    event_daily_checkin_tab_2: 'event/event_daily_checkin_tab_2.png'
-    event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header.png'
-    event_daily_checkin_ui_header_2: 'event/event_daily_checkin_ui_header_2.png'
-    daily_check_in_button: 'event/daily_check_in_button.png'
-    daily_check_in_button_2: 'event/daily_check_in_button_2.png'
-    weekly_check_in_button: 'event/weekly_check_in_button.png'
+    first:
+      event_daily_checkin_tab_drawer: 'event/event_daily_checkin_tab_drawer.png'
+      event_daily_checkin_tab: 'event/event_daily_checkin_tab.png'
+      event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header.png'
+      daily_check_in_button: 'event/daily_check_in_button.png'
+      weekly_check_in_button: 'event/weekly_check_in_button.png'
 
+    second:
+      event_daily_checkin_tab: 'event/event_daily_checkin_tab_2.png'
+      event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header_2.png'
+      daily_check_in_button: 'event/daily_check_in_button_2.png'
+
+    third:
+      event_daily_checkin_tab_drawer: 'event/event_daily_checkin_tab_drawer_3.png'
+      event_daily_checkin_tab: 'event/event_daily_checkin_tab_3.png'
+      event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header_3.png'
+      daily_check_in_button: 'event/daily_check_in_button_3.png'
 
 monster_collection:
   title: 'monster_collection/monster_collection_title.png'

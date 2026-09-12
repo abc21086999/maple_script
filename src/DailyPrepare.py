@@ -493,36 +493,45 @@ class DailyPrepare(MapleScript):
         self.invoke_menu()
         self.press_and_wait(["tab", "left", "left", "enter"])
 
-        # 如果活動面板的抽屜沒打開，那麼就按一下
-        if self.is_on_screen(img['event_daily_checkin_tab_drawer']):
-            self.find_and_click_image(img['event_daily_checkin_tab_drawer'])
+        # 一個一個活動自己按下去
+        # 主要步驟：檢查須不需要開抽屜 -> 點下活動列表的tab -> 檢查活動UI有沒有開啟 -> 檢查簽到按鈕是否存在 -> 簽到 -> 關閉簽到提醒 -> 關閉視窗
 
-        # 點下主要活動簽到
-        self.find_and_click_image(img['event_daily_checkin_tab'])
-        while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header']):
-            self.sleep(0.3)
+        for event_order, event_dict in img.items():
 
-        # 點下每日準備
-        if self.is_on_screen(img['daily_check_in_button']):
-            self.find_and_click_image(img['daily_check_in_button'])
-            self.press_and_wait("esc")
+            # 處理需要打開抽屜的狀況
+            drawer = event_dict.get("event_daily_checkin_tab_drawer")
+            if drawer:
+                if self.is_on_screen(drawer):
+                    self.find_and_click_image(drawer)
+                    self.sleep(0.5)
 
-        # 點下另外一個活動簽到
-        self.find_and_click_image(img['event_daily_checkin_tab_2'])
-        while self.should_continue() and not self.is_on_screen(img['event_daily_checkin_ui_header_2']):
-            self.sleep(0.3)
+            # 處理點擊活動列表的Tab
+            tab = event_dict.get("event_daily_checkin_tab")
+            header = event_dict.get("event_daily_checkin_ui_header")
+            if tab:
+                if self.is_on_screen(tab):
+                    self.find_and_click_image(tab)
+                # 等待活動UI打開
+                if header:
+                    while not self.is_on_screen(header) and self.is_maple_focus() and self.should_continue():
+                        self.sleep(0.5)
 
-        # 點下另一個活動的每日準備
-        if self.is_on_screen(img['daily_check_in_button_2']):
-            self.find_and_click_image(img['daily_check_in_button_2'])
-            self.press_and_wait("esc")
+            # 處理每日和每週簽到
+            daily_check = event_dict.get("daily_check_in_button")
+            weekly_check = event_dict.get("weekly_check_in_button")
+            if daily_check:
+                if self.is_on_screen(daily_check):
+                    self.find_and_click_image(daily_check)
+                    self.press_and_wait(["esc"])
+                if weekly_check:
+                    if self.is_on_screen(weekly_check):
+                        self.find_and_click_image(weekly_check)
+                        self.press_and_wait(["esc"])
 
-        # 點下每週準備
-        if self.is_on_screen(img['weekly_check_in_button']):
-            self.find_and_click_image(img['weekly_check_in_button'])
-            self.press_and_wait(["enter", "esc"])
+            # 關閉該次活動的UI
+            self.press_and_wait(["esc"])
 
-        # 關閉UI
+        # 關閉活動UI
         self.press_and_wait("esc")
 
     def task_collector(self):

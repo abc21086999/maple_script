@@ -271,7 +271,7 @@ class MapleGrind(MapleScript):
         # 如果有設定上跳技能
         if self.is_up_jump_skill_enabled:
             self.press(self.up_jump_skill_key)
-            self.sleep(0.5)
+            self.sleep(0.8)
 
         # 如果是一般的上跳組合
         elif self.is_up_jump_combo_enabled:
@@ -280,9 +280,11 @@ class MapleGrind(MapleScript):
                 self.press(jk)
                 self.sleep(0.1)
                 self.key_down("up")
-                self.press(jk)
-                self.key_up("up")
+                self.key_down(jk)
                 self.sleep(0.5)
+                self.key_up(jk)
+                self.key_up("up")
+                self.sleep(0.8)
 
             elif self.up_jump_combo == "跳+上+上":
                 self.press(jk)
@@ -290,15 +292,17 @@ class MapleGrind(MapleScript):
                 self.press("up")
                 self.sleep(0.05)
                 self.press("up")
-                self.sleep(0.5)
+                self.sleep(0.8)
         else:
             # 未勾選時的預設上跳行為 (跳 + 上 + 跳)
             self.press(jk)
             self.sleep(0.1)
             self.key_down("up")
-            self.press(jk)
-            self.key_up("up")
+            self.key_down(jk)
             self.sleep(0.5)
+            self.key_up(jk)
+            self.key_up("up")
+            self.sleep(0.8)
 
     def down_jump(self):
         """
@@ -557,6 +561,7 @@ class MapleGrind(MapleScript):
             if hold_key and key_held:
                 self.key_up(hold_key)
                 key_held = False
+                self.sleep(0.8)
             if last_dir:
                 self.key_up(last_dir)
             if new_dir:
@@ -587,8 +592,8 @@ class MapleGrind(MapleScript):
                     self.key_down(hold_key)
                     key_held = True
                 
-                # 10% 機率隨機跳躍，根據高度位置調整權重 (8:2)
-                if random.random() < 0.1:
+                # 20% 機率隨機跳躍，根據高度位置調整權重 (8:2)
+                if random.random() < 0.2:
                     if cy > h_mid:
                         # 在下面，優先往上跳
                         jump_action = random.choices([self.up_jump, self.down_jump], weights=[80, 20])[0]
