@@ -108,6 +108,8 @@ class YamlLoader:
             for key, value in node.items():
                 if isinstance(value, dict):
                     result[key] = load(value)
+                elif isinstance(value, bool):
+                    result[key] = value
                 else:
                     img_path = self.__photo_path / value
                     result[key] = PIL.Image.open(img_path)

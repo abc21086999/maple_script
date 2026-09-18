@@ -282,18 +282,22 @@ daily_prepare:
       event_daily_checkin_tab: 'event/event_daily_checkin_tab.png'
       event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header.png'
       daily_check_in_button: 'event/daily_check_in_button.png'
+      daily_close: true
       weekly_check_in_button: 'event/weekly_check_in_button.png'
+      weekly_close: true
 
     second:
       event_daily_checkin_tab: 'event/event_daily_checkin_tab_2.png'
       event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header_2.png'
       daily_check_in_button: 'event/daily_check_in_button_2.png'
+      daily_close: false
 
     third:
       event_daily_checkin_tab_drawer: 'event/event_daily_checkin_tab_drawer_3.png'
       event_daily_checkin_tab: 'event/event_daily_checkin_tab_3.png'
       event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header_3.png'
       daily_check_in_button: 'event/daily_check_in_button_3.png'
+      daily_close: true
 
 monster_collection:
   title: 'monster_collection/monster_collection_title.png'

@@ -519,13 +519,17 @@ class DailyPrepare(MapleScript):
             # 處理每日和每週簽到
             daily_check = event_dict.get("daily_check_in_button")
             weekly_check = event_dict.get("weekly_check_in_button")
+            daily_close = event_dict.get("daily_close")
+            weekly_close = event_dict.get("weekly_close")
             if daily_check:
                 if self.is_on_screen(daily_check):
                     self.find_and_click_image(daily_check)
-                    self.press_and_wait(["esc"])
-                if weekly_check:
-                    if self.is_on_screen(weekly_check):
-                        self.find_and_click_image(weekly_check)
+                    if daily_close:
+                        self.press_and_wait(["esc"])
+            if weekly_check:
+                if self.is_on_screen(weekly_check):
+                    self.find_and_click_image(weekly_check)
+                    if weekly_close:
                         self.press_and_wait(["esc"])
 
             # 關閉該次活動的UI
