@@ -509,8 +509,12 @@ class DailyPrepare(MapleScript):
             tab = event_dict.get("event_daily_checkin_tab")
             header = event_dict.get("event_daily_checkin_ui_header")
             if tab:
-                if self.is_on_screen(tab):
-                    self.find_and_click_image(tab)
+                print(f"有看到tab {tab}")
+                while not self.is_on_screen(tab) and self.is_maple_focus() and self.should_continue():
+                    print("等待tab中")
+                    self.sleep(0.2)
+                print("tab有在螢幕上")
+                self.find_and_click_image(tab)
                 # 等待活動UI打開
                 if header:
                     while not self.is_on_screen(header) and self.is_maple_focus() and self.should_continue():
