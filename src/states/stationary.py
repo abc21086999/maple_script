@@ -54,7 +54,6 @@ class Stationary(States):
         :return: None
         """
         self.bot.grind_mode()
-        self.bot.sleep(1)
 
     def exit(self) -> None:
         self.bot.release_all()
