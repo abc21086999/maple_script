@@ -8,7 +8,7 @@
 
 ## 🏗️ 架構與核心組件
 
-FSM 系統由三個主要部分組成：
+FSM 系統由四個主要部分組成：
 
 1. **狀態基類 ([States](base.py))**
    所有具體狀態的父類別。為了防止循環導入 (circular imports)，其型別註解依賴於低階的 `MapleScript` 基類，而不是具體的 `MapleGrind` 類別。此處也定義了堆疊中斷機制所使用的 `POP` 標記物件。
@@ -16,7 +16,10 @@ FSM 系統由三個主要部分組成：
 2. **狀態機管理器 ([Machine](../MapleMachine.py))**
    維護當前活動狀態 (`current_state`)，執行 `switch()` 中的轉換邏輯，管理中斷堆疊 (`stack`)，並驅動 `run()` 中的主執行迴圈。
 
-3. **具體狀態 (Concrete States)**
+3. **狀態列舉 ([StateEnum](enum.py))**
+   定義所有狀態名稱的列舉型別（例如 `STATIONARY`, `WALKER`, `PAUSE` 等），取代傳統字串識別碼，消除 Magic Strings 並提供型別安全。
+
+4. **具體狀態 (Concrete States)**
    實現特定的行為和轉換檢查：
    - **[Stationary](stationary.py)**：原地打怪行為。每個 tick 執行 `grind_mode()`。
    - **[Waiting](waiting.py)**：純冷卻等待行為。每個 tick 進入休眠而不進行打怪。接受 `seconds` 和 `next_state` 參數。
@@ -29,7 +32,7 @@ FSM 系統由三個主要部分組成：
 
 ## 🔄 狀態轉換與冷卻設計
 
-系統使用 **字串識別碼** 進行狀態轉換。每個狀態的 `check_status()` 回傳一個字串鍵值（例如 `"WALKER"`），而不是直接導入並實例化其他狀態類別。`Machine` 透過 `state_mapping` 將字串解析為正確的類別。這避免了狀態模組之間的循環導入。
+系統使用 **狀態列舉 (`StateEnum`)** 進行狀態轉換。每個狀態的 `check_status()` 回傳一個列舉成員（例如 `StateEnum.WALKER`），而不是直接導入並實例化其他狀態類別。`Machine` 透過 `state_mapping` 將列舉值解析為正確的類別。這避免了狀態模組之間的循環導入。
 
 ### 冷卻狀態
 
@@ -37,10 +40,10 @@ FSM 系統由三個主要部分組成：
 
 | 狀態 | 父類別 | 行為 | 持續時間 | 下一個狀態 |
 |---|---|---|---|---|
-| `WalkerCoolDown` | `Stationary` | 冷卻期間原地打怪 | `route_interval_seconds` | `WANDER` |
-| `WalkerWaiting` | `Waiting` | 冷卻期間閒置等待 | `route_interval_seconds` | `WANDER` |
-| `WanderCoolDown` | `Stationary` | 冷卻期間原地打怪 | `random_wander_interval_seconds` | `STATIONARY` |
-| `WanderWaiting` | `Waiting` | 冷卻期間閒置等待 | `random_wander_interval_seconds` | `STATIONARY` |
+| `WalkerCoolDown` | `Stationary` | 冷卻期間原地打怪 | `route_interval_seconds` | `StateEnum.WANDER` |
+| `WalkerWaiting` | `Waiting` | 冷卻期間閒置等待 | `route_interval_seconds` | `StateEnum.WANDER` |
+| `WanderCoolDown` | `Stationary` | 冷卻期間原地打怪 | `random_wander_interval_seconds` | `StateEnum.STATIONARY` |
+| `WanderWaiting` | `Waiting` | 冷卻期間閒置等待 | `random_wander_interval_seconds` | `StateEnum.STATIONARY` |
 
 進入哪個冷卻狀態的決定是在 `Walker.check_status()` 和 `Wander.check_status()` 中做出的：
 
@@ -82,11 +85,11 @@ graph TD
 
 當系統偵測到不安全的環境或需要破解的符文時，狀態機會將當前狀態推入堆疊並切換到中斷狀態。這允許在解決中斷後無縫恢復。
 
-有兩個狀態會觸發堆疊推入：`"PAUSE"` 和 `"RUNESOLVER"`。
+有兩個狀態會觸發堆疊推入：`StateEnum.PAUSE` 和 `StateEnum.RUNESOLVER`。
 
 ### 工作原理
 
-1. **觸發中斷**：狀態的 `check_status()` 回傳 `"PAUSE"` 或 `"RUNESOLVER"`。
+1. **觸發中斷**：狀態的 `check_status()` 回傳 `StateEnum.PAUSE` 或 `StateEnum.RUNESOLVER`。
 2. **狀態機推入**：`Machine.switch()` 將當前狀態物件（包括任何內部狀態，如剩餘冷卻時間）推入 `self.stack`，對其調用 `exit()`，然後轉換到中斷狀態。
 3. **中斷解決**：一旦環境安全，`Pause.check_status()` 或 `RuneSolver.check_status()` 回傳 `POP` 標記。
 4. **狀態機彈出**：`Machine.switch()` 從堆疊中彈出之前的狀態物件並恢復執行 —— 保留中斷前的位置。
@@ -94,7 +97,7 @@ graph TD
 
 ```mermaid
 graph LR
-    AnyState["任何活動狀態"] -->|"環境不安全\n(回傳 'PAUSE' 或 'RUNESOLVER')\n狀態機將狀態推入堆疊"| Interrupt["暫停 / 符文破解"]
+    AnyState["任何活動狀態"] -->|"環境不安全\n(回傳 StateEnum.PAUSE 或 StateEnum.RUNESOLVER)\n狀態機將狀態推入堆疊"| Interrupt["暫停 / 符文破解"]
     Interrupt -->|"環境安全\n(回傳 POP)\n狀態機從堆疊彈出狀態"| AnyState
 ```
 

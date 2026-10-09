@@ -6,21 +6,22 @@ from src.states.wander import Wander
 from src.states.runesolver import RuneSolver
 from src.states.waiting import Waiting, WalkerWaiting, WanderWaiting
 from src.MapleScript import MapleScript
+from src.states.enum import StateEnum
 
 
 class Machine:
 
     state_mapping = {
-        "STATIONARY" : Stationary,
-        "WALKER": Walker,
-        "WANDER": Wander,
-        "RUNESOLVER": RuneSolver,
-        "PAUSE": Pause,
-        "WALKERCOOLDOWN": WalkerCoolDown,
-        "WANDERCOOLDOWN": WanderCoolDown,
-        "WAITING": Waiting,
-        "WALKERWAITING": WalkerWaiting,
-        "WANDERWAITING": WanderWaiting,
+        StateEnum.STATIONARY : Stationary,
+        StateEnum.WALKER: Walker,
+        StateEnum.WANDER: Wander,
+        StateEnum.RUNESOLVER: RuneSolver,
+        StateEnum.PAUSE: Pause,
+        StateEnum.WALKERCOOLDOWN: WalkerCoolDown,
+        StateEnum.WANDERCOOLDOWN: WanderCoolDown,
+        StateEnum.WAITING: Waiting,
+        StateEnum.WALKERWAITING: WalkerWaiting,
+        StateEnum.WANDERWAITING: WanderWaiting,
     }
 
     def __init__(self, bot: MapleScript):
@@ -56,7 +57,7 @@ class Machine:
                 print("狀態機內Stack為空")
 
         # 進入暫停狀態
-        elif check_result in {"PAUSE", "RUNESOLVER"}:
+        elif check_result in {StateEnum.PAUSE, StateEnum.RUNESOLVER}:
             last_state = self.current_state
             self.stack.append(last_state)
             self.current_state.exit()

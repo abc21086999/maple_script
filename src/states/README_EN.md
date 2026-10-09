@@ -6,7 +6,7 @@ This directory contains the code for the MapleGrind script refactored into a Fin
 
 ## 🏗️ Architecture & Core Components
 
-The FSM system consists of three main parts:
+The FSM system consists of four main parts:
 
 1. **State Base Class ([States](base.py))**
    The parent class of all concrete states. To prevent circular imports, its type annotation depends on the low-level `MapleScript` base class rather than the concrete `MapleGrind` class. This also defines the `POP` sentinel object used by the stack-based interrupt mechanism.
@@ -14,7 +14,10 @@ The FSM system consists of three main parts:
 2. **State Machine Manager ([Machine](../MapleMachine.py))**
    Maintains the active state (`current_state`), runs the transition logic in `switch()`, manages the interrupt stack (`stack`), and drives the main execution loop in `run()`.
 
-3. **Concrete States**
+3. **State Enum ([StateEnum](enum.py))**
+   Defines all valid state names as Enum members (e.g. `STATIONARY`, `WALKER`, `PAUSE`), eliminating magic strings and ensuring type safety across transitions.
+
+4. **Concrete States**
    Implement specific behaviors and transition checks:
    - **[Stationary](stationary.py)**: Stationary grinding behavior. Executes `grind_mode()` every tick.
    - **[Waiting](waiting.py)**: Pure cooldown waiting behavior. Sleeps every tick without grinding. Accepts `seconds` and `next_state` parameters.
@@ -27,7 +30,7 @@ The FSM system consists of three main parts:
 
 ## 🔄 State Transitions & Cooldown Design
 
-The system uses **string identifiers** for state transitions. Each state's `check_status()` returns a string key (e.g. `"WALKER"`) rather than importing and instantiating other state classes directly. The `Machine` resolves the string to the correct class via `state_mapping`. This avoids circular imports between state modules.
+The system uses **state enums (`StateEnum`)** for state transitions. Each state's `check_status()` returns an enum member (e.g. `StateEnum.WALKER`) rather than importing and instantiating other state classes directly. The `Machine` resolves the enum to the correct class via `state_mapping`. This avoids circular imports between state modules.
 
 ### Cooldown States
 
@@ -35,10 +38,10 @@ After `Walker` and `Wander` complete their work, a cooldown period may begin. Wh
 
 | State | Parent | Behavior | Duration | Next |
 |---|---|---|---|---|
-| `WalkerCoolDown` | `Stationary` | Grinds in place during cooldown | `route_interval_seconds` | `WANDER` |
-| `WalkerWaiting` | `Waiting` | Waits idly during cooldown | `route_interval_seconds` | `WANDER` |
-| `WanderCoolDown` | `Stationary` | Grinds in place during cooldown | `random_wander_interval_seconds` | `STATIONARY` |
-| `WanderWaiting` | `Waiting` | Waits idly during cooldown | `random_wander_interval_seconds` | `STATIONARY` |
+| `WalkerCoolDown` | `Stationary` | Grinds in place during cooldown | `route_interval_seconds` | `StateEnum.WANDER` |
+| `WalkerWaiting` | `Waiting` | Waits idly during cooldown | `route_interval_seconds` | `StateEnum.WANDER` |
+| `WanderCoolDown` | `Stationary` | Grinds in place during cooldown | `random_wander_interval_seconds` | `StateEnum.STATIONARY` |
+| `WanderWaiting` | `Waiting` | Waits idly during cooldown | `random_wander_interval_seconds` | `StateEnum.STATIONARY` |
 
 The decision of which cooldown state to enter is made in `Walker.check_status()` and `Wander.check_status()`:
 
@@ -80,11 +83,11 @@ graph TD
 
 When the system detects an unsafe environment or a rune that needs solving, the state machine pushes the current state onto a stack and switches to an interrupt state. This allows seamless resumption after the interruption is resolved.
 
-Two states trigger a stack push: `"PAUSE"` and `"RUNESOLVER"`.
+Two states trigger a stack push: `StateEnum.PAUSE` and `StateEnum.RUNESOLVER`.
 
 ### How it works
 
-1. **Interrupt triggered**: A state's `check_status()` returns `"PAUSE"` or `"RUNESOLVER"`.
+1. **Interrupt triggered**: A state's `check_status()` returns `StateEnum.PAUSE` or `StateEnum.RUNESOLVER`.
 2. **Machine pushes**: `Machine.switch()` pushes the current state object (including any internal state such as remaining cooldown time) onto `self.stack`, calls `exit()` on it, then transitions to the interrupt state.
 3. **Interrupt resolves**: Once conditions are safe, `Pause.check_status()` or `RuneSolver.check_status()` returns the `POP` sentinel.
 4. **Machine pops**: `Machine.switch()` pops the previous state object off the stack and resumes execution — preserving where it left off.
@@ -92,7 +95,7 @@ Two states trigger a stack push: `"PAUSE"` and `"RUNESOLVER"`.
 
 ```mermaid
 graph LR
-    AnyState["Any Active State"] -->|"Unsafe env\n(returns 'PAUSE' or 'RUNESOLVER')\nMachine pushes state to stack"| Interrupt["Pause / RuneSolver"]
+    AnyState["Any Active State"] -->|"Unsafe env\n(returns StateEnum.PAUSE or StateEnum.RUNESOLVER)\nMachine pushes state to stack"| Interrupt["Pause / RuneSolver"]
     Interrupt -->|"Env safe\n(returns POP)\nMachine pops state from stack"| AnyState
 ```
 

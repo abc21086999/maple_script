@@ -105,7 +105,7 @@ The project uses GitHub Actions for automated build and release workflows. The w
 
 ### Grinding State Machine (FSM)
 The grinding routine ([MapleGrind](src/MapleGrind.py)) is structured as a Finite State Machine managed by `Machine` ([MapleMachine.py](src/MapleMachine.py)) to decouple behavior logic (see [src/states/README.md](src/states/README.md) for detailed architecture):
-- **State Transition by Keys**: To prevent circular imports, states return string keys (e.g., `"WALKER"`, `"RUNESOLVER"`) during status checks. The machine maps these to concrete state classes via `state_mapping`.
+- **State Transition by Keys**: To prevent circular imports, states return `StateEnum` members (e.g., `StateEnum.WALKER`, `StateEnum.RUNESOLVER`) during status checks. The machine maps these to concrete state classes via `state_mapping`.
 - **Stack-based Interruption**: When an unsafe condition occurs or a rune appears, the active state is pushed onto a stack (`Machine.stack`) and replaced by `Pause` or `RuneSolver`. Once resolved, the state is popped back to resume where it left off.
 - **Cooldown & Wait Variants**: States like `Walker` and `Wander` support cooldown intervals, split into active grinding cooldown (`WalkerCoolDown`) and idle waiting (`WalkerWaiting`) based on user configurations.
 

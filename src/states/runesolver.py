@@ -1,4 +1,5 @@
 from src.states.base import States, POP
+from src.states.enum import StateEnum
 
 
 class RuneSolver(States):
@@ -13,7 +14,7 @@ class RuneSolver(States):
     def check_status(self):
         # 楓谷不在前景，進入暫停狀態
         if not self.bot.is_maple_focus():
-            return "PAUSE"
+            return StateEnum.PAUSE
         # 機器要被關閉的狀態
         if not self.bot.should_continue():
             return None
