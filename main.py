@@ -77,6 +77,7 @@ def main():
         try:
             exit_code = app.exec()
         finally:
+            mocker.release_all()
             window.manager.stop_task()
         sys.exit(exit_code)
 
