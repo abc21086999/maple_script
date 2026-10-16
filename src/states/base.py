@@ -1,5 +1,9 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.MapleScript import MapleScript
+
 from abc import ABC, abstractmethod
-from src.MapleScript import MapleScript
 
 
 POP = object()
