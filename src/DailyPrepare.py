@@ -584,7 +584,11 @@ class DailyPrepare(MapleScript):
             else:
                 self.log(f"跳過未知的任務: {task_name}")
 
-        if something_wrong:
+        if not self.should_continue():
+            self.log("每日排程已停止")
+        elif not self.is_maple_focus():
+            self.log("楓之谷不在前景，每日排程已停止")
+        elif something_wrong:
             self.log("有任務在執行時出錯！")
         else:
             self.log("所有排程任務執行完畢")
