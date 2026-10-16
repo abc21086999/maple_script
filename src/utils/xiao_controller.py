@@ -87,6 +87,7 @@ class XiaoController:
             raise e
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release_all()
         self._close()
         if exc_type:
             if issubclass(exc_type, SystemExit) and (exc_val.code == 0 or exc_val.code is None):

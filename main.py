@@ -45,7 +45,11 @@ def main():
             window.show()
             
             # 開始事件迴圈，直到視窗關閉
-            sys.exit(app.exec())
+            try:
+                exit_code = app.exec()
+            finally:
+                window.manager.stop_task()
+            sys.exit(exit_code)
             
     except SystemExit as e:
         # 如果是 SystemExit (sys.exit 拋出的)，代表是正常關閉程式
