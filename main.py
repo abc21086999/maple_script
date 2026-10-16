@@ -74,8 +74,11 @@ def main():
         window.show()
 
         # 開始事件迴圈，直到視窗關閉
-        sys.exit(app.exec())
-
+        try:
+            exit_code = app.exec()
+        finally:
+            window.manager.stop_task()
+        sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()
