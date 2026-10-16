@@ -77,8 +77,8 @@ def main():
         try:
             exit_code = app.exec()
         finally:
-            mocker.release_all()
             window.manager.stop_task()
+            mocker.release_all()
         sys.exit(exit_code)
 
 if __name__ == "__main__":
