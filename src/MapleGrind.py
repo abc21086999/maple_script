@@ -358,6 +358,7 @@ class MapleGrind(MapleScript):
             while self.should_continue() and self.is_maple_focus():
                 curr = self.get_player_pos()
                 if not curr:
+                    sync_hardware(None)
                     self.log("找不到玩家位置，等待中...")
                     self.sleep(0.5)
                     continue
@@ -390,10 +391,6 @@ class MapleGrind(MapleScript):
                     elif dy > threshold:  # 目標在下方
                         self.down_jump()
 
-                # 迴圈頻率穩定維持 20fps (0.05s)
-                # 因為 sync_hardware 絕大部分時間會 return，所以迴圈反應極快
-                self.sleep(0.05)
-
                 # 如果角色位置都沒有改變，那麼就是卡住了
                 # 增加一個卡住計數器
                 if last_position is not None:
@@ -407,7 +404,7 @@ class MapleGrind(MapleScript):
                 last_position = curr
 
                 # 計數器數量多到一定程度代表玩家卡住了，就執行脫困，然後清空計數器
-                if is_stuck_counter >= 40:
+                if is_stuck_counter >= 120:
                     self.log(f'偵測到玩家卡在繩子上，將離開繩子')
                     escape()
                     is_stuck_counter = 0
@@ -574,6 +571,7 @@ class MapleGrind(MapleScript):
                 # 取得目前位置
                 curr = self.get_player_pos()
                 if not curr:
+                    sync_dir(None)
                     continue
                 
                 cx, cy = curr
