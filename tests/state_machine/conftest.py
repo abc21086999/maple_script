@@ -13,12 +13,15 @@ class TestBot:
         self.is_stationary = False
         self.is_route_enabled = False
         self.is_random_wander_enabled = False
+        self.route_interval_seconds = 1
+        self.random_wander_interval_seconds = 1
+        self.log = print
 
     def should_continue(self):
         return self.keep_going
 
     def is_maple_focus(self):
-        return self.is_maple_focus
+        return self.maple_focus
 
     def release_all(self):
         self.has_keys_pressed = False
