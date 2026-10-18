@@ -86,6 +86,7 @@ class TestMapleFocus:
         machine.switch()
 
         assert isinstance(machine.current_state, RuneSolver)
+        original_state = machine.current_state
 
         # 再將楓之谷切出前景
         test_bot.maple_focus = False
@@ -93,3 +94,9 @@ class TestMapleFocus:
 
         assert isinstance(machine.current_state, Pause)
         assert len(machine.stack) == 2
+
+        test_bot.maple_focus = True
+        machine.switch()
+
+        assert machine.current_state is original_state
+        assert  len(machine.stack) == 1

@@ -42,6 +42,7 @@ class Machine:
         if not self.bot.should_continue():
             if self.current_state is not None:
                 self.current_state.exit()
+                self.current_state = None
             return False
 
         # 切換狀態
