@@ -72,7 +72,9 @@ class TestMapleFocus:
         assert len(machine.stack) == 0
 
     def test_not_focus_during_rune_solving(self, test_bot):
-
+        """
+        測試當狀態處在解倫時，將畫面切出楓之谷有無正常切換到暫停
+        """
         # 啟動狀態機，進入Stationary
         machine = Machine(test_bot)
         machine.current_state = Stationary(test_bot)
