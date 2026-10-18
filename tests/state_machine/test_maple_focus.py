@@ -70,3 +70,24 @@ class TestMapleFocus:
         assert machine.current_state is original_state
         assert test_bot.has_keys_pressed == False
         assert len(machine.stack) == 0
+
+    def test_not_focus_during_rune_solving(self, test_bot):
+
+        # 啟動狀態機，進入Stationary
+        machine = Machine(test_bot)
+        machine.current_state = Stationary(test_bot)
+        machine.current_state.enter()
+        # 假設地圖上這時候出現輪迴
+        test_bot.is_auto_solve_rune_enabled = True
+        test_bot.rune_on_map = True
+        # 接著轉換狀態
+        machine.switch()
+
+        assert isinstance(machine.current_state, RuneSolver)
+
+        # 再將楓之谷切出前景
+        test_bot.maple_focus = False
+        machine.switch()
+
+        assert isinstance(machine.current_state, Pause)
+        assert len(machine.stack) == 2

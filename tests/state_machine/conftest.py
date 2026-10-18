@@ -16,6 +16,7 @@ class TestBot:
         self.route_interval_seconds = 1
         self.random_wander_interval_seconds = 1
         self.log = print
+        self.rune_on_map = False
 
     def should_continue(self):
         return self.keep_going
@@ -26,6 +27,9 @@ class TestBot:
     def release_all(self):
         self.has_keys_pressed = False
         return
+
+    def has_rune(self):
+        return self.rune_on_map
 
 
 @pytest.fixture
