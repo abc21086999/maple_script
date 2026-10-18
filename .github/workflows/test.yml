@@ -1,4 +1,4 @@
-name: Test when push
+name: Test
 
 on: push
 
