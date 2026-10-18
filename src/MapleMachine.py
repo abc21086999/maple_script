@@ -1,3 +1,8 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.MapleScript import MapleScript
+
 from src.states.base import POP
 from src.states.stationary import Stationary, WalkerCoolDown, WanderCoolDown
 from src.states.pause import Pause
@@ -5,7 +10,6 @@ from src.states.walker import Walker
 from src.states.wander import Wander
 from src.states.runesolver import RuneSolver
 from src.states.waiting import Waiting, WalkerWaiting, WanderWaiting
-from src.MapleScript import MapleScript
 from src.states.enum import StateEnum
 
 
@@ -38,6 +42,7 @@ class Machine:
         if not self.bot.should_continue():
             if self.current_state is not None:
                 self.current_state.exit()
+                self.current_state = None
             return False
 
         # 切換狀態

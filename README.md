@@ -1,6 +1,12 @@
 <h1 align="center">MapleScript</h1>
 
 <p align="center">
+  <a href="https://github.com/abc21086999/maple_script/actions/workflows/test.yml">
+    <img
+      src="https://github.com/abc21086999/maple_script/actions/workflows/test.yml/badge.svg"
+      alt="Tests"
+    />
+  </a>
   <img src="https://img.shields.io/github/v/release/abc21086999/maple_script" alt="Release" />
   <img src="https://img.shields.io/badge/Python-3.12-blue" alt="Python" />
   <img src="https://img.shields.io/github/downloads/abc21086999/maple_script/total?color=blue" alt="Downloads" />

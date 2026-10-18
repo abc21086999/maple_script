@@ -1,0 +1,28 @@
+name: Test
+
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Set up uv + Python 3.12
+        uses: astral-sh/setup-uv@v8.1.0
+        with:
+          python-version: "3.13"
+          activate-environment: "true"
+
+      - name: Install Dependencies
+        run: |
+          uv pip install --upgrade pip
+          if (Test-Path requirements.txt) { uv pip install -r requirements.txt }
+
+      - name: Run Test
+        run: uv run python -m pytest
