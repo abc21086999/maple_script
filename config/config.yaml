@@ -283,8 +283,8 @@ daily_prepare:
       event_daily_checkin_ui_header: 'event/event_daily_checkin_ui_header.png'
       daily_check_in_button: 'event/daily_check_in_button.png'
       daily_close: true
-      weekly_check_in_button: 'event/weekly_check_in_button.png'
-      weekly_close: true
+#      weekly_check_in_button: 'event/weekly_check_in_button.png'
+#      weekly_close: true
 
     second:
       event_daily_checkin_tab: 'event/event_daily_checkin_tab_2.png'
