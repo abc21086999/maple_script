@@ -95,6 +95,7 @@ jobs:
           --nofollow-import-to=setuptools
           --nofollow-import-to=distutils
           --nofollow-import-to=PIL.ImageTk
+          --noinclude-dlls=cv2/opencv_videoio_ffmpeg*.dll
           --windows-icon-from-ico=icon.ico
           --include-data-files=icon.ico=icon.ico
           --include-data-dir=config=config
