@@ -17,6 +17,7 @@ jobs:
         uses: astral-sh/setup-uv@v8.1.0
         with:
           python-version: "3.13"
+          enable-cache: false
           activate-environment: "true"
 
       - name: Install Dependencies
