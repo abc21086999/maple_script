@@ -10,7 +10,7 @@ class MapleVision:
 
     def __init__(self, maple):
         self.maple = maple
-        self.sct = mss.mss()
+        self.sct = mss.MSS()
         
         # 定義顏色 (BGR 格式)
         self.other_player_color = np.array([118, 45, 253])       # Pink Bean Red
@@ -102,6 +102,8 @@ class MapleVision:
 
         # 截圖 (BGR)
         img_np = self._capture((full_x, full_y, roi_w, roi_h))
+        if img_np is None:
+            return 0, 0, 0, 0
 
         # 2. 設定目標顏色
         lower_bound = self.mini_map_rectangle_color
@@ -138,14 +140,19 @@ class MapleVision:
         
         return 0, 0, 0, 0
 
-    def get_character_position(self, color_tolerance=30):
+    def get_character_position(self, color_tolerance=30, img_np = None):
         """
         分析小地圖，回傳角色位置在左邊或右邊。
         :param color_tolerance: int, 顏色容忍度
         :return: "left", "right", or "not_found"
         """
         # 1. 擷取小地圖畫面
-        img_np = self.get_mini_map_area_screenshot()
+        if img_np is None:
+            img_np = self.get_mini_map_area_screenshot()
+
+        # 處理小地圖沒開啟的狀況
+        if img_np is None:
+            return None
         
         # 2. 計算整張圖每個像素與目標顏色的差異
         diff_matrix = np.sum(np.abs(img_np - self.my_character_color), axis=2)
@@ -168,7 +175,7 @@ class MapleVision:
         else:
             return "right"
 
-    def has_other_players(self, color_tolerance=10) -> bool | None:
+    def has_other_players(self, color_tolerance=10, img_np=None) -> bool | None:
         """
         偵測小地圖上有沒有其他玩家（紅點）。
         使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
@@ -176,7 +183,8 @@ class MapleVision:
         :return: bool
         """
         # 1. 擷取小地圖畫面
-        img_np = self.get_mini_map_area_screenshot()
+        if img_np is None:
+            img_np = self.get_mini_map_area_screenshot()
 
         # 處理小地圖沒開啟的狀況
         if img_np is None:
@@ -193,7 +201,7 @@ class MapleVision:
         # 4. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的紅點
         return cv2.countNonZero(eroded_mask) > 0
 
-    def has_rune(self, color_tolerance=10) -> bool | None:
+    def has_rune(self, color_tolerance=10, img_np = None) -> bool | None:
         """
         偵測小地圖上有沒有輪（符文）。
         使用 3x3 區域檢測 (Erosion) 以過濾單個像素的雜訊。
@@ -201,7 +209,8 @@ class MapleVision:
         :return: bool
         """
         # 1. 擷取小地圖畫面
-        img_np = self.get_mini_map_area_screenshot()
+        if img_np is None:
+            img_np = self.get_mini_map_area_screenshot()
 
         # 處理小地圖沒開啟的狀況
         if img_np is None:
@@ -218,11 +227,12 @@ class MapleVision:
         # 4. 如果腐蝕後還有殘留像素，代表地圖上有符合大小的輪的色塊
         return cv2.countNonZero(eroded_mask) > 0
 
-    def get_player_pos(self) -> tuple[int, int] | None:
+    def get_player_pos(self, img_np=None) -> tuple[int, int] | None:
         """
         獲取玩家在小地圖上的座標 (x, y)
         """
-        img_np = self.get_mini_map_area_screenshot()
+        if img_np is None:
+            img_np = self.get_mini_map_area_screenshot()
 
         # 處理小地圖沒開啟的狀況
         if img_np is None:
@@ -241,11 +251,12 @@ class MapleVision:
                 return cX, cY
         return None
 
-    def get_rune_pos(self) -> tuple[int, int] | None:
+    def get_rune_pos(self, img_np=None) -> tuple[int, int] | None:
         """
         獲取符文在小地圖上的座標 (x, y)
         """
-        img_np = self.get_mini_map_area_screenshot()
+        if img_np is None:
+            img_np = self.get_mini_map_area_screenshot()
 
         # 處理小地圖沒開啟的狀況
         if img_np is None:
