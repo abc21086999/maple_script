@@ -167,18 +167,16 @@ storage:
     upper_case_button: 'storage/upper_case.png'
 
 # 活動跳舞機
-dancing:
-  left: 'direction_left.png'
-  right: 'direction_right.png'
-  down: 'direction_down.png'
-  up: 'direction_up.png'
+color:
+  blue: 'blue.png'
+  pink: 'pink.png'
 
 # 跳舞機相關的UI
 dancing_ui:
   ending_npc: 'end_npc.png'
-  start_ui: 'end.png'
+  start_ui: 'combo.png'
   event_tab: 'dancing_event_tab.png'
-  participate_button: 'participate.png'
+  leave: 'leave.png'
 
 # UI相關的位置與大小設定 (Magic Numbers)
 ui_offsets:

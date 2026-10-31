@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         self._add_task_button(layout, "怪物收藏 (Collection)", self.start_collection)
         self._add_task_button(layout, "輸入倉庫密碼 (Storage)", self.start_storage, self.open_storage_settings)
         # self._add_task_button(layout, "每日 BOSS (Daily Boss)", self.start_boss)
-        # self._add_task_button(layout, "跳舞機 (Dancing)", self.start_dance)
+        self._add_task_button(layout, "跳舞機 (Dancing)", self.start_dance)
 
         layout.addStretch()
 

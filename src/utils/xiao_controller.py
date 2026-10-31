@@ -37,7 +37,7 @@ class XiaoController:
         self.__baudrate = baudrate
         self.__timeout = timeout
         self.__stop_event = threading.Event()
-        self.__log = False
+        self.__log = True
 
     @staticmethod
     def list_available_ports():

@@ -72,12 +72,12 @@ class YamlLoader:
         """
         建立並回傳跳舞機活動的方向和圖片
         """
-        dancing_config = self.__config["dancing"]
+        dancing_config = self.__config["color"]
         dancing_dict = {}
 
-        for direction, pic in dancing_config.items():
+        for color, pic in dancing_config.items():
             img_path = self.__photo_path / "dancing" / pic
-            dancing_dict[direction] = PIL.Image.open(img_path)
+            dancing_dict[color] = PIL.Image.open(img_path)
 
         dancing_ui_config = self.__config["dancing_ui"]
         dancing_ui_dict = dict()
